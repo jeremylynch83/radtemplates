@@ -21,7 +21,7 @@ secret = secrets.token_urlsafe(32)
 app.secret_key = secret
 
 ########################
-# Setup login          #
+# Setup login         ##
 ########################
 
 
