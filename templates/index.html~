@@ -1,0 +1,1237 @@
+<!-- TODO
+
+	* More templates
+	* Text substitutions to shorten text
+	* Associated info display
+	* Copy templates from radReport?
+
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+	<title>NeuroTool: Structured Reports</title>
+	<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
+	<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap-vue.css')%%" />
+	<link href="%% url_for('static', filename='css/VueBootstrapTypeahead.css')%%" rel="stylesheet" />
+	<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/mytemplate.css')%%" />
+	<!-- Load polyfills to support older browsers -->
+	<script src="%% url_for('static', filename='js/polyfill.min.js')%%"></script>
+	<!-- Required scripts -->
+	<script src="%% url_for('static', filename='js/vue.js')%%"></script>
+	<script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
+	<script src="%% url_for('static', filename='js/lodash.js')%%"></script>
+	<script src="%% url_for('static', filename='js/papaparse.js')%%"></script>
+	<!-- Type Ahead Library -->
+	<script src="%% url_for('static', filename='js/VueBootstrapTypeahead.umd.min.js')%%"></script>
+</head>
+
+<body>
+	<div id="app">
+
+		<b-navbar toggleable="lg" type="dark" variant="info">
+			<b-navbar-brand href="#">NeuroTool</b-navbar-brand>
+
+			<b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+
+			<b-collapse id="nav-collapse" is-nav>
+				<b-navbar-nav>
+				</b-navbar-nav>
+
+				<b-navbar-nav class="ml-auto">
+					<b-nav-item-dropdown right>
+
+						<template #button-content>
+							Help
+						</template>
+						<b-dropdown-item v-b-modal.help_modal>About</b-dropdown-item>
+					</b-nav-item-dropdown>
+				</b-navbar-nav>
+			</b-collapse>
+		</b-navbar>
+
+		<b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
+
+			<p>The report has been copied to the clipboard!</p>
+
+			<b-form-group>
+				<b-form-textarea rows="20" :value="copyModal.text">
+
+				</b-form-textarea>
+			</b-form-group>
+
+
+
+		</b-modal>
+
+
+
+		<b-container fluid="sm">
+			<p></p>
+			<b-container v-if="template == ''"
+			style="background-color:rgb(255, 255, 239); padding: 10px; border-radius: 5px">
+			<p>This website is experimental! Comments/suggestions appreciated at: <a
+				href="mailto: jeremy.lynch@gmail.com">jeremy.lynch@gmail.com</a> for any comments or
+			suggestions. </p>
+		</b-container>
+		<p></p>
+		<b-form-group label=" Search for template:">
+			<vue-bootstrap-typeahead :data="templates" :serializer="item => item.name" placeholder="E.g. CT Head"
+				@hit="selectTemplate($event)">
+			</vue-bootstrap-typeahead>
+
+		</b-form-group>
+
+		<b-modal id="control_modal" title="Options" ok-only>
+			<vue-bootstrap-typeahead :data="templates.modules" :serializer="item => item.name"
+				placeholder="Search for module" @hit="selectModule($event)">
+			</vue-bootstrap-typeahead>
+
+			<b-button @click="insertModule(); $bvModal.hide('control_modal')">Insert selected module</b-button>
+			<p></p>
+
+			<b-button @click="deleteElement(); $bvModal.hide('control_modal')">Delete this element</b-button>
+
+			<template #modal-footer="{ close }">
+
+				<b-button @click="close()" variant="danger">Cancel</b-button>
+			</template>
+
+		</b-modal>
+
+		<b-modal v-if="selected_n !=null" id="edit_modal" title="Edit" ok-only>
+			<p><b>{{selected_n.type}}</b></p>
+
+			<!-- QUERY INSERT TYPE -->
+			<!-- HEADER TYPE -->
+			<b-form-input v-if="selected_n.type=='h1'||selected_n.type=='h2'" v-model="selected_n.label"></b-form-input>
+
+			<!--  TEXT TYPE -->
+			<b-form-group v-if=" selected_n.type=='text_entry'">
+				<label >Label:</label>
+				<b-form-input v-model="selected_n.label" >
+				</b-form-input>
+				<label>Content:</label>
+				<b-form-textarea v-model="selected_n.text" >
+				</b-form-textarea>
+
+				<b-form-radio-group
+				v-model="selected_n.subtype"
+				name="radio-options"
+				>
+				<b-form-radio value="small">Small</b-form-radio>
+				<b-form-radio value="medium">Medium</b-form-radio>
+				<b-form-radio value="large">Large</b-form-radio>
+			</b-form-radio-group>
+		</b-form-group>
+
+		<!-- SELECTION TYPE -->
+		<b-form-group v-if="selected_n.type == 'selection'">
+			<label >Label:</label>
+			<b-form-input v-model="selected_n.label" >
+			</b-form-input>
+			<label >Options:</label>
+			<template v-for=" n in selected_n.options" :key="n.text">
+				<b-row>
+					<b-col cols="8">
+						<b-form-input	v-model="n.text" >
+						</b-form-input>
+					</b-col>
+					<b-col>
+						<b-button-group>
+							<b-button @click="selected_n.options.splice(selected_n.options.indexOf(n), 1)">-</b-button>
+							<b-button @click="selected_n.options.splice(selected_n.options.indexOf(n)+1, 0, {'text': '', 'value': selected_n.options.indexOf(n)+1})">+</b-button>
+						</b-button-group>
+					</b-col>
+				</b-row>
+			</template>
+		</b-form-group>
+
+		<!-- MULTISELECTION TYPE -->
+		<b-form-group v-if="selected_n.type=='multi_select'" class="indent_bug">
+			<label inline >Label:</label>
+			<b-form-input v-model="selected_n.label" >
+			</b-form-input>		
+			<label >Ask further details?</label>
+			<b-form-group>
+				<b-form-radio-group v-model="selected_n.askfurtherdetails">
+					<b-form-radio value='true'>Yes</b-form-radio>
+					<b-form-radio value='false'>No</b-form-radio>
+				</b-form-radio-group>
+			</b-form-group>
+			<template v-for="nn in selected_n.multi">
+				<label >Label:</label>
+				<b-form-input v-model="nn.label" >
+				</b-form-input>
+
+				<template v-if="nn.type=='dropdown'" v-for="n_dropdown in nn.options" >
+					<b-row>
+						<b-col cols="8">
+							<b-form-input	v-model="n_dropdown.text" >
+							</b-form-input>
+						</b-col>
+						<b-col>
+							<b-button-group>
+								<b-button @click="nn.options.splice(nn.options.indexOf(n_dropdown), 1)">-</b-button>
+								<b-button @click="nn.options.splice(nn.options.indexOf(n_dropdown)+1, 0, {'text': '', 'value': nn.options.indexOf(n_dropdown)+1})">+</b-button>
+							</b-button-group>
+						</b-col>
+					</b-row>
+				</template>
+				<b-col>
+					<b-button-group>
+						<b-button @click="nn.options.splice(nn.options.indexOf(nn), 1)">-</b-button>
+						<b-button @click="nn.options.splice(nn.options.indexOf(nn)+1, 0, {'text': '', 'value': nn.options.indexOf(nn)+1})">+</b-button>
+					</b-button-group>
+				</b-col>
+			</template>
+		</b-form-group>
+
+		<!-- MULTIRADIO TYPE -->
+		<b-form-group v-if="selected_n.type=='multi_radio'" class="indent_bug">
+			<b-form-group  class="indent_bug">
+
+				<template v-for="nn in selected_n.multi">
+
+					<b-form v-if="nn.options != '' && nn.type == 'multi'">
+						<label class="mb-2 mr-sm-2 mb-sm-0">{{nn.label}}</label>
+
+						<template v-for="n_check in nn.options" >
+							<b-row>
+								<b-col cols="8">
+									<b-form-input	v-model="n_check.text" >
+									</b-form-input>
+								</b-col>
+								<b-col>
+									<b-button-group>
+										<b-button @click="nn.options.splice(nn.options.indexOf(n_check), 1)">-</b-button>
+										<b-button @click="nn.options.splice(nn.options.indexOf(n_check)+1, 0, {'text': '', 'value': nn.options.indexOf(n_check)+1})">+</b-button>
+									</b-button-group>
+								</b-col>
+							</b-row>
+						</template>
+
+					</b-form>
+
+					<b-form-group v-show="nn.selected >= nn.showdetailson">
+						<b-form-textarea :value="nn.details" @change="nn.details = $event">
+						</b-form-textarea>
+					</b-form-group>
+
+				</template>
+
+			</b-form-group>	
+		</b-form-group>
+
+		<!-- MULTI CHECKBOX TYPE -->
+		<b-form-group v-if="selected_n.type == 'multi_checkbox'" >
+			<label inline >Label:</label>
+			<b-form-input v-model="selected_n.label" >
+			</b-form-input>
+
+			<b-container >
+				<template v-for="n_check in selected_n.multi" >
+					<b-row>
+						<b-col cols="8">
+							<b-form-input	v-model="n_check.text" >
+							</b-form-input>
+						</b-col>
+						<b-col>
+							<b-button-group>
+								<b-button @click="selected_n.multi.splice(selected_n.multi.indexOf(n_check), 1)">-</b-button>
+								<b-button @click="selected_n.multi.splice(selected_n.multi.indexOf(n_check)+1, 0, {'text': '', 'value': selected_n.multi.indexOf(n_check)+1})">+</b-button>
+							</b-button-group>
+						</b-col>
+					</b-row>
+				</template>
+
+			</b-container>
+		</b-form-group>
+
+
+
+<!--<p></p><p></p>
+JSON: 
+<b-form-group>
+	<b-form-textarea rows="5" :value="editModal.value">
+	</b-form-textarea>
+</b-form-group>-->
+
+<template #modal-footer="{ close }">
+	<b-button @click="close()" variant="danger">Cancel</b-button>
+</template>
+</b-modal>
+
+<b-form-group v-if="template != ''">
+	<b-card bg-variant="light">
+		<b-button variant="success" @click="copyReport()">Generate & Copy</b-button>
+		<b-button variant="danger" @click="reset()">Reset</b-button>
+		
+
+		<h1>
+			{{template.title}}
+		</h1>
+
+		<template v-for=" n in templateForm">
+
+
+			<div class="body">
+				<div class="row">
+
+
+
+								<!--
+									<b-form-group >
+										<b-form-checkbox v-model="n.disabled" :value=false :unchecked-value=true
+											size="sm">
+											Enable
+										</b-form-checkbox>
+										<b-form-checkbox v-model="n.details" size="sm">
+											Details
+										</b-form-checkbox>
+										<b-button size="sm" variant="danger" @click="deleteElement(n)">Delete
+										</b-button>
+									</b-form-group>
+																</div>
+
+															-->
+
+															<div class="control">
+																<div class="op_icon">
+										<!--<button class="control_button" v-b-modal.control_modal
+											@click="selectElement(n)">Options</button>-->
+											<b-dropdown id="dropdown-1" text="Options" class="m-md-2">
+												<b-dropdown-item v-b-modal.control_modal
+												@click="selectElement(n)">Insert module</b-dropdown-item>
+												<b-dropdown-item>Insert text</b-dropdown-item>
+												<b-dropdown-item v-b-modal.edit_modal
+												@click="setupEdit(n)">Edit</b-dropdown-item>
+
+											</b-dropdown>
+										</div>
+									</div>
+
+
+									<div class="element">
+										<!-- HEADER TYPE -->
+										<h2 v-if="n.type == 'h1'">{{n.label}}</h2>
+										<h3 v-if="n.type == 'h2'">{{n.label}}</h3>
+
+										<!-- QUERY INSERT TYPE -->
+										<button v-if=" n.type=='query_insert'" @click="queryInsert(n)">{{n.text}}</button>
+
+										<!--  TEXT TYPE -->
+										<label v-if=" n.type=='text'">{{n.text}}</label>
+
+										<!-- FREE TEXT TYPE -->
+										<b-form-group :label=" n.label" v-if="n.type == 'free_text'" :disabled="n.disabled">
+											<b-form-textarea :value="n.text" @change="n.text = $event">
+											</b-form-textarea>
+										</b-form-group>
+
+
+										<!-- TEXT ENTRY TYPE SMALL/MEDIUM/LARGE -->
+										<b-form-group :disabled="n.disabled" v-if="n.type == 'text_entry'">
+											<b-row align-v="center">
+												<b-col md="auto" v-if="n.no_label != true">
+													<label>{{n.label}}</label>
+												</b-col>
+												<b-col>
+													<b-form-input :value="n.text" @change="n.text = $event"
+													v-if="n.subtype  == 'small'">
+												</b-form-input>
+											</b-col>
+										</b-row>
+										<b-form-textarea :value="n.text" @change="n.text = $event"
+										v-if="n.subtype  == 'medium'">
+									</b-form-textarea>
+									<b-form-textarea :value="n.text" @change="n.text = $event" rows="8"
+									v-if="n.subtype  == 'large'">
+								</b-form-textarea>
+							</b-form-group>
+
+							<!-- SELECTION TYPE -->
+							<b-form-group :disabled="n.disabled" v-if="n.type == 'selection'">
+								<b-row align-v="center">
+									<b-col md="auto">
+										<label> {{n.label}}
+										</label>
+									</b-col>
+									<b-col>
+										<b-form-select v-model="n.selected" :options="n.options"
+										@input="n.details = Boolean(n.selected >= n.showdetailson)">
+									</b-form-select>
+								</b-col>
+							</b-row>
+						</b-form-group>
+
+						<!-- MULTISELECTION TYPE -->
+						<b-form-group v-if="n.type=='multi_select'" class="indent_bug">
+							<b-row>
+								<b-col cols=" 1">
+									<label>{{n.label}}</label>
+								</b-col>
+								<b-col>
+
+									<b-form-group>
+										<b-form-radio-group v-if="n.askfurtherdetails =='true'"
+										:options="n.present_options" v-model="n.present"
+										class="mb-2 mr-sm-2 mb-sm-0">
+									</b-form-radio-group>
+								</b-form-group>
+							</b-col>
+						</b-row>
+
+						<b-container class="bv-example-row">
+							<b-row cols="1" cols-sm="2">
+
+								<template v-for="nn in n.multi">
+									<b-col>
+
+										<b-form-group
+										v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')"
+										:label="nn.label" label-cols="3">
+										<b-form-select :options="nn.options" v-model="nn.selected">
+										</b-form-select>
+									</b-form-group>
+									<b-form-group
+									v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)"
+									label-cols="3">
+									<b-form-input :value="nn.text" @change="nn.text = $event"
+									placeholder="Other">
+								</b-form-input>
+							</b-form-group>
+
+							<b-form-group
+							v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')"
+							:label="nn.label" label-cols="3">
+							<b-form-input :value="nn.text" @change="nn.text = $event">
+							</b-form-input>
+						</b-form-group>
+					</b-col>
+				</template>
+			</b-row>
+		</b-container>
+	</b-form-group>
+
+	<!-- MULTIRADIO TYPE -->
+	<b-form-group v-if="n.type == 'multi_radio'" :disabled="n.disabled">
+		<template v-for="nn in n.multi">
+
+			<b-form inline v-if="nn.options != '' && nn.type == 'multi'">
+				<label class="mb-2 mr-sm-2 mb-sm-0">{{nn.label}}</label>
+				<b-form-radio-group :options="nn.options" v-model="nn.selected"
+				class="mb-2 mr-sm-2 mb-sm-0">
+			</b-form-radio-group>
+		</b-form>
+		<b-form-group v-show="nn.selected >= nn.showdetailson">
+			<b-form-textarea :value="nn.details" @change="nn.details = $event">
+			</b-form-textarea>
+		</b-form-group>
+
+	</template>
+</b-form-group>
+
+<!-- MULTI CHECKBOX TYPE -->
+<b-form-group v-if="n.type == 'multi_checkbox'" :disabled="n.disabled">
+	<label>{{n.label}}</label>
+	<b-container class="bv-example-row">
+		<b-row cols="1" cols-sm="2">
+			<template v-for="nn in n.multi">
+				<b-col>
+					<b-form-checkbox v-model="nn.selected">
+						{{nn.text}}
+					</b-form-checkbox>
+				</b-col>
+			</template>
+		</b-row>
+	</b-container>
+</b-form-group>
+
+<!-- DETAILS BOX -->
+<b-form-group v-show="n.details || n.present == 'yes'" :disabled="n.disabled">
+	<b-form-textarea :value="n.details_text" @change="n.details_text = $event"
+	placeholder="Enter free text">
+	Details
+</b-form-textarea>
+</b-form-group>
+
+
+</div>
+
+</div>
+</div>
+
+</template>
+
+</b-card>
+
+</b-form-group>
+</b-container>
+
+
+<p></p>
+<p></p>
+
+
+<!---------------- MODALS -------------->
+
+<b-modal id="help_modal" title="NeuroTool: Help" ok-only>
+</b-modal>
+
+<b-container class="footer">
+	This tool is for educational purposes only. <b-link href="mailto: jeremy.lynch@gmail.com"> Contact us.
+	</b-link>
+</b-container>
+
+</div>
+
+
+<script>
+	/* GENERIC FUNCTIONS */
+
+
+	function flatten(data) {
+		var result = {};
+
+		function recurse(cur, prop) {
+			if (Object(cur) !== cur) {
+				result[prop] = cur;
+			} else if (Array.isArray(cur)) {
+				for (var i = 0, l = cur.length; i < l; i++)
+					recurse(cur[i], prop + "[" + i + "]");
+				if (l == 0)
+					result[prop] = [];
+			} else {
+				var isEmpty = true;
+				for (var p in cur) {
+					isEmpty = false;
+					recurse(cur[p], prop ? prop + "." + p : p);
+				}
+				if (isEmpty && prop)
+					result[prop] = {};
+			}
+		}
+		recurse(data, "");
+		return result;
+	}
+
+	function download(filename, text) {
+		var element = document.createElement('a');
+		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+		element.setAttribute('download', filename);
+
+		element.style.display = 'none';
+		document.body.appendChild(element);
+
+		element.click();
+
+		document.body.removeChild(element);
+	}
+
+	function parse_options(str) {
+		var list = str;
+		if (typeof str === 'string' || str instanceof String) {
+			list = str.split("|");
+		} else list = null;
+
+		if (Array.isArray(list)) {
+			if (isNaN(list[0])) list[0] = null;
+		}
+		return list;
+	}
+
+	function format_sentence(str) {
+		var sentence = "";
+		if ((typeof str) === "string" && str != "") {
+			str = str.trim();
+			str = str.replace(/ +(?= )/g, '');
+			var last_char = str[str.length - 1];
+			if (last_char != "." && last_char != "!" && last_char != ":" && last_char != ";" && last_char != "-") str =
+			str + ". ";
+			else str = str + " ";
+			if (str.substr(str.length - 3, 2) == " .") {
+				str = str.substr(0, str.length - 3) + ". ";
+			}
+			sentence = str;
+		}
+		return sentence;
+	}
+
+	function parseFindings(xml, modules) {
+		var elements = [];
+		for (i = 0; i < xml.length; i++) {
+			if (xml[i].nodeName != "#text") {
+				var el = {};
+				el.type = xml[i].nodeName.trim();
+				var flags = xml[i].getAttribute("flags");
+				if (flags) el.flags = flags;
+				else el.flags = "";
+
+				var disabled = xml[i].getAttribute("disabled");
+				if (disabled != null && disabled == "true") el.disabled = true;
+				else el.disabled = false;
+				el.sentencecontinues = xml[i].getAttribute("sentencecontinues");
+				var label = xml[i].getAttribute("label");
+				if (label) el.label = label;
+				else el.no_label = true;
+
+
+
+				el.printContents = function () {
+					return "";
+				}
+				el.details_text = ""
+
+				switch (el.type) {
+					default:
+					break;
+					case "h1":
+					case "h2":
+					el.label = xml[i].innerHTML.trim();
+					if (el.type == "h1") el.label = el.label.toUpperCase();
+					if (el.label[el.label.length - 1] != ":") el.label += ": ";
+					else el.label += " ";
+					elements.push(el);
+					el.printContents = function () {
+						var print_text = "";
+						if (this.flags.includes("print_space")) {
+							print_text += "\n\n";
+						}
+						if (!this.flags.includes("dont_print")) {
+							if (this.type == "h1") print_text += "\n\n" + this.label + "\n";
+							if (this.type == "h2") print_text += "\n\n" + this.label;
+						}
+						return print_text;
+					}
+					break;
+
+
+					case "query_insert":
+					el.module = xml[i].innerHTML.trim()
+					el.text = "Insert " + xml[i].innerHTML.trim();
+					el.printContents = function () {
+						var print_text = "";
+						return print_text;
+					}
+
+					elements.push(el);
+					break;
+
+					case "text":
+					el.text = xml[i].innerHTML.trim();
+					el.printContents = function () {
+						return this.text + this.details_text;
+					}
+					elements.push(el);
+					break;
+					case "text_entry":
+					el.text = xml[i].innerHTML.trim();
+					el.subtype = xml[i].getAttribute("subtype");
+					if (el.subtype) el.subtype = el.subtype.trim();
+					else el.subtype = "medium";
+
+					el.printContents = function () {
+						var print_text = "";
+						if (this.text != "") {
+							if (this.label && !this.flags.includes("dont_print_label")) print_text += this.label;
+							if (this.sentencecontinues) print_text += " " + this.text.toLowerCase();
+							else if (this.label) print_text += " " + this.text;
+							else print_text += this.text
+								print_text += this.details_text;
+							if ((this.text + this.details_text) != "") print_text = format_sentence(
+								print_text);
+						}
+					return print_text;
+				}
+				elements.push(el);
+				break;
+				case "selection":
+				op_values = xml[i].innerHTML.trim().split("|");
+				el.selected = "";
+				el.label = label;
+				el.options = [];
+				for (var x = 0; x < op_values.length; x++) {
+					el.options.push({
+						text: op_values[x].trim(),
+						value: x
+					})
+				}
+
+				el.options.push({
+					text: "Other",
+					value: el.options.length
+				})
+
+
+				el.printContents = function () {
+					var print_text = "";
+
+					if (Number.isInteger(this.selected) && this.options[this
+						.selected].text != "Other") print_text = format_sentence(this.options[this
+						.selected].text);
+						if (this.details) print_text += format_sentence(this.details_text);
+						return format_sentence(print_text);
+					}
+					var showdetailson = xml[i].getAttribute("showdetailson");
+					if (showdetailson) el.showdetailson = Number(showdetailson);
+					else el.showdetailson = 1;
+					elements.push(el);
+					break;
+
+					case "multi_select":
+					var nodes = xml[i].childNodes;
+					el.multi = [];
+					el.present_options = ["yes", "no"];
+					el.present = "";
+					el.askfurtherdetails = xml[i].getAttribute("askfurtherdetails");
+					el.normaltext = xml[i].getAttribute("normaltext");
+
+					for (var n = 0; n < nodes.length; n++) {
+						if (nodes[n].nodeName != "#text") {
+
+							var type = nodes[n].nodeName.trim();
+							var flags = nodes[n].getAttribute("flags");
+							if (flags == null) flags = " ";
+							var label = nodes[n].getAttribute("label");
+							if (label) label.trim();
+							var inner_text = nodes[n].innerHTML;
+							if (inner_text) inner_text = inner_text.trim();
+							var print_text_before = nodes[n].getAttribute("print_text_before");
+							if (print_text_before) print_text_before.trim();
+							else print_text_before = ""
+								var print_text_after = nodes[n].getAttribute("print_text_after");
+							if (print_text_after) print_text_after.trim();
+							else print_text_after = ""
+								var multi = {};
+							text = "";
+							selection = "";
+
+							if (type == "free_text") {
+								printContents = function () {
+									var print_text = "";
+									if (this.text != "") {
+										if (this.print_text_before != "") {
+											print_text += this.print_text_before + " ";
+										} else if (!this.flags.includes("dont_print_label") && this.label !=
+											null) {
+											print_text += this.label + ": ";
+										}
+										print_text += this.text;
+										if (this.print_text_after != "") {
+											print_text += " " + this.print_text_after;
+										}
+									}
+									return format_sentence(print_text);
+								}
+
+								el.multi.push({
+									text: inner_text,
+									label: label,
+									type: type,
+									flags: flags,
+									print_text_before: print_text_before,
+									print_text_after: print_text_after,
+									showdetailson: showdetailson,
+									printContents: printContents
+								});
+							}
+							if (type == "dropdown") {
+
+								var options = [];
+								var selected = null;
+								if (inner_text.includes("|")) {
+									op_values = inner_text.split("|");
+											options.push({ // Add a non-selection first
+												text: "",
+												value: 0
+											});
+											for (var x = 0; x < op_values.length; x++) {
+												options.push({
+													text: op_values[x].trim(),
+													value: x + 1 // Therefore value needs to start at 1
+												})
+											}
+
+										} else {
+											options.push({ // Add a non-selection first
+												text: "",
+												value: 0
+											});
+											options.push({
+												text: inner_text.trim(),
+												value: 1
+											})
+										}
+
+										options.push({
+											text: "Other",
+											value: options.length
+
+										});
+
+
+										var print_text_before = nodes[n].getAttribute("print_text_before");
+										if (print_text_before) print_text_before.trim();
+										else print_text_before = ""
+											var print_text_after = nodes[n].getAttribute("print_text_after");
+										if (print_text_after) print_text_after.trim();
+										else print_text_after = ""
+											var multi = {};
+										text = "";
+										label = label.trim();
+										selection = "";
+
+										printContents = function () {
+											var print_text = "";
+											//console.log(this.selected);
+
+											if (Number.isInteger(this.selected) && this.selected >
+												0) {
+												if (this.print_text_before != "") {
+													print_text += this.print_text_before + " ";
+												}
+												var value = this.options[this.selected].text;
+												if (value == "Other") value = this.text;
+												print_text += value +
+												" ";
+												if (this.print_text_after != "") print_text += this.print_text_after +
+													" ";
+												if (print_text.substr(print_text.length - 3, 2) == " .") {
+													print_text = print_text.substr(0, print_text.length - 3) + ". ";
+												}
+											}
+											return print_text;
+										}
+
+										el.multi.push({
+											label: label,
+											other: true,
+											text: "",
+											options: options,
+											type: type,
+											print_text_before: print_text_before,
+											print_text_after: print_text_after,
+											selected: selected,
+											showdetailson: showdetailson,
+											printContents: printContents
+										});
+									}
+								}
+							}
+							el.printContents = function () {
+								var print_text = "";
+								if (this.present == "yes" || this.askfurtherdetails != "true") {
+									for (var n = 0; n < this.multi.length; n++) {
+										print_text += this.multi[n].printContents();
+									}
+								}
+								if (this.present == "yes") {
+									print_text = format_sentence(print_text) + format_sentence(this.details_text);
+								} else {
+									print_text = format_sentence(print_text);
+								}
+								if (this.present == "no") {
+									print_text += format_sentence(this.normaltext);
+								}
+								return print_text;
+							}
+							elements.push(el);
+							break;
+
+							case "multi_radio":
+							var nodes = xml[i].childNodes;
+							el.multi = [];
+							for (var n = 0; n < nodes.length; n++) {
+								if (nodes[n].nodeName == "radio") {
+									var r_flags = nodes[n].getAttribute("flags");
+									if (!r_flags) r_flags = "";
+
+									var inner_text = nodes[n].innerHTML.trim();
+									var options = [];
+									var type = "";
+									if (inner_text.includes("|")) {
+										op_values = inner_text.split("|");
+
+										for (var x = 0; x < op_values.length; x++) {
+											options.push({
+												text: op_values[x].trim(),
+												value: x
+											})
+										}
+										type = "multi";
+									} else {
+										options[0] = inner_text;
+										type = "free_text";
+									}
+
+									var label = nodes[n].getAttribute("label") + ": ";
+									var normaltext = nodes[n].getAttribute("normaltext");
+
+									var selected = "";
+
+									var showdetailson = nodes[n].getAttribute("showdetailson");
+									if (showdetailson) showdetailson = Number(showdetailson)
+										else showdetailson = 1;
+
+									el.multi.push({
+										label: label,
+										options: options,
+										type: type,
+										selected: selected,
+										showdetailson: showdetailson,
+										details: "",
+										normaltext: normaltext,
+										flags: r_flags
+									});
+								}
+							}
+							el.printContents = function () {
+								var print_multi = _.cloneDeep(this.multi);
+								print_multi.sort((a, b) => {
+									return b.selected - a.selected;
+								});
+
+								var print_text = "";
+								for (var n = 0; n < print_multi.length; n++) {
+
+									if (Number.isInteger(print_multi[n].selected)) {
+										// Normal and don't print if normal flag
+										if (print_multi[n].selected == 0 && print_multi[n].flags.includes(
+											"dont_print_normal")) {
+
+										}
+										// Normal and supplied negative text
+										else if (print_multi[n].selected == 0 && print_multi[n]
+											.normaltext) {
+											print_text += print_multi[n].normaltext;
+									}
+										// Normal and no supplied text 
+										else if (print_multi[n].selected == 0 && !print_multi[n]
+											.normaltext) {
+											print_text += print_multi[n].label;
+										print_text += print_multi[n]
+										.options[print_multi[n].selected].text;
+									}
+										// Abnormal and details given
+										else if (print_multi[n].selected != 0 && print_multi[n].details != "") {
+											print_text += print_multi[n].details;
+										}
+										// Abnormal and no details given
+										else if (print_multi[n].selected != 0 && print_multi[n].details == "") {
+											print_text += print_multi[n].label;
+											print_text += print_multi[n]
+											.options[print_multi[n].selected].text.toLowerCase();
+										}
+										print_text = format_sentence(print_text);
+									}
+								}
+								return print_text;
+							}
+							elements.push(el);
+							break;
+
+							case "multi_checkbox":
+							var nodes = xml[i].childNodes;
+							el.multi = [];
+							for (var n = 0; n < nodes.length; n++) {
+								if (nodes[n].nodeName == "checkbox") {
+									var text = nodes[n].innerHTML.trim();
+									var label = nodes[n].getAttribute("label") + ":";
+									var selected = "";
+
+									el.multi.push({
+										label: label,
+										text: text,
+										selected: selected
+									});
+								}
+							}
+							el.printContents = function () {
+								var print_text = "";
+								var total_selected = 0;
+								var count_selected = 0;
+								for (var n = 0; n < this.multi.length; n++) {
+									if (this.multi[n].selected) total_selected++
+								}
+
+							if (total_selected) {
+								print_text += this.label + " ";
+								for (var n = 0; n < this.multi.length; n++) {
+									if (this.multi[n].selected) {
+										print_text += this.multi[n].text.toLowerCase();
+										if ((count_selected < (total_selected - 1)) && total_selected != 2)
+											print_text += ", ";
+										if (count_selected == (total_selected - 2)) print_text += " and ";
+										count_selected++;
+									}
+								}
+
+							}
+							return format_sentence(print_text);
+						}
+						elements.push(el);
+						break;
+
+						case "insert":
+						el.module = xml[i].innerHTML.trim();
+						for (var n = 0; n < modules.length; n++) {
+							if (modules[n].name == el.module) {
+								elements = elements.concat(modules[n].elements);
+							}
+						}
+						break;
+					}
+				}
+			}
+			return elements;
+		}
+
+		function parseModules(xml) {
+			return parseFindings(xml, null)
+		}
+
+
+		function loadXML() {
+			var xhttp = new XMLHttpRequest();
+			var temp = [];
+			xhttp.onreadystatechange = function () {
+				if (this.readyState == 4 && this.status == 200) {
+					myFunction(this);
+				}
+			};
+			xhttp.open("GET", "static/xml/templates_list.xml", true);
+			xhttp.send();
+
+			function myFunction(xml) { // Load array of report templates
+				var xmlDoc = xml.responseXML;
+
+				var modules_xml = xmlDoc.getElementsByTagName("module");
+				var modules = [];
+				for (var i = 0; i < modules_xml.length; i++) {
+					var m_name = xmlDoc.getElementsByTagName("module")[i].getElementsByTagName(
+						"name")[0].innerHTML.replace(/^\s+|\s+$/g, '');
+					var m_content = xmlDoc.getElementsByTagName("module")[i].getElementsByTagName(
+						"content")[0].childNodes;
+					var elements = parseModules(m_content);
+					modules.push({
+						name: m_name,
+						elements: elements
+					});
+				}
+
+				var templates = xmlDoc.getElementsByTagName("template");
+
+				for (var i = 0; i < templates.length; i++) {
+					var t_name = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+						"name")[0].innerHTML.replace(/\t/g, '');
+					var t_type = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+						"type")[0].innerHTML.replace(/\t/g, '').trim();
+					var t_title = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+						"title")[0];
+					if (t_title == null || t_title == "") {
+						t_title = t_name;
+					} else {
+						t_title = t_title.innerHTML.replace(/\t/g, '');
+					}
+					var t_findings = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+						"content")[0].childNodes;
+					var elements = parseFindings(t_findings, modules);
+
+					temp.push({
+						name: t_name,
+						title: t_title,
+						type: t_type,
+						elements: elements
+					});
+				}
+				temp.modules = modules;
+
+
+
+			}
+
+			return temp;
+		}
+
+		/* GLOBAL VARIABLES */
+
+		window.app = new Vue({
+			components: {
+				VueBootstrapTypeahead
+			},
+			el: '#app',
+			data: {
+				id_count: 0,
+				templates: loadXML(),
+				reportText: "",
+				module: "",
+				template: "",
+				index: "",
+				templateForm: [],
+				selected: null,
+				selected_n:null,
+				editModal: {
+					value: "null"
+				},
+				copyModal: {
+					id: 'copy-modal',
+					text: "",
+					title: "Copy"
+				}
+			},
+
+			methods: {
+				// General functions
+				generateID: function () {
+					this.id_count++;
+					return this.id_count;
+				},
+				update: function (event) {
+
+				},
+
+				findList: function (text, symbol_start, symbol_end) {
+
+					var n = 0 - symbol_start.length;
+					do {
+						n = text.indexOf(symbol_start, n + symbol_start.length);
+						if (n != -1) {
+							end = text.indexOf(symbol_end, n);
+						}
+
+					} while (n != -1);
+					return text;
+				},
+
+				reset: function () {
+
+					this.id_count = 0;
+					this.reportText = "";
+					this.module = "";
+					this.template = "";
+					this.index = "";
+					this.templateForm = [];
+					this.selected = null;
+				},
+
+				selectTemplate: function (event) {
+					this.reset();
+
+					this.template = event;
+					this.writeTemplate();
+				},
+
+				selectModule: function (event) {
+					this.module = event;
+				},
+
+				writeTemplate: function () {
+					this.templateForm = [];
+					var elements = this.template.elements;
+
+					for (var n = 0; n < elements.length; n++) {
+						var el = _.cloneDeep(this.template.elements[n]);
+						el.array_id = n;
+						this.templateForm.push(el);
+					}
+				},
+
+				deleteElement() {
+					this.templateForm.splice(this.selected, 1);
+				},
+
+				insertModule() {
+					var module_data = _.cloneDeep(this.module)
+
+					// Create title if not present
+					if (module_data.elements[0].type != "h2") {
+						var el = {};
+						el.type = "h2";
+						el.flags = "dont_print";
+						el.printContents = function () {
+							return "";
+						}
+						el.label = module_data.name.trim();
+						if (el.label[el.label.length - 1] != ":") el.label += ": ";
+						else el.label += " ";
+						this.templateForm.splice(this.selected + 1, 0, el);
+					}
+
+					// Insert module elements
+					for (var n = 0; n < module_data.elements.length; n++) {
+						this.templateForm.splice(this.selected + n + 2, 0, module_data.elements[n]);
+					}
+				},
+
+				selectElement(element) {
+					this.selected = this.templateForm.findIndex(function (i) {
+						return i.array_id == element.array_id;
+					})
+				},
+
+				setupEdit(element) {
+					this.selectElement(element);
+					this.selected_n = this.templateForm[this.selected];
+					this.editModal.value = JSON.stringify(this.templateForm[this.selected]);
+
+				},
+
+				queryInsert: function (element) {
+					this.selectElement(element);
+
+					this.selected = this.selected - 1;
+
+					this.module = this.templates.modules.find(function (i) {
+						return i.name == element.module;
+					});
+
+					this.insertModule();
+
+				},
+
+				copyReport: function () {
+					var copyText = "";
+					copyText += this.template.title.trim();
+					for (var n = 0; n < this.templateForm.length; n++) {
+						copyText += this.templateForm[n].printContents();
+					}
+
+					// Put in clipboard
+					const listener = function (ev) {
+						ev.preventDefault();
+						ev.clipboardData.setData('text/plain', copyText);
+					};
+					document.addEventListener('copy', listener);
+					document.execCommand('copy');
+					document.removeEventListener('copy', listener);
+
+					// Display Modal
+					this.copyModal.text = copyText;
+					this.$root.$emit('bv::show::modal', this.copyModal.id);
+
+				},
+				exportReport: function () {
+
+					var csv = this.templateForm;
+					csv = Object.entries(flatten(csv));
+					csv = Papa.unparse(csv);
+					var filename = "export.csv";
+					download(filename, csv);
+
+					console.log(csv);
+
+				}
+
+			}
+		});
+	</script>
+
+
+</body>
+
+</html>
