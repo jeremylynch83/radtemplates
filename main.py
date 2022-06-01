@@ -119,9 +119,9 @@ def export_report():
     req = request.get_json()
     xml = req["xml"]
 
-    file_path = 'static/xml/user.xml'
-    with open(file_path, "w") as f:
-        f.write(xml);
+    #file_path = 'static/xml/user.xml'
+    #with open(file_path, "w") as f:
+    #    f.write(xml);
 
     current_user.save_templates(xml)
     db.session.add(current_user)
