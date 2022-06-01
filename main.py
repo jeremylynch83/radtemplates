@@ -1,5 +1,5 @@
 from flask import Flask, Response, json, render_template, request, redirect, url_for, flash, jsonify, make_response
-from flask_login import current_user, login_user, login_required
+from flask_login import current_user, login_user, login_required, logout_user
 from models import db, userModel, login
 import os
 import secrets
@@ -98,7 +98,7 @@ def register():
         return "success"
 
 # Logout
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
     logout_user()
     return redirect('/')

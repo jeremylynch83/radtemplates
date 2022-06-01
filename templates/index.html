@@ -25,7 +25,6 @@
 	<script src="%% url_for('static', filename='js/vue.js')%%"></script>
 	<script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
 	<script src="%% url_for('static', filename='js/lodash.js')%%"></script>
-	<script src="%% url_for('static', filename='js/papaparse.js')%%"></script>
 	<!-- Type Ahead Library -->
 	<script src="%% url_for('static', filename='js/VueBootstrapTypeahead.umd.min.js')%%"></script>
 </head>
@@ -37,9 +36,9 @@
 			<b-navbar-brand href="#">NeuroTool</b-navbar-brand>
 
 	    <b-button-toolbar right>
-				<b-button v-if="user_name ==''"  v-b-modal.login-modal>Log in</b-button>
-				<b-button v-if="user_name ==''"  v-b-modal.register-modal>Register</b-button>
-				<b-button v-if="user_name !=''"  >Log out</b-button>
+				<b-button v-if="logged_in == false"  v-b-modal.login-modal>Log in</b-button>
+				<b-button v-if="logged_in == false"  v-b-modal.register-modal>Register</b-button>
+				<b-button v-if="logged_in == true" @click="logout()" >Log out</b-button>
 	    </b-button-toolbar>
 			<!--<a href="%% url_for('logout')%%">Logout Here</a>-->
 
@@ -98,24 +97,24 @@
 		</b-container>
 		<p></p>
 
-		<b-form-group label=" Search for template:">
+		<!--<b-form-group label=" Search for template:">
 			<vue-bootstrap-typeahead v-model="search" :data="templates" :serializer="item => item.name" placeholder="E.g. CT Head"
 				@hit="selectTemplate($event)">
 			</vue-bootstrap-typeahead>
-		</b-form-group>
+		</b-form-group>-->
 
-		<b-modal id="select_template" title="Select Template" ok-only>
+		<b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
 		<b-form-group>
 			<h3>Diagnostic</h3>
 			<template v-for="n in templates">
-				<b-button variant="link" v-if="n.type=='Diagnostic'">{{n.name}} </b-button>
+				<b-button @click="selectTemplate(n)" variant="link" v-if="n.type=='Diagnostic'">{{n.name}} </b-button>
 			</template>
 			<h3>Angiography</h3>
 			<template v-for="n in templates">
-				<b-button variant="link" v-if="n.type=='Angiography'">{{n.name}} </b-button>
+				<b-button @click="selectTemplate(n)" variant="link" v-if="n.type=='Angiography'">{{n.name}} </b-button>
 			</template>
-		<b-form-group>
-		</b-modal>
+		</b-form-group>
+		</b-form-group>
 
 		<b-modal id="insert-component-modal" title="Insert Component" ok-only>
 
@@ -357,17 +356,31 @@
 </template>
 </b-modal>
 
+<b-modal id="save_as_new_modal" title="Save As New">
+	<b-form-group>
+		<p>Name <b-form-input v-model="new_template_name"/></p>
+		<p>System <b-form-input v-model="new_template_name"/></p>
 
+	</b-form-group>
+	<template #modal-footer="{ close }">
+		<b-button @click="saveAsNew()">Submit</b-button>
+	</template>
+</b-modal>
 
 
 <b-form-group v-if="template != ''">
 	<b-card bg-variant="light">
 		<b-button variant="success" @click="copyReport()">Show Report</b-button>
 		<b-button variant="danger" @click="reset()">Reset</b-button>
-		<b-button @click="exportXML()">Save this Template</b-button>
+
+		<b-dropdown text="Template" class="m-md-2">
+			<b-dropdown-item @click="blankTemplate()">Blank Template</b-dropdown-item>
+			<b-dropdown-item @click="exportXML()">Save Changes</b-dropdown-item>
+			<b-dropdown-item v-b-modal.save_as_new_modal>Save As New Template</b-dropdown-item>
+		</b-dropdown>
 
 		<h1>
-			{{template.title}}
+			{{templateForm.title}}
 		</h1>
 
 		<template v-for=" n in templateForm">
@@ -1319,15 +1332,17 @@
 				user_templates: [], //loadXML("static/xml/user.xml"),
 				reportText: "",
 				module: "",
-				template: "",
+				template: "", // Pointer to the template in the templates array
 				index: "",
-				templateForm: [],
+				templateForm: [],	// The current form being worked on
 				selected_n:null, // Currently selected element object
 				search:'',
 				user_name: '',
 				user_name_submit: '',
 				user_email:'',
 				user_password:'',
+				logged_in: false,
+				new_template_name: '',
 				editModal: {
 					value: "null"
 				},
@@ -1389,9 +1404,13 @@
 					this.module = event;
 				},
 
-				writeTemplate: function () {
+				writeTemplate: function () { // Writes the form from the selected template
 					this.templateForm = [];
 					var elements = this.template.elements;
+
+					this.templateForm.name = this.template.name;
+					this.templateForm.title=  this.template.title;
+					this.templateForm.type= this.template.type;
 
 					for (var n = 0; n < elements.length; n++) {
 						var el = _.cloneDeep(this.template.elements[n]);
@@ -1399,6 +1418,12 @@
 						this.templateForm.push(el);
 					}
 				},
+
+				blankTemplate: function() {
+
+
+				},
+
 
 				n_from_element(element) { // Returns n in templateform of element
 					var index = this.templateForm.findIndex(i => {
@@ -1528,19 +1553,27 @@
 					this.$root.$emit('bv::show::modal', this.copyModal.id);
 
 				},
-				exportXML: function () {			
-					// Create empty XML object
+
+				// Save template form to server
+				exportXML: function () {
+					if (this.logged_in == false) {
+						alert("You need to login to save");
+						return;
+					}	
+
+					// First I turn the gui elements to xml and then back again to blank the entries. 
+
 					var xml_doc = document.implementation.createDocument("", "", null);
 
 					var template_gui = {}
 					template_gui.elements = this.templateForm;
 
-					// Build new element from GUI
+					// Build new template xml from GUI
 					template = template_to_xml(template_gui, xml_doc);
 					var new_element = {
-							name: this.template.name,
-							title: this.template.title,
-							type: this.template.type,
+							name: this.templateForm.name,
+							title: this.templateForm.title,
+							type: this.templateForm.type,
 							elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules)
 					}
 
@@ -1572,8 +1605,8 @@
 
 					// Display Modal
 					var xml = (new XMLSerializer()).serializeToString(save_doc);
-					this.xmlModal.text = xml;
-					this.$root.$emit('bv::show::modal', this.xmlModal.id);
+					//this.xmlModal.text = xml;
+					//this.$root.$emit('bv::show::modal', this.xmlModal.id);
 
 					// Save file on server
 					var entry = {
@@ -1601,6 +1634,45 @@
 
 
         		},
+
+
+				saveAsNew: function() {
+					//console.log(this.template);
+					//console.log(this.templateForm);
+
+					if (this.logged_in == false) {
+					alert("You need to login to save");
+					return;
+					}
+					// Search if name already exists
+					if(!this.templates.findIndex(n => {return (n.name == this.new_template_name)})) {
+						alert("Name already exists!" + this.new_template_name);
+						return;
+					}
+
+					this.templateForm.name = this.new_template_name;
+
+
+					// If name does not exist in templates create new entry in templates and copy form in
+					/*this.templates.push({
+						name: this.templateForm.name,
+						title: 'test',
+						type: 'Diagnostic',
+						elements: _.cloneDeep(this.templateForm)
+					});
+
+					// Save also in user_templates
+					this.user_templates.push({
+						name: this.templateForm.name,
+						title: 'test',
+						type: 'Diagnostic',
+						elements: _.cloneDeep(this.templateForm)
+					});*/
+
+					// Now save this to the online database
+					this.exportXML();
+				},
+
         		login: function() {
 					var entry = {
 		                user_email: this.user_email,
@@ -1630,7 +1702,8 @@
 		                .then(xml => {
 		                	if (!xml) return;
 
-		                	this.user_name = xml.username
+		                	this.user_name = xml.username;
+		                	this.logged_in = true;
 
 							if (xml.templates != null) {
 						    	parser = new DOMParser();
@@ -1675,6 +1748,8 @@
 
 
         		},
+
+
         		register: function() {
         			var entry = {
 		                user_email: this.user_email,
@@ -1708,6 +1783,35 @@
 		                    console.log("Fetch error: " + error);
 		                });
 
+        		},
+        		logout: function() {
+        			fetch(`${window.origin}/logout`, {
+		                method: "POST",
+		                credentials: "include",
+		                cache: "no-cache",
+		                headers: new Headers({
+		                    "content-type": "application/json"
+		                })
+		            })
+		                .then(response => {
+		                	if (response.ok) {
+		                		alert("Logged out");
+		                		this.logged_in = false;
+		                		this.user_name = '';
+		                		this.user_password = '';
+		                		this.user_email = '';
+
+								} 
+		                    if (response.status !== 200) {
+		                        alert("Registration failure " + response.status)
+
+		                        return;
+		                    }
+		                    return response
+		                })
+		                .catch(function (error) {
+		                    console.log("Fetch error: " + error);
+		                });
         		}
 			}
 		});
