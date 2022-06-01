@@ -108,7 +108,7 @@ def logout():
 ##################
 
 # Create blank user template file if does not exist. 
-file_path = 'static/xml/user.xml'
+#file_path = 'static/xml/user.xml'
 #with open(file_path, "w") as f:
 #    print("Succesfully opened: " + file_path)
 
