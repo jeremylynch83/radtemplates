@@ -45,7 +45,7 @@ def login():
     print("login")
 
     if current_user.is_authenticated:
-        return "success"
+        return jsonify(data)
      
     if request.method == 'POST':
         req = request.get_json()

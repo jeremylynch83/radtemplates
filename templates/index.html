@@ -36,9 +36,10 @@
 			<b-navbar-brand href="#">NeuroTool</b-navbar-brand>
 
 	    <b-button-toolbar right>
-				<b-button v-if="logged_in == false"  v-b-modal.login-modal>Log in</b-button>
-				<b-button v-if="logged_in == false"  v-b-modal.register-modal>Register</b-button>
-				<b-button v-if="logged_in == true" @click="logout()" >Log out</b-button>
+	    	<b-nav-text class="px-2" v-if="logged_in">Welcome {{user_name}}</b-nav-text>
+				<b-button class="px-2"v-if="logged_in == false"  v-b-modal.login-modal>Log in</b-button>
+				<b-button class="px-2" v-if="logged_in == false"  v-b-modal.register-modal>Register</b-button>
+				<b-button class="px-2" v-if="logged_in == true" @click="logout()" >Log out</b-button>
 	    </b-button-toolbar>
 			<!--<a href="%% url_for('logout')%%">Logout Here</a>-->
 
@@ -91,9 +92,7 @@
 			
 			<b-container v-if="template == ''"
 			style="background-color:rgb(255, 255, 239); padding: 10px; border-radius: 5px">
-			<p>%% current_user.username %%</p>
-			<div v-if="user_name !=''">Welcome {{user_name}}</div>
-
+			
 		</b-container>
 		<p></p>
 
@@ -250,6 +249,14 @@
 					<b-form-input v-model="nn.label" >
 					</b-form-input>
 				</b-input-group>
+				<b-input-group prepend="Text preceeding" >
+					<b-form-input v-model="nn.print_text_before" >
+					</b-form-input>
+				</b-input-group>
+				<b-input-group prepend="Text inserted after" >
+					<b-form-input v-model="nn.print_text_after" >
+					</b-form-input>
+				</b-input-group>
 
 				<template v-if="nn.type=='dropdown'" v-for="n_dropdown in nn.options" >
 										<p></p>
@@ -288,7 +295,12 @@
 							<b-input-group prepend="Label" >
 							<b-form-input v-model="nn.label" >
 							</b-form-input>
-							</b-input-group>
+					</b-input-group>
+					<b-form v-if="nn.options != '' && nn.type == 'radio'">
+							<b-input-group prepend="Text for first option" >
+							<b-form-input v-model="nn.normaltext" >
+							</b-form-input>
+					</b-input-group>
 
 						<template v-for="n_check in nn.options" >
 
@@ -306,7 +318,8 @@
 							</b-row>
 					</template>
 					</b-card>
-					<b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert</b-button>
+					<p></p><b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
+					<p></p>
 
 
 					</b-form>
@@ -358,12 +371,15 @@
 
 <b-modal id="save_as_new_modal" title="Save As New">
 	<b-form-group>
-		<p>Name <b-form-input v-model="new_template_name"/></p>
-		<p>System <b-form-input v-model="new_template_name"/></p>
+		<p>Name <b-form-input v-model="templateForm.name"/></p>
+		<p>Branch <b-form-input /></p>
+		<p>Modality <b-form-input /></p>
+		<p>Body region <b-form-input /></p>
 
 	</b-form-group>
 	<template #modal-footer="{ close }">
-		<b-button @click="saveAsNew()">Submit</b-button>
+		<b-button variant="success" @click="saveAsNew();$bvModal.hide('save_as_new_modal')">Submit</b-button>
+
 	</template>
 </b-modal>
 
@@ -374,13 +390,13 @@
 		<b-button variant="danger" @click="reset()">Reset</b-button>
 
 		<b-dropdown text="Template" class="m-md-2">
-			<b-dropdown-item @click="blankTemplate()">Blank Template</b-dropdown-item>
-			<b-dropdown-item @click="exportXML()">Save Changes</b-dropdown-item>
-			<b-dropdown-item v-b-modal.save_as_new_modal>Save As New Template</b-dropdown-item>
+			<b-dropdown-item @click="blankTemplate()">Create blank template</b-dropdown-item>
+			<b-dropdown-item @click="exportXML()">Save changes to this template</b-dropdown-item>
+			<b-dropdown-item v-b-modal.save_as_new_modal>Save as new template</b-dropdown-item>
 		</b-dropdown>
 
 		<h1>
-			{{templateForm.title}}
+			{{templateForm.name}}
 		</h1>
 
 		<template v-for=" n in templateForm">
@@ -393,7 +409,7 @@
 							<b-dropdown id="dropdown-1" text="Options" class="m-md-2">
 												
 												<b-dropdown-item @click="selectElement(n); deleteElement()">Delete</b-dropdown-item>
-												<b-dropdown-item @click="selectElement(n); InsertText()">Insert text</b-dropdown-item>
+												<b-dropdown-item @click="selectElement(n); InsertText()">Insert Text</b-dropdown-item>
 												<b-dropdown-item v-b-modal.insert-component-modal @click="selectElement(n)">Insert Component</b-dropdown-item>
 												<b-dropdown-item v-b-modal.control_modal
 												@click="selectElement(n)">Insert Module</b-dropdown-item>
@@ -1420,7 +1436,11 @@
 				},
 
 				blankTemplate: function() {
-
+					var index = this.templates.find(i => {
+						console.log(i.name)
+						return (i.name.trim() == "Blank")
+					});
+					this.selectTemplate(index);
 
 				},
 
@@ -1644,13 +1664,15 @@
 					alert("You need to login to save");
 					return;
 					}
-					// Search if name already exists
-					if(!this.templates.findIndex(n => {return (n.name == this.new_template_name)})) {
-						alert("Name already exists!" + this.new_template_name);
+					// Search if name already 
+					if(-1 != this.templates.findIndex(n => {
+						return (n.name.trim() == this.templateForm.name.trim())
+					})) {
+						alert("Name already exists!" + this.templateForm.name);
 						return;
 					}
 
-					this.templateForm.name = this.new_template_name;
+					//this.templateForm.name = this.new_template_name;
 
 
 					// If name does not exist in templates create new entry in templates and copy form in
