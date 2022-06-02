@@ -14,7 +14,7 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-	<title>NeuroTool: Structured Reports</title>
+	<title>Structured Reports</title>
 	<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
 	<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap-vue.css')%%" />
 	<link href="%% url_for('static', filename='css/VueBootstrapTypeahead.css')%%" rel="stylesheet" />
@@ -33,9 +33,9 @@
 	<div id="app">
 
 		<b-navbar toggleable="lg" type="dark" variant="info">
-			<b-navbar-brand href="#">NeuroTool</b-navbar-brand>
+			<b-navbar-brand href="#">TemplateReporting.com</b-navbar-brand>
 
-	    <b-button-toolbar right>
+	    <b-button-toolbar class="float-right" >
 	    	<b-nav-text class="px-2" v-if="logged_in">Welcome {{user_name}}</b-nav-text>
 				<b-button class="px-2"v-if="logged_in == false"  v-b-modal.login-modal>Log in</b-button>
 				<b-button class="px-2" v-if="logged_in == false"  v-b-modal.register-modal>Register</b-button>
@@ -104,13 +104,13 @@
 
 		<b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
 		<b-form-group>
-			<h3>Diagnostic</h3>
+			<h3>MRI</h3>
 			<template v-for="n in templates">
-				<b-button @click="selectTemplate(n)" variant="link" v-if="n.type=='Diagnostic'">{{n.name}} </b-button>
+				<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality=='MRI'">{{n.name}} </b-button>
 			</template>
-			<h3>Angiography</h3>
+			<h3>CT</h3>
 			<template v-for="n in templates">
-				<b-button @click="selectTemplate(n)" variant="link" v-if="n.type=='Angiography'">{{n.name}} </b-button>
+				<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality=='CT'">{{n.name}} </b-button>
 			</template>
 		</b-form-group>
 		</b-form-group>
@@ -244,7 +244,11 @@
 
 			<template v-for="nn in selected_n.multi">
 				<p></p>
-				<b-card>
+				<b-card >
+					 <template #header>
+					<b-button variant = "danger" class="float-right" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn), 1)">Delete</b-button>
+      				</template>
+
 				<b-input-group prepend="Label" >
 					<b-form-input v-model="nn.label" >
 					</b-form-input>
@@ -290,6 +294,9 @@
 
 				<template v-for="nn in selected_n.multi">
 				<b-card>
+					 <template #header>
+					<b-button variant = "danger" class="float-right" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn), 1)">Delete</b-button>
+      				</template>
 
 					<b-form v-if="nn.options != '' && nn.type == 'radio'">
 							<b-input-group prepend="Label" >
@@ -489,27 +496,27 @@
 									</b-form-radio-group>
 								</b-form-group>
 							</b-col>
-						</b-row>
+							</b-row>
 
-						<b-container class="bv-example-row">
+							<b-container class="bv-example-row">
 							<b-row cols="1" cols-sm="2">
 
 								<template v-for="nn in n.multi">
 									<b-col>
 
-										<b-form-group
+										<b-form-group 
 										v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')"
-										:label="nn.label" label-cols="3">
-										<b-form-select :options="nn.options" v-model="nn.selected">
+										:label="nn.label" label-cols="3" >
+										<b-form-select  :options="nn.options" v-model="nn.selected">
 										</b-form-select>
-									</b-form-group>
-									<b-form-group
+										</b-form-group>
+										<b-form-group
 									v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)"
 									label-cols="3">
-									<b-form-input :value="nn.text" @change="nn.text = $event"
+										<b-form-input :value="nn.text" @change="nn.text = $event"
 									placeholder="Other">
-								</b-form-input>
-							</b-form-group>
+									</b-form-input>
+								</b-form-group>
 
 							<b-form-group
 							v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')"
@@ -1107,7 +1114,7 @@
 										else if (print_multi[n].selected == 0 && !print_multi[n]
 											.normaltext) {
 											print_text += print_multi[n].label;
-										print_text += print_multi[n]
+										print_text += ": " + print_multi[n]
 										.options[print_multi[n].selected].text;
 									}
 										// Abnormal and details given
@@ -1117,7 +1124,7 @@
 										// Abnormal and no details given
 										else if (print_multi[n].selected != 0 && print_multi[n].details == "") {
 											print_text += print_multi[n].label;
-											print_text += print_multi[n]
+											print_text += ": " + print_multi[n]
 											.options[print_multi[n].selected].text.toLowerCase();
 										}
 										print_text = format_sentence(print_text);
@@ -1273,8 +1280,9 @@
 				for (var i = 0; i < templates.length; i++) {
 					var t_name = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
 						"name")[0].innerHTML.replace(/\t/g, '');
-					var t_type = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-						"type")[0].innerHTML.replace(/\t/g, '').trim();
+					var t_modality = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+						"modality")[0];
+					if(t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
 					var t_title = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
 						"title")[0];
 					if (t_title == null || t_title == "") {
@@ -1289,7 +1297,7 @@
 					temp.push({
 						name: t_name,
 						title: t_title,
-						type: t_type,
+						modality: t_modality,
 						elements: elements
 					});
 					}
@@ -1324,9 +1332,9 @@
 			var title = xml_doc.createElement("title");
 			title.innerHTML = template_gui.title;
 			template.appendChild(title);
-			var type = xml_doc.createElement("type");
-			type.innerHTML = template_gui.type;
-			template.appendChild(type);
+			var modality = xml_doc.createElement("modality");
+			modality.innerHTML = template_gui.modality;
+			template.appendChild(modality);
 			var content = xml_doc.createElement("content");
 			template.appendChild(content);
 			for (var n = 0; n < template_gui.elements.length; n++) {
@@ -1426,7 +1434,7 @@
 
 					this.templateForm.name = this.template.name;
 					this.templateForm.title=  this.template.title;
-					this.templateForm.type= this.template.type;
+					this.templateForm.modality = this.template.modality;
 
 					for (var n = 0; n < elements.length; n++) {
 						var el = _.cloneDeep(this.template.elements[n]);
@@ -1737,8 +1745,8 @@
 							for (var i = 0; i < templates.length; i++) {
 								var t_name = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
 										"name")[0].innerHTML.replace(/\t/g, '');
-								var t_type = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-										"type")[0].innerHTML.replace(/\t/g, '').trim();
+								var t_modality = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
+										"modality")[0].innerHTML.replace(/\t/g, '').trim();
 								var t_title = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
 										"title")[0];
 								if (t_title == null || t_title == "") {
@@ -1753,7 +1761,7 @@
 								user.push({
 										name: t_name,
 										title: t_title,
-										type: t_type,
+										t_modality: t_modality,
 										elements: elements
 								});
 								}

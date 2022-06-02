@@ -502,9 +502,6 @@ Not present | Present
 		<name>
 			Blank
 		</name>
-		<type>
-			Diagnostic
-		</type>
 		<title>
 			Blank
 		</title>
@@ -533,13 +530,19 @@ Not present | Present
 
 	<template>
 		<name>
-			Stroke Thrombectomy
+			Mechanical Thrombectomy
 		</name>
-		<type>
+		<modality>
 			Angiography
-		</type>
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
-			Endovascular Stroke Thrombectomy
+			Mechanical Thrombectomy
 		</title>
 		<content>
 
@@ -594,9 +597,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			Cerebral Angiogram
 		</name>
-		<type>
+		<modality>
 			Angiography
-		</type>
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			Cerebral Angiogram
 		</title>
@@ -649,9 +658,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			Endovascular Aneurysm Treatment
 		</name>
-		<type>
+		<modality>
 			Angiography
-		</type>
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			Endovascular Repair of Cerebral Aneurysm
 		</title>
@@ -751,9 +766,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			Lumbar Puncture
 		</name>
-		<type>
+		<modality>
 			Angiography
-		</type>
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			Lumbar Puncture
 		</title>
@@ -800,9 +821,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Myelogram
 		</name>
-		<type>
+		<modality>
 			Angiography
-		</type>
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			CT Myelogram
 		</title>
@@ -935,9 +962,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Spine: Fracture
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Spine
 		</title>
@@ -990,9 +1023,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Spine: Postoperative collection
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Spine
 		</title>
@@ -1050,9 +1089,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Lumbar Spine: Degenerative
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Lumber spine
 		</title>
@@ -1153,9 +1198,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Cervical Spine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Cervical Spine
 		</title>
@@ -1239,9 +1290,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Spine: Multiple Sclerosis Initial Diagnosis
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Spine
 		</title>
@@ -1295,9 +1352,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Spine: Multiple Sclerosis Follow-Up
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			MRI Spine
 		</title>
@@ -1356,9 +1419,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Brachial Plexus
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Axilla
+		</region>
 		<title>
 			MRI Spine
 		</title>
@@ -1601,9 +1670,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head Non-Contrast: Routine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -1693,9 +1768,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head Non-Contrast: Stroke
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -1748,9 +1829,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Non-Contrast Head: Trauma
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -1811,9 +1898,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Non-Contrast Head and Cervical Spine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -1952,9 +2045,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Orbits: Cellulitis
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Orbits
+		</region>
 		<title>
 			CT Orbits
 		</title>
@@ -1999,9 +2098,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head: Neurodegenerative
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -2187,9 +2292,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Angiogram
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Angiogram Intracranial
 		</title>
@@ -2231,9 +2342,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head: Parenchymal Haematoma
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Angiogram Intracranial
 		</title>
@@ -2294,9 +2411,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Cervical Spine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			CT Cervical Spine
 		</title>
@@ -2399,9 +2522,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Thoracic Spine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			CT Thoracic Spine
 		</title>
@@ -2487,9 +2616,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Lumbar Spine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>
 			CT Lumbar Spine
 		</title>
@@ -2598,9 +2733,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head: Post-Operative Deep Brain Stimulation Electrode Placement
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -2637,9 +2778,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			CT Head: Post-Operative Subdural Evacuation
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			CT
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			CT Head
 		</title>
@@ -2852,9 +2999,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Acute
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -2908,9 +3061,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI and MRA Head/Brain: Stroke
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head and MRA
 		</title>
@@ -3018,9 +3177,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Pulsatile Tinnitus
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3140,9 +3305,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Orbits and Head
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head and Orbits
 		</title>
@@ -3215,9 +3386,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head/Brain: Hearing loss
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3284,9 +3461,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head/Brain: Facial Palsy
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3356,9 +3539,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Paediatric Head
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI  Head
 		</title>
@@ -3419,9 +3608,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head and Spine: Routine
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head and Spine
 		</title>
@@ -3481,9 +3676,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Tumour/Mass Diagnosis
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3598,9 +3799,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Sella mass
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3746,9 +3953,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Headache
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3821,9 +4034,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Seizure
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -3962,9 +4181,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Tumour Follow-Up (Not Operated)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -4040,9 +4265,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Tumour Follow-Up (Operated)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -4144,9 +4375,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<name>
 			MRI Head: Neurodegenerative/Dementia
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>
 			MRI Head
 		</title>
@@ -4333,9 +4570,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		<template>
 		<name>MRI Head and Spine: SAH follow up
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4410,9 +4653,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>MRI Head: Aneurysm Follow-Up (Treated)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4473,9 +4722,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>MRI Head: Aneurysm Follow-Up (Untreated)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4536,9 +4791,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>MRI Head: Internal Auditory Meatus (IAM)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4601,9 +4862,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>MRI Head: Multiple Sclerosis Diagnosis
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4710,9 +4977,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>MRI Head: Multiple Sclerosis Follow-Up
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			MRI
+		</modality>
+		<specialty>
+			Neuroradiology
+		</specialty>
+		<region>
+			Brain
+		</region>
 		<title>MRI Head
 		</title>
 		<content>
@@ -4824,9 +5097,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Chest Radiograph
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Thoracic
+		</specialty>
+		<region>
+			Chest
+		</region>
 		<title>Chest Radiograph
 		</title>
 		<content>
@@ -4891,9 +5170,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Chest radiograph: Nasogastric tube (NGT)
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Thoracic
+		</specialty>
+		<region>
+			Chest
+		</region>
 		<title>Chest radiograph 
 		</title>
 		<content>
@@ -4963,9 +5248,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Lumbar spine radiograph
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Musculoskeletal
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>Lumbar Spine Radiograph
 		</title>
 		<content>
@@ -5004,9 +5295,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Cervical spine radiograph
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Musculoskeletal
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>Cervical Spine Radiograph
 		</title>
 		<content>
@@ -5048,9 +5345,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Spine radiograph: Surgical Fixation
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Musculoskeletal
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>Spine Radiograph
 		</title>
 		<content>
@@ -5105,9 +5408,15 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	<template>
 		<name>Radiograph: Ventriculoperitoneal (VP) Shunt Series
 		</name>
-		<type>
-			Diagnostic
-		</type>
+		<modality>
+			Radiography
+		</modality>
+		<specialty>
+			Musculoskeletal
+		</specialty>
+		<region>
+			Spine
+		</region>
 		<title>Ventriculoperitoneal Shunt Series
 		</title>
 		<content>
@@ -5162,99 +5471,5 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 		</content>
 	</template>
-	<template>
-		<name>
-		</name>
-		<type>
-			Diagnostic
-		</type>
-		<title>
-		</title>
-		<content>
 
-			<h1>
-				Technique
-			</h1>
-			<text_entry subtype="small">
-			</text_entry>
-			<h1>
-				Comparison
-			</h1>
-			<multi_select >
-				<dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
-					Radiograph | series of radiographs | CT | series of CT studies 
-				</dropdown>
-				<free_text label="Date" flags = "dont_print_label">
-				</free_text>
-			</multi_select>
-			<h1>
-				Findings
-			</h1>
-
-			<h1>
-				Conclusion
-			</h1>
-			<selection>Normal study</selection>
-		</content>
-	</template>
-	<template>
-		<name>
-		</name>
-		<type>
-			Diagnostic
-		</type>
-		<title>
-		</title>
-		<content>
-
-			<h1>
-				Technique
-			</h1>
-			<text_entry subtype="small">
-			</text_entry>
-			<h1>
-				Comparison
-			</h1>
-			<text_entry label="" subtype="small">
-			</text_entry>
-			<h1>
-				Findings
-			</h1>
-
-			<h1>
-				Conclusion
-			</h1>
-			<selection>Normal study</selection>
-		</content>
-	</template>
-	<template>
-		<name>
-		</name>
-		<type>
-			Diagnostic
-		</type>
-		<title>
-		</title>
-		<content>
-
-			<h1>
-				Technique
-			</h1>
-			<text_entry subtype="small">
-			</text_entry>
-			<h1>
-				Comparison
-			</h1>
-			<text_entry label="" subtype="small">
-			</text_entry>
-			<h1>
-				Findings
-			</h1>
-
-			<h1>
-				Conclusion
-			</h1>
-			<selection>Normal study</selection>
-		</content>
-	</template>
 </all>
