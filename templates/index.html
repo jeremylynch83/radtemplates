@@ -171,6 +171,10 @@
 				<b-input-group prepend="Header label" >
 					<b-form-input v-model="selected_n.label"></b-form-input>	
 				</b-input-group>
+
+				<p></p>
+			    <b-form-checkbox v-model="selected_n.dontprint">Omit heading from report?</b-form-checkbox>
+			    <b-form-checkbox v-model="selected_n.printspace">Print spaces after heading?</b-form-checkbox>
 				<p></p>
 			</b-form-group>
 
@@ -191,6 +195,8 @@
 				<b-form-radio value="medium">Medium</b-form-radio>
 				<b-form-radio value="large">Large</b-form-radio>
 			</b-form-radio-group>
+			<b-form-checkbox v-model="selected_n.dont_print_label">Omit label in report?</b-form-checkbox>
+
 			<p></p>
 
 				<label>Content:</label>
@@ -325,6 +331,8 @@
 								</b-col>
 							</b-row>
 					</template>
+					<b-form-checkbox v-model="nn.dont_print_normal">Don't mention in report if normal?</b-form-checkbox>
+
 					</b-card>
 					<p></p><b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
 					<p></p>
@@ -396,6 +404,20 @@
 	</template>
 </b-modal>
 
+<b-modal id="delete_template" title="Confirm deletion?">
+	<b-form-group>
+		
+		<p>Delete this template?</p>
+
+	</b-form-group>
+	<template #modal-footer="{ Close }">
+		<b-button variant="success" @click="saveAsNew();$bvModal.hide('delete_template')">Cancel</b-button>
+
+		<b-button variant="danger" @click="deleteTemplate();$bvModal.hide('delete_template')">Delete</b-button>
+
+	</template>
+</b-modal>
+
 
 <b-form-group v-if="template != ''">
 	<b-card bg-variant="light">
@@ -406,6 +428,7 @@
 			<b-dropdown-item @click="blankTemplate()">Create blank template</b-dropdown-item>
 			<b-dropdown-item @click="exportXML()">Save changes to this template</b-dropdown-item>
 			<b-dropdown-item v-b-modal.save_as_new_modal>Save as new template</b-dropdown-item>
+			<b-dropdown-item v-b-modal.delete_template>Delete template</b-dropdown-item>
 		</b-dropdown>
 
 		<h1>
@@ -696,13 +719,18 @@
 						if (el.type == "h1") el.label = el.label.toUpperCase();
 						if (el.label[el.label.length - 1] != ":") el.label += ": ";
 						else el.label += " ";
+						el.dontprint = false;
+						if (xml[i].getAttribute("flags") && xml[i].getAttribute("flags").includes("dont_print")) el.dontprint=true;;
+						el.printspace = false;
+						if (xml[i].getAttribute("flags") && xml[i].getAttribute("flags").includes("print_space")) el.printspace=true;;
+
 
 						el.printContents = function () {
 							var print_text = "";
-							if (this.flags.includes("print_space")) {
+							if (this.printspace) {
 								print_text += "\n\n";
 							}
-							if (!this.flags.includes("dont_print")) {
+							if (!this.dontprint) {
 								if (this.type == "h1") print_text += "\n\n" + this.label + "\n";
 								if (this.type == "h2") print_text += "\n\n" + this.label;
 							}
@@ -711,7 +739,10 @@
 						el.exportTemplate = function(xml_doc) {
 							// Create structure
 							var xml_el = xml_doc.createElement(this.type);
-							if (this.flags) xml_el.setAttribute("flags", this.flags);
+							var flags = ""
+							if (this.dontprint) flags = flags + "dont_print"
+							if (this.printspace) flags = flags + "|print_space"
+							if (this.flags) xml_el.setAttribute("flags", flags);
 							xml_el.innerHTML = this.label;
 							return xml_el;
 						}
@@ -757,11 +788,13 @@
 					el.subtype = xml[i].getAttribute("subtype");
 					if (el.subtype) el.subtype = el.subtype.trim();
 					else el.subtype = "medium";
+					el.dont_print_label = false;
+					if (xml[i].getAttribute("dont_print_label") && xml[i].getAttribute("dont_print_label")=="true") el.dont_print_label = true;
 
 					el.printContents = function () {
 						var print_text = "";
 						if (this.text != "") {
-							if (this.label && !this.flags.includes("dont_print_label")) print_text += this.label;
+							if (this.label && !this.dont_print_label) print_text += this.label;
 							if (this.sentencecontinues) print_text += " " + this.text.toLowerCase();
 							else if (this.label) print_text += " " + this.text;
 							else print_text += this.text
@@ -775,6 +808,7 @@
 							var xml_el = xml_doc.createElement(this.type);
 							if (this.label) xml_el.setAttribute("label", this.label);
 							xml_el.setAttribute("subtype", this.subtype);
+							if (this.dont_print_label) xml_el.setAttribute("dont_print_label", this.dont_print_label);
 							xml_el.innerHTML = this.template_text;							
 							return xml_el;
 					}
@@ -786,12 +820,20 @@
 					el.selected = "";
 					el.label = label;
 					el.options = [];
+					
+
 					for (var x = 0; x < op_values.length; x++) {
-						if(op_values[x].trim() != "" || x ==0) el.options.push({
+						if(op_values[x].trim() != "") {
+							el.options.push({
 							text: op_values[x].trim(),
-							value: x
-						})
+							value: x+1
+							})}
 					}
+
+					el.options.splice(0, 0, {
+							text: "",
+							value: 0
+						})
 
 					el.options.push({
 						text: "Other",
@@ -880,7 +922,7 @@
 												value: 0
 											});
 											for (var x = 0; x < op_values.length; x++) {
-												options.push({
+												if (op_values[x].trim() != "") options.push({
 													text: op_values[x].trim(),
 													value: x + 1 // Therefore value needs to start at 1
 												})
@@ -1023,8 +1065,8 @@
 							el.multi = [];
 							for (var n = 0; n < nodes.length; n++) {
 								if (nodes[n].nodeName == "radio") {
-									var r_flags = nodes[n].getAttribute("flags");
-									if (!r_flags) r_flags = "";
+									var dont_print_normal = false;
+									if (nodes[n].getAttribute("dont_print_normal") && nodes[n].getAttribute("dont_print_normal") =="true") dont_print_normal = true;
 
 									var inner_text = nodes[n].innerHTML.trim();
 									var options = [];
@@ -1061,7 +1103,7 @@
 										showdetailson: showdetailson,
 										details: "",
 										normaltext: normaltext,
-										flags: r_flags
+										dont_print_normal: dont_print_normal
 									});
 								}
 							}
@@ -1076,8 +1118,7 @@
 
 									if (Number.isInteger(print_multi[n].selected)) {
 										// Normal and don't print if normal flag
-										if (print_multi[n].selected == 0 && print_multi[n].flags.includes(
-											"dont_print_normal")) {
+										if (print_multi[n].selected == 0 && print_multi[n].dont_print_normal) {
 
 										}
 										// Normal and supplied negative text
@@ -1119,7 +1160,8 @@
 									var xml_multi = xml_doc.createElement(this.multi[n].type);
 									xml_multi.setAttribute("label", this.multi[n].label);
 									if (this.multi[n].print_text_before) xml_multi.setAttribute("normaltext", this.multi[n].normaltext);
-									if (this.multi[n].flags) xml_multi.setAttribute("flags", this.multi[n].flags);
+									if (this.dont_print_normal) xml_multi.setAttribute("dont_print_normal", this.dont_print_normal);
+
 									if (this.multi[n].type == "radio") {
 										var multi_options = "";
 										for (var nn=0; nn <this.multi[n].options.length; nn++) {
@@ -1500,6 +1542,21 @@
 					this.templateForm.splice(index, 1);
 				},
 
+				deleteTemplate() {
+					var i = this.templates.findIndex(n=> {
+						return (n.name == this.templateForm.name);
+					});
+					this.templates.splice(i, 1);
+					var u = this.user_templates.findIndex(n => {
+						return (n.name == this.templateForm.name)
+					});
+					this.user_templates.splice(u, 1);
+					this.updateUserDatabase();
+					this.reset();
+
+
+				},
+
 				insertModule() {
 					var module_data = _.cloneDeep(this.module)
 
@@ -1617,47 +1674,8 @@
 
 				},
 
-				// Save template form to server
-				exportXML: function () {
-					if (this.logged_in == false) {
-						alert("You need to login to save");
-						return;
-					}	
-
-					// First I turn the gui elements to xml and then back again to blank the entries. 
-
-					var xml_doc = document.implementation.createDocument("", "", null);
-
-					var template_gui = {}
-					template_gui.elements = this.templateForm;
-
-					// Build new template xml from GUI
-					template = template_to_xml(template_gui, xml_doc);
-					var new_element = {
-							name: this.templateForm.name,
-							title: this.templateForm.title,
-							modality: this.templateForm.modality,
-							region: this.templateForm.region,
-							specialty: this.templateForm.specialty,
-							elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules)
-					}
-
-					// Search in the user_templates and replace if exists. If not then append. 
-					var exists_in_user_templates=null;
-					for (var n=0; n < this.user_templates.length; n++) {
-						if (this.user_templates[n].name == this.template.name) {
-							this.user_templates[n] = new_element;
-							exists_in_user_templates = true; 
-						}
-					}
-					if (!exists_in_user_templates) {
-						this.user_templates.push(new_element);
-					}
-
-					// Search in normal templates and replace if exists. If not then append. 
-					merge_templates(this.templates, this.user_templates)						
-
-					// Write the user_templates to disc
+				updateUserDatabase: function() {
+										// Write the user_templates to disc
 					var save_doc = document.implementation.createDocument("", "", null);
 					var all = save_doc.createElement("all");
 					save_doc.appendChild(all);
@@ -1697,7 +1715,48 @@
 		                    console.log("Fetch error: " + error);
 		                });
 
+				},
 
+				// Save this template form to server
+				exportXML: function () {
+					if (this.logged_in == false) {
+						alert("You need to login to save");
+						return;
+					}	
+
+					// First I turn the gui elements to xml and then back again to blank the entries. 
+
+					var xml_doc = document.implementation.createDocument("", "", null);
+
+					var template_gui = {}
+					template_gui.elements = this.templateForm;
+
+					// Build new template xml from GUI
+					template = template_to_xml(template_gui, xml_doc);
+					var new_element = {
+							name: this.templateForm.name,
+							title: this.templateForm.title,
+							modality: this.templateForm.modality,
+							region: this.templateForm.region,
+							specialty: this.templateForm.specialty,
+							elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules)
+					}
+
+					// Search in the user_templates and replace if exists. If not then append. 
+					var exists_in_user_templates=null;
+					for (var n=0; n < this.user_templates.length; n++) {
+						if (this.user_templates[n].name == this.template.name) {
+							this.user_templates[n] = new_element;
+							exists_in_user_templates = true; 
+						}
+					}
+					if (!exists_in_user_templates) {
+						this.user_templates.push(new_element);
+					}
+
+					// Search in normal templates and replace if exists. If not then append. 
+					merge_templates(this.templates, this.user_templates)						
+					this.updateUserDatabase();
         		},
         		
         		update_templates:function(xml) {

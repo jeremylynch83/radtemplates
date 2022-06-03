@@ -676,7 +676,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h1>
 				Technique
 			</h1>
-			<text_entry flags="dont_print_label" label="Consent">
+			<text_entry dont_print_label="true" label="Consent">
 				Informed consent was obtained from the patient including the risk of catastrophic brain injury, stroke, puncture site haemorrhage and numbness, and peripheral vascular occlusion.
 			</text_entry>
 			<selection label="Anaesthesia" print_label="true" showdetailson="0">
@@ -890,28 +890,28 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		</name>
 		<content>
 			<multi_radio>
-				<radio label="Masses/collections" flags="dont_print_normal">
+				<radio label="Masses/collections" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Fractures" flags="dont_print_normal">
+				<radio label="Fractures" dont_print_normal="true">
 					Not present | Present
 				</radio>
 				<radio label="Cord signal" normaltext="The imaged spinal cord signal is normal">
 					Normal | Abnormal
 				</radio>
-				<radio label="Bone marrow signal" flags="dont_print_normal">
+				<radio label="Bone marrow signal" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Annular fissure" flags="dont_print_normal">
+				<radio label="Annular fissure" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Paraspinal muscles" flags="dont_print_normal">
+				<radio label="Paraspinal muscles" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Evidence of DAVF" flags="dont_print_normal">
+				<radio label="Evidence of DAVF" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Planning sequences" flags="dont_print_normal">
+				<radio label="Planning sequences" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -1532,34 +1532,37 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Checklist
 			</h2>
 			<multi_radio>
-				<radio label="Venous sinus hyperdensity" flags="dont_print_normal">
+				<radio label="Ventricles" normaltext="The ventricles are not hydrocephalic. ">
+					Normal | Abnormal
+				</radio>
+				<radio label="Venous sinus hyperdensity" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Basilar hyperdensity" flags="dont_print_normal">
+				<radio label="Basilar hyperdensity" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Trauma/contusions" flags="dont_print_normal">
+				<radio label="Trauma/contusions" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Orbits" flags="dont_print_normal">
+				<radio label="Orbits" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Old infarcts" flags="dont_print_normal"> 
+				<radio label="Old infarcts" dont_print_normal="true"> 
 					Not present | Present
 				</radio>
-				<radio label="Paranasal sinuses" flags="dont_print_normal">
+				<radio label="Paranasal sinuses" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Clivus" flags="dont_print_normal">
+				<radio label="Clivus" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Pituitary" flags="dont_print_normal">
+				<radio label="Pituitary" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Cerebellar tonsils" flags="dont_print_normal">
+				<radio label="Cerebellar tonsils" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Extracranial soft tissue" flags="dont_print_normal">
+				<radio label="Extracranial soft tissue" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -1575,7 +1578,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h2 flags="dont_print">
 				Acute pathology
 			</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 			<multi_radio>
 				<radio label="Acute infact" normaltext="There is no acute cortical infarct.">
@@ -1631,34 +1634,34 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Checklist
 			</h2>
 			<multi_radio>
-				<radio label="Venous sinus hyperdensity" flags="dont_print_normal">
+				<radio label="Venous sinus hyperdensity" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Basilar hyperdensity" flags="dont_print_normal">
+				<radio label="Basilar hyperdensity" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Trauma/contusions" flags="dont_print_normal">
+				<radio label="Trauma/contusions" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Orbits" flags="dont_print_normal">
+				<radio label="Orbits" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Old infarcts" flags="dont_print_normal"> 
+				<radio label="Old infarcts" dont_print_normal="true"> 
 					Not present | Present
 				</radio>
-				<radio label="Paranasal sinuses" flags="dont_print_normal">
+				<radio label="Paranasal sinuses" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Clivus" flags="dont_print_normal">
+				<radio label="Clivus" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Pituitary" flags="dont_print_normal">
+				<radio label="Pituitary" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Cerebellar tonsils" flags="dont_print_normal">
+				<radio label="Cerebellar tonsils" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Extracranial soft tissue" flags="dont_print_normal">
+				<radio label="Extracranial soft tissue" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -1693,7 +1696,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h2 flags="dont_print">
 				Acute pathology
 			</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 			<multi_radio>
 				<radio label="Acute infact" normaltext="There is no acute cortical infarct.">
@@ -2017,16 +2020,16 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Normal appearances of the visualised lung apices | Mild dependent atelectasis is present at the imaged lung apices
 			</selection>
 			<multi_radio>
-				<radio label="Posterior fossa" flags="dont_print_normal">
+				<radio label="Posterior fossa" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Imaged pulmonary vasculature" flags="dont_print_normal">
+				<radio label="Imaged pulmonary vasculature" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Lymph nodes" flags="dont_print_normal">
+				<radio label="Lymph nodes" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Thyroid gland" flags="dont_print_normal">
+				<radio label="Thyroid gland" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -2145,25 +2148,25 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				</dropdown>
 			</multi_select>
 			<multi_radio>
-				<radio label="Huntingtons" flags="dont_print_normal">
+				<radio label="Huntingtons" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Frontotemporal dementia" flags="dont_print_normal">
+				<radio label="Frontotemporal dementia" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Cerebral amyloid angiopathy" flags="dont_print_normal">
+				<radio label="Cerebral amyloid angiopathy" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="CADASIL" flags="dont_print_normal">
+				<radio label="CADASIL" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="PSP" flags="dont_print_normal">
+				<radio label="PSP" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="MSA-P" flags="dont_print_normal">
+				<radio label="MSA-P" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="MSA-C" flags="dont_print_normal">
+				<radio label="MSA-C" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -2276,13 +2279,13 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Normal appearances of the visualised lung apices | Mild dependent atelectasis is present at the imaged lung apices
 			</selection>
 			<multi_radio>
-				<radio label="Thyroid gland" flags="dont_print_normal">
+				<radio label="Thyroid gland" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Orbits" flags="dont_print_normal">
+				<radio label="Orbits" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Abnormal lymph nodes" flags="dont_print_normal">
+				<radio label="Abnormal lymph nodes" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -2496,16 +2499,16 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Normal appearances of the visualised lung apices | Mild dependent atelectasis is present at the imaged lung apices
 			</selection>
 			<multi_radio>
-				<radio label="Posterior fossa" flags="dont_print_normal">
+				<radio label="Posterior fossa" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Imaged pulmonary vasculature" flags="dont_print_normal">
+				<radio label="Imaged pulmonary vasculature" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Lymph nodes" flags="dont_print_normal">
+				<radio label="Lymph nodes" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Thyroid gland" flags="dont_print_normal">
+				<radio label="Thyroid gland" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -2884,22 +2887,22 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				<radio label="Hydrocephalus" normaltext="The ventricles are not hydrocephalic">
 					Not present | Present
 				</radio>
-				<radio label="Dural thickening or leptomeningeal enhancement" flags="dont_print_normal">
+				<radio label="Dural thickening or leptomeningeal enhancement" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Raised intracranial pressure" flags="dont_print_normal">
+				<radio label="Raised intracranial pressure" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Low intracranial pressure" flags="dont_print_normal">
+				<radio label="Low intracranial pressure" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Basilar flow void" flags="dont_print_normal">
+				<radio label="Basilar flow void" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Trauma/contusions" flags="dont_print_normal">
+				<radio label="Trauma/contusions" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Old infarcts" flags="dont_print_normal">
+				<radio label="Old infarcts" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -2907,34 +2910,34 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Regions
 			</h2>
 			<multi_radio>
-				<radio label="Paranasal sinuses" flags="dont_print_normal">
+				<radio label="Paranasal sinuses" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Orbits" flags="dont_print_normal">
+				<radio label="Orbits" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Clivus" flags="dont_print_normal">
+				<radio label="Clivus" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Pituitary" flags="dont_print_normal">
+				<radio label="Pituitary" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Cavernous sinus" flags="dont_print_normal">
+				<radio label="Cavernous sinus" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Cerebellar tonsils" flags="dont_print_normal">
+				<radio label="Cerebellar tonsils" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Internal auditory canals" flags="dont_print_normal">
+				<radio label="Internal auditory canals" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Skull base" flags="dont_print_normal">
+				<radio label="Skull base" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Extracranial soft tissue" flags="dont_print_normal">
+				<radio label="Extracranial soft tissue" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
-				<radio label="Craniocervical junction" flags="dont_print_normal">
+				<radio label="Craniocervical junction" dont_print_normal="true">
 					Normal | Abnormal
 				</radio>
 			</multi_radio>
@@ -3022,7 +3025,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h2 flags="dont_print">
 				Acute pathology
 			</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 			<multi_radio>
 				<text_entry subtype="large">
@@ -3153,19 +3156,19 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="Optic nerve sheath dilatation or tortuosity" flags="dont_print_normal">
+				<radio label="Optic nerve sheath dilatation or tortuosity" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Papilloedema" flags="dont_print_normal">
+				<radio label="Papilloedema" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Sella arachnoid herniation" flags="dont_print_normal">
+				<radio label="Sella arachnoid herniation" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Small venous sinuses" flags="dont_print_normal">
+				<radio label="Small venous sinuses" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Tonsillar ectopia" flags="dont_print_normal">
+				<radio label="Tonsillar ectopia" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -3205,7 +3208,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="Glomus jugulare paraganglioma" flags="dont_print_normal">
+				<radio label="Glomus jugulare paraganglioma" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -3223,19 +3226,19 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="Dural arteriovenous fistula" flags="dont_print_normal">
+				<radio label="Dural arteriovenous fistula" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Arteriovenous malformation" flags="dont_print_normal">
+				<radio label="Arteriovenous malformation" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Aneurysm" flags="dont_print_normal">
+				<radio label="Aneurysm" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Stenosis or dissection" flags="dont_print_normal">
+				<radio label="Stenosis or dissection" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Variant vessel within the temporal bone e.g. ICA" flags="dont_print_normal">
+				<radio label="Variant vessel within the temporal bone e.g. ICA" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -3249,19 +3252,19 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="High riding jugular bulb or diverticulum or dehiscence" flags="dont_print_normal">
+				<radio label="High riding jugular bulb or diverticulum or dehiscence" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Laterally placed sigmoid sinus or diverticulum, or dehiscence" flags="dont_print_normal">
+				<radio label="Laterally placed sigmoid sinus or diverticulum, or dehiscence" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Transverse sinus stenosis" flags="dont_print_normal">
+				<radio label="Transverse sinus stenosis" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Abnormal mastoid emissary veins" flags="dont_print_normal">
+				<radio label="Abnormal mastoid emissary veins" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Stenosis or dissection" flags="dont_print_normal">
+				<radio label="Stenosis or dissection" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -3632,7 +3635,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h2 flags="dont_print">
 				Acute pathology: head
 			</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 			<multi_radio>
 				<radio label="Acute infact" normaltext="There is no acute cortical infarct.">
@@ -4070,7 +4073,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				<radio label="Gyral folding: Polymicrogyria, pachygyria." normaltext="Gyral development is normal. ">
 					Not present | Present
 				</radio>
-				<radio label="Schizencephaly" flags="dont_print_normal">
+				<radio label="Schizencephaly" dont_print_normal="true">
 					Not present | Present
 				</radio>
 				<radio label="Micro/macrocephaly" normaltext="No micro- or macrocephaly.">
@@ -4135,7 +4138,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				Extra-axial
 			</h2>
 			<multi_radio>
-				<radio label="Encephaloceles" flags="dont_print_normal">
+				<radio label="Encephaloceles" dont_print_normal="true">
 					Not present | Present
 				</radio>
 
@@ -4413,10 +4416,10 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				No microhaemorrhages are identified. | There are multiple microhaemorrhages with a central distribution. | There are multiple microhaemorrhages with a peripheral distribution and sparing the basal ganglia. 
 			</selection>
 			<multi_radio>
-				<radio label="Cerebral amyloid angiopathy" flags="dont_print_normal">
+				<radio label="Cerebral amyloid angiopathy" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="CADASIL" flags="dont_print_normal">
+				<radio label="CADASIL" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -4451,13 +4454,13 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="PSP" flags="dont_print_normal">
+				<radio label="PSP" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="MSA-P" flags="dont_print_normal">
+				<radio label="MSA-P" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="MSA-C" flags="dont_print_normal">
+				<radio label="MSA-C" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -4470,13 +4473,13 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</selection>
 
 			<multi_radio>
-				<radio label="Prion disease" flags="dont_print_normal">
+				<radio label="Prion disease" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Autoimmune encephalitis" flags="dont_print_normal">
+				<radio label="Autoimmune encephalitis" dont_print_normal="true">
 					Not present | Present
 				</radio>
-				<radio label="Huntingtons" flags="dont_print_normal">
+				<radio label="Huntingtons" dont_print_normal="true">
 					Not present | Present
 				</radio>
 			</multi_radio>
@@ -4593,7 +4596,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			<h2>
 				Head
 			</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 
 			<query_insert>Aneurysm description
@@ -4628,7 +4631,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 				MRI Head Checklist
 			</insert>
 			<h2>Spine</h2>
-			<text_entry subtype="medium" flags="dont_print_label">
+			<text_entry subtype="medium" dont_print_label="true">
 			</text_entry>
 
 			<selection label="Alignment and height">Normal spinal alignment with preservation of vertebral body height and signal.</selection>
