@@ -88,12 +88,7 @@
 		</b-modal>
 
 		<b-container fluid="sm">
-			<p></p>
-			
-			<b-container v-if="template == ''"
-			style="background-color:rgb(255, 255, 239); padding: 10px; border-radius: 5px">
-			
-		</b-container>
+		
 		<p></p>
 
 		<!--<b-form-group label=" Search for template:">
@@ -104,13 +99,16 @@
 
 		<b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
 		<b-form-group>
-					
-			<template v-for="x in modalities">
-			<h3>{{x}}</h3>
-				<template v-for="y in regions">
-						<h4 style="font-size:small" v-if="items_in_list(x, y)">{{y}}</h4>
-						<template v-for="n in templates">
-						<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality==x && n.region ==y">{{n.name}} </b-button>
+				
+		<template v-for="x in specialties">
+			<h2 v-if="items_in_list(x)">{{x}}</h2>
+				<template v-for="y in modalities">
+				<h3 v-if="items_in_list(x, y)">{{y}}</h3>
+					<template v-for="z in regions">
+							<h4 style="font-size:small" v-if="items_in_list(x, y, z)">{{z}}</h4>
+							<template v-for="n in templates">
+							<b-button @click="selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
+						</template>
 					</template>
 				</template>
 			</template>
@@ -196,7 +194,7 @@
 			<p></p>
 
 				<label>Content:</label>
-				<b-form-textarea v-model="selected_n.text" >
+				<b-form-textarea v-model="selected_n.template_text" >
 				</b-form-textarea>
 
 
@@ -543,7 +541,7 @@
 		<template v-for="nn in n.multi">
 
 			<b-form inline v-if="nn.options != '' && nn.type == 'radio'">
-				<label class="mb-2 mr-sm-2 mb-sm-0">{{nn.label}}</label>
+				<label class="mb-2 mr-sm-2 mb-sm-0">{{nn.label + ": "}}</label>
 				<b-form-radio-group :options="nn.options" v-model="nn.selected"
 				class="mb-2 mr-sm-2 mb-sm-0">
 			</b-form-radio-group>
@@ -758,7 +756,8 @@
 
 					// TEXT ENTRY
 					case "text_entry":
-					el.text = xml[i].innerHTML.trim();
+					el.template_text = xml[i].innerHTML.trim();
+					el.text = el.template_text;
 					el.subtype = xml[i].getAttribute("subtype");
 					if (el.subtype) el.subtype = el.subtype.trim();
 					else el.subtype = "medium";
@@ -777,11 +776,10 @@
 					return print_text;
 					}
 					el.exportTemplate = function(xml_doc) {
-							// Create structure
-							//var xml_doc = document.implementation.createDocument("", "", null);
 							var xml_el = xml_doc.createElement(this.type);
 							if (this.label) xml_el.setAttribute("label", this.label);
 							xml_el.setAttribute("subtype", this.subtype);
+							xml_el.innerHTML = this.template_text;							
 							return xml_el;
 					}
 					elements.push(el);
@@ -1353,13 +1351,7 @@
 			},
 			el: '#app',
 			data: {
-				modalities: ["CT", "MRI", "Radiography"],
-				modalities_o: [
-          { text: 'Toggle this custom radio', value: 'first' },
-          { text: 'Or toggle this other custom radio', value: 'second' },
-          { text: 'This one is Disabled', value: 'third', disabled: true },
-          { text: 'This is the 4th radio', value: { fourth: 4 } }
-        ],
+				modalities: ["CT", "MRI", "Radiography", "Angiography"],
 				specialties: ["Neuroradiology", "Chest", "Musculoskeletal"],
 				regions: ["Brain", "Spine", "Orbits", "Chest"],
 				templates: loadXML("static/xml/templates_list.xml"),
@@ -1392,18 +1384,52 @@
 				}
 			},
 			created () {
+				
+						fetch(`${window.origin}/check-login`, {
+		                method: "GET",
+		                credentials: "include",
+		                cache: "no-cache",
+		                headers: new Headers({
+		                    "content-type": "application/json"
+		                })
+		            })
+		                .then(response => {
+		                	if (response.ok) {
+
+								} 
+		                    if (response.status !== 200) {
+		                        alert("Login failure " + response.status)
+
+		                        return;
+		                    }
+		                    return response.json()
+		                })
+		                .then(xml => {
+		                	this.update_templates(xml);
+		                	
+		                })
+		                .catch(function (error) {
+		                    console.log("Fetch error: " + error);
+		                });
+		                
 			},
 
 			methods: {
 
-				items_in_list:function(modality, region) {
-					var is_in = this.templates.filter(n => {
-						return n.modality == modality;
-					}).filter(x => {
+				items_in_list:function(specialty, modality, region) {
+					var is_in = this.templates.filter(x => {
+						return x.specialty == specialty;
+					})
+					
+					if (modality) is_in = is_in.filter(x => {
+						return x.modality == modality;
+					});
+					
+					if (region) is_in = is_in.filter(x => {
 						return x.region == region;
-					}).length;
-					//console.log(is_in);
-					return is_in; 
+					});
+
+					return is_in.length; 
 				},
 				update: function (event) {
 				},
@@ -1677,54 +1703,9 @@
 
 
         		},
-
-
-				saveAsNew: function() {
-					//console.log(this.template);
-					//console.log(this.templateForm);
-
-					if (this.logged_in == false) {
-					alert("You need to login to save");
-					return;
-					}
-					// Search if name already 
-					if(-1 != this.templates.findIndex(n => {
-						return (n.name.trim() == this.templateForm.name.trim())
-					})) {
-						alert("Name already exists!" + this.templateForm.name);
-						return;
-					}
-					this.exportXML();
-				},
-
-        		login: function() {
-					var entry = {
-		                user_email: this.user_email,
-		                user_password: this.user_password 
-		            }
-	
-		            fetch(`${window.origin}/login`, {
-		                method: "POST",
-		                credentials: "include",
-		                body: JSON.stringify(entry),
-		                cache: "no-cache",
-		                headers: new Headers({
-		                    "content-type": "application/json"
-		                })
-		            })
-		                .then(response => {
-		                	if (response.ok) {
-
-								} 
-		                    if (response.status !== 200) {
-		                        alert("Login failure " + response.status)
-
-		                        return;
-		                    }
-		                    return response.json()
-		                })
-		                .then(xml => {
-		                	if (!xml) return;
+        		
+        		update_templates:function(xml) {
+        					if (!xml) return;
 
 		                	this.user_name = xml.username;
 		                	this.logged_in = true;
@@ -1771,6 +1752,52 @@
 
 								}
 
+        		},
+
+				saveAsNew: function() {
+					if (this.logged_in == false) {
+					alert("You need to login to save");
+					return;
+					}
+					// Search if name already 
+					if(-1 != this.templates.findIndex(n => {
+						return (n.name.trim() == this.templateForm.name.trim())
+					})) {
+						alert("Name already exists!" + this.templateForm.name);
+						return;
+					}
+					this.exportXML();
+				},
+
+        		login: function() {
+					var entry = {
+		                user_email: this.user_email,
+		                user_password: this.user_password 
+		            }
+	
+		            fetch(`${window.origin}/login`, {
+		                method: "POST",
+		                credentials: "include",
+		                body: JSON.stringify(entry),
+		                cache: "no-cache",
+		                headers: new Headers({
+		                    "content-type": "application/json"
+		                })
+		            })
+		                .then(response => {
+		                	if (response.ok) {
+
+								} 
+		                    if (response.status !== 200) {
+		                        alert("Login failure " + response.status)
+
+		                        return;
+		                    }
+		                    return response.json()
+		                })
+		                .then(xml => {
+		                	this.update_templates(xml);
+		                	
 		                })
 		                .catch(function (error) {
 		                    console.log("Fetch error: " + error);

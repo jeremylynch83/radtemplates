@@ -39,13 +39,16 @@ def create_table():
 login.init_app(app)
 login.login_view = 'login'
 
-# Login view
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     print("login")
 
     if current_user.is_authenticated:
-        return jsonify(data)
+            data = {
+                "templates": current_user.get_templates(),
+                "username": current_user.get_username()
+            }
+            return jsonify(data)
      
     if request.method == 'POST':
         req = request.get_json()
@@ -62,16 +65,21 @@ def login():
 
         if user is None or not user.check_password(req['user_password']):
             return "failure", 400
-
-
+            
     return redirect('/')
 
-@app.route('/index/get-templates', methods = ['GET'])
-def get_templates():
+@app.route('/check-login', methods=['GET'])
+def check_login():
     if current_user.is_authenticated:
-        return "success"
-    return "failure", 200
- 
+            data = {
+                "templates": current_user.get_templates(),
+                "username": current_user.get_username()
+            }
+            print(data)
+            return jsonify(data)
+    else:
+        return "failure", 200
+
 
 # Register view
 @app.route('/register', methods=['POST', 'GET'])
