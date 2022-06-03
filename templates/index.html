@@ -727,8 +727,6 @@
 						return print_text;
 					}
 					el.exportTemplate = function(xml_doc) {
-							// Create structure
-							//var xml_doc = document.implementation.createDocument("", "", null);
 							var xml_el = xml_doc.createElement(this.type);
 							if (this.flags) xml_el.setAttribute("flags", this.flags);
 							xml_el.innerHTML = this.text;
@@ -744,8 +742,6 @@
 						return this.text + this.details_text;
 					}
 					el.exportTemplate = function(xml_doc) {
-							// Create structure
-							//var xml_doc = document.implementation.createDocument("", "", null);
 							var xml_el = xml_doc.createElement(this.type);
 							if (this.flags) xml_el.setAttribute("flags", this.flags);
 							xml_el.innerHTML = this.text;
@@ -791,7 +787,7 @@
 					el.label = label;
 					el.options = [];
 					for (var x = 0; x < op_values.length; x++) {
-						el.options.push({
+						if(op_values[x].trim() != "" || x ==0) el.options.push({
 							text: op_values[x].trim(),
 							value: x
 						})
