@@ -104,14 +104,17 @@
 
 		<b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
 		<b-form-group>
-			<h3>MRI</h3>
-			<template v-for="n in templates">
-				<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality=='MRI'">{{n.name}} </b-button>
+					
+			<template v-for="x in modalities">
+			<h3>{{x}}</h3>
+				<template v-for="y in regions">
+						<h4 style="font-size:small" v-if="items_in_list(x, y)">{{y}}</h4>
+						<template v-for="n in templates">
+						<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality==x && n.region ==y">{{n.name}} </b-button>
+					</template>
+				</template>
 			</template>
-			<h3>CT</h3>
-			<template v-for="n in templates">
-				<b-button @click="selectTemplate(n)" variant="link" v-if="n.modality=='CT'">{{n.name}} </b-button>
-			</template>
+
 		</b-form-group>
 		</b-form-group>
 
@@ -378,10 +381,15 @@
 
 <b-modal id="save_as_new_modal" title="Save As New">
 	<b-form-group>
-		<p>Name <b-form-input v-model="templateForm.name"/></p>
-		<p>Branch <b-form-input /></p>
-		<p>Modality <b-form-input /></p>
-		<p>Body region <b-form-input /></p>
+		
+		<label>Name</label>
+		 <b-form-input v-model="templateForm.name"></b-form-input>
+		 <label>Specialty</label>
+		 <b-form-select :options="specialties" v-model="templateForm.specialty" ></b-form-select>
+		 		<label>Modality</label>
+		<b-form-select :options="modalities" v-model="templateForm.modality" ></b-form-select>
+				<label>Body Region</label>
+		<b-form-select  :options="regions" v-model="templateForm.region" ></b-form-select>
 
 	</b-form-group>
 	<template #modal-footer="{ close }">
@@ -394,7 +402,7 @@
 <b-form-group v-if="template != ''">
 	<b-card bg-variant="light">
 		<b-button variant="success" @click="copyReport()">Show Report</b-button>
-		<b-button variant="danger" @click="reset()">Reset</b-button>
+		<b-button variant="danger" @click="reset()">Close</b-button>
 
 		<b-dropdown text="Template" class="m-md-2">
 			<b-dropdown-item @click="blankTemplate()">Create blank template</b-dropdown-item>
@@ -614,33 +622,6 @@
 
 	    arr.push(n);
 	    return n;
-	}
-
-
-
-	function flatten(data) {
-		var result = {};
-
-		function recurse(cur, prop) {
-			if (Object(cur) !== cur) {
-				result[prop] = cur;
-			} else if (Array.isArray(cur)) {
-				for (var i = 0, l = cur.length; i < l; i++)
-					recurse(cur[i], prop + "[" + i + "]");
-				if (l == 0)
-					result[prop] = [];
-			} else {
-				var isEmpty = true;
-				for (var p in cur) {
-					isEmpty = false;
-					recurse(cur[p], prop ? prop + "." + p : p);
-				}
-				if (isEmpty && prop)
-					result[prop] = {};
-			}
-		}
-		recurse(data, "");
-		return result;
 	}
 
 	function download(filename, text) {
@@ -1275,35 +1256,38 @@
 					});
 				}
 
-				var templates = xmlDoc.getElementsByTagName("template");
+				var t = xmlDoc.getElementsByTagName("template");
 
-				for (var i = 0; i < templates.length; i++) {
-					var t_name = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-						"name")[0].innerHTML.replace(/\t/g, '');
-					var t_modality = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-						"modality")[0];
+				for (var i = 0; i < t.length; i++) {
+					var t_name = t[i].querySelector(
+						"name").innerHTML.replace(/\t/g, '');
+					var t_modality = t[i].querySelector(
+						"modality");
 					if(t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
-					var t_title = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-						"title")[0];
+					var t_region = t[i].querySelector("region");
+					if(t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
+					var t_specialty = t[i].querySelector("specialty");
+					if(t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
+					var t_title = t[i].querySelector("title");
 					if (t_title == null || t_title == "") {
 						t_title = t_name;
 					} else {
 						t_title = t_title.innerHTML.replace(/\t/g, '');
 					}
-					var t_findings = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-						"content")[0].childNodes;
+					var t_findings = t[i].querySelector(
+						"content").childNodes;
 					var elements = parseFindings(t_findings, modules);
 
 					temp.push({
 						name: t_name,
 						title: t_title,
+						specialty: t_specialty,
+						region: t_region,
 						modality: t_modality,
 						elements: elements
 					});
 					}
 					temp.modules = modules;
-
-
 			}
 			return temp
 		}
@@ -1335,6 +1319,13 @@
 			var modality = xml_doc.createElement("modality");
 			modality.innerHTML = template_gui.modality;
 			template.appendChild(modality);
+			var region = xml_doc.createElement("region");
+			region.innerHTML = template_gui.region;
+			template.appendChild(region);		
+			var specialty = xml_doc.createElement("specialty");
+			specialty.innerHTML = template_gui.specialty;
+			template.appendChild(specialty);	
+			
 			var content = xml_doc.createElement("content");
 			template.appendChild(content);
 			for (var n = 0; n < template_gui.elements.length; n++) {
@@ -1342,6 +1333,17 @@
 			}
 			return template; 
 		}
+		
+		
+	 function array_to_options(a) {
+					var new_array = [];
+					a.forEach(n => {
+						new_array.push({text:n, value:n});
+						});
+						
+					return new_array;
+				}
+	
 
 		/* GLOBAL VARIABLES */
 
@@ -1351,7 +1353,15 @@
 			},
 			el: '#app',
 			data: {
-				id_count: 0,
+				modalities: ["CT", "MRI", "Radiography"],
+				modalities_o: [
+          { text: 'Toggle this custom radio', value: 'first' },
+          { text: 'Or toggle this other custom radio', value: 'second' },
+          { text: 'This one is Disabled', value: 'third', disabled: true },
+          { text: 'This is the 4th radio', value: { fourth: 4 } }
+        ],
+				specialties: ["Neuroradiology", "Chest", "Musculoskeletal"],
+				regions: ["Brain", "Spine", "Orbits", "Chest"],
 				templates: loadXML("static/xml/templates_list.xml"),
 				user_templates: [], //loadXML("static/xml/user.xml"),
 				reportText: "",
@@ -1385,31 +1395,31 @@
 			},
 
 			methods: {
-				// General functions
-				generateID: function () {
-					this.id_count++;
-					return this.id_count;
+
+				items_in_list:function(modality, region) {
+					var is_in = this.templates.filter(n => {
+						return n.modality == modality;
+					}).filter(x => {
+						return x.region == region;
+					}).length;
+					//console.log(is_in);
+					return is_in; 
 				},
 				update: function (event) {
-
 				},
 
 				findList: function (text, symbol_start, symbol_end) {
-
 					var n = 0 - symbol_start.length;
 					do {
 						n = text.indexOf(symbol_start, n + symbol_start.length);
 						if (n != -1) {
 							end = text.indexOf(symbol_end, n);
 						}
-
 					} while (n != -1);
 					return text;
 				},
 
 				reset: function () {
-
-					this.id_count = 0;
 					this.reportText = "";
 					this.module = "";
 					this.template = "";
@@ -1422,6 +1432,7 @@
 					this.reset();
 					this.template = event;
 					this.writeTemplate();
+					window.scrollTo(0, 0);
 				},
 
 				selectModule: function (event) {
@@ -1435,6 +1446,8 @@
 					this.templateForm.name = this.template.name;
 					this.templateForm.title=  this.template.title;
 					this.templateForm.modality = this.template.modality;
+					this.templateForm.region = this.template.region;
+					this.templateForm.specialty = this.template.specialty;
 
 					for (var n = 0; n < elements.length; n++) {
 						var el = _.cloneDeep(this.template.elements[n]);
@@ -1601,7 +1614,9 @@
 					var new_element = {
 							name: this.templateForm.name,
 							title: this.templateForm.title,
-							type: this.templateForm.type,
+							modality: this.templateForm.modality,
+							region: this.templateForm.region,
+							specialty: this.templateForm.specialty,
 							elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules)
 					}
 
@@ -1679,27 +1694,6 @@
 						alert("Name already exists!" + this.templateForm.name);
 						return;
 					}
-
-					//this.templateForm.name = this.new_template_name;
-
-
-					// If name does not exist in templates create new entry in templates and copy form in
-					/*this.templates.push({
-						name: this.templateForm.name,
-						title: 'test',
-						type: 'Diagnostic',
-						elements: _.cloneDeep(this.templateForm)
-					});
-
-					// Save also in user_templates
-					this.user_templates.push({
-						name: this.templateForm.name,
-						title: 'test',
-						type: 'Diagnostic',
-						elements: _.cloneDeep(this.templateForm)
-					});*/
-
-					// Now save this to the online database
 					this.exportXML();
 				},
 
@@ -1740,28 +1734,34 @@
 								xmlDoc = parser.parseFromString(xml.templates, "text/xml");
 
 							var user=[]
-							var templates = xmlDoc.getElementsByTagName("template");
+							var t = xmlDoc.getElementsByTagName("template");
 				
-							for (var i = 0; i < templates.length; i++) {
-								var t_name = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-										"name")[0].innerHTML.replace(/\t/g, '');
-								var t_modality = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-										"modality")[0].innerHTML.replace(/\t/g, '').trim();
-								var t_title = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-										"title")[0];
+							for (var i = 0; i < t.length; i++) {
+								var t_name = t[i].querySelector(
+									"name").innerHTML.replace(/\t/g, '');
+								var t_modality = t[i].querySelector(
+									"modality");
+								if(t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
+								var t_region = t[i].querySelector("region");
+								if(t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
+								var t_specialty = t[i].querySelector("specialty");
+								if(t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
+								var t_title = t[i].querySelector("title");
 								if (t_title == null || t_title == "") {
-										t_title = t_name;
+									t_title = t_name;
 								} else {
-										t_title = t_title.innerHTML.replace(/\t/g, '');
+									t_title = t_title.innerHTML.replace(/\t/g, '');
 								}
-								var t_findings = xmlDoc.getElementsByTagName("template")[i].getElementsByTagName(
-										"content")[0].childNodes;
+								var t_findings = t[i].querySelector(
+										"content").childNodes;
 								var elements = parseFindings(t_findings, []);
 				
 								user.push({
 										name: t_name,
 										title: t_title,
-										t_modality: t_modality,
+										specialty: t_specialty,
+										region: t_region,
+										modality: t_modality,
 										elements: elements
 								});
 								}

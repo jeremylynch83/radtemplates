@@ -107,6 +107,12 @@ h3 {
     font-size: medium;
 }
 
+h4 {
+    border-top-width: 1px;
+    margin-top: 5px;
+    font-size: small;
+}
+
 .calc_result {
     font-size: large;
 }
