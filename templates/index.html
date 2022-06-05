@@ -87,6 +87,7 @@
             <b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
                 <b-form-group>
                     <b-button href="/module-editor">Edit modules</b-button>
+                    <b-button @click="download_templates()">Download my templates/modules</b-button>
                     <h2>Generic</h2>
                     <b-button @click="blankTemplate()" variant="link">Blank Template</b-button>
                     <template v-for="x in specialties">
@@ -125,10 +126,9 @@
                 </template>
             </b-modal>
             <b-modal id="control_modal" title="Insert Module" ok-only>
-				<template v-for="n in templates.modules">
-					<b-button @click="insertModule(n.name); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
-				</template>
-
+                <template v-for="n in templates.modules">
+                    <b-button @click="insertModule(n.name); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
+                </template>
                 <template #modal-footer="{ close }">
                     <b-button @click="close()" variant="danger">Cancel</b-button>
                 </template>
@@ -575,7 +575,43 @@
 
         },
 
+
+
         methods: {
+
+            download_templates: function() {
+                fetch(`${window.origin}/check-login`, {
+                        method: "GET",
+                        credentials: "include",
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Login failure " + response.status)
+
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(xml => {
+
+                        this.copyModal.text = "MODULES: \n\n" + JSON.stringify(xml.modules) + "\n\nTEMPLATES: \n\n" + JSON.stringify(xml.templates);
+                        this.$root.$emit('bv::show::modal', this.copyModal.id);
+
+
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+
+
+            },
 
             items_in_list: function(specialty, modality, region) {
                 var is_in = this.templates.filter(x => {
@@ -681,11 +717,11 @@
 
             // Insert module after selected element. If no values passed then uses module in this.module
             insertModule(selected_module, insert_header) {
-            	if (selected_module) { 
-            		this.module = this.templates.modules.find(function(i) {
-                    return i.name == selected_module;
-                });
-            	}
+                if (selected_module) {
+                    this.module = this.templates.modules.find(function(i) {
+                        return i.name == selected_module;
+                    });
+                }
 
                 var module_data = _.cloneDeep(this.module)
 
@@ -895,7 +931,6 @@
                     }
                 }
 
-
                 // TODO: check modules to see whether they have changed
                 module_array.forEach(n => {
                     //console.log(n[0].meta.module_name)
@@ -909,15 +944,15 @@
                         return (m.name == n[0].meta.module_name)
                     });
 
-	                //this.xmlModal.text = JSON.stringify(temp_module) + "\n\n" +JSON.stringify(i.elements);
-	                //this.$root.$emit('bv::show::modal', this.xmlModal.id);
-	                if (JSON.stringify(temp_module) != JSON.stringify(i.elements)) {
-	                	module_array = module_array.filter(m=> {
-	                		//console.log(m[0].meta.id)
+                    //this.xmlModal.text = JSON.stringify(temp_module) + "\n\n" +JSON.stringify(i.elements);
+                    //this.$root.$emit('bv::show::modal', this.xmlModal.id);
+                    if (JSON.stringify(temp_module) != JSON.stringify(i.elements)) {
+                        module_array = module_array.filter(m => {
+                            //console.log(m[0].meta.id)
 
-	                		return !(m[0].meta.id == n[0].meta.id)
-	                	})
-	                }
+                            return !(m[0].meta.id == n[0].meta.id)
+                        })
+                    }
                 })
 
 
@@ -976,7 +1011,7 @@
                 this.updateUserDatabase();
             },
 
-            // Reload templates/modules from server
+            // Reload templates/modules 
             update_templates: function(xml) {
                 if (!xml) return;
 
