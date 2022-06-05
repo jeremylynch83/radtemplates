@@ -46,7 +46,8 @@ def login():
     if current_user.is_authenticated:
             data = {
                 "templates": current_user.get_templates(),
-                "username": current_user.get_username()
+                "username": current_user.get_username(),
+                "modules": current_user.get_modules()
             }
             return jsonify(data)
      
@@ -59,7 +60,8 @@ def login():
             #print(user.get_templates())
             data = {
                 "templates": user.get_templates(),
-                "username": user.get_username()
+                "username": user.get_username(),
+                "modules": current_user.get_modules()
             }
             return jsonify(data)
 
@@ -73,13 +75,13 @@ def check_login():
     if current_user.is_authenticated:
             data = {
                 "templates": current_user.get_templates(),
-                "username": current_user.get_username()
+                "username": current_user.get_username(),
+                "modules": current_user.get_modules()
             }
-            print(data)
+            #print(data)
             return jsonify(data)
     else:
         return "failure", 200
-
 
 # Register view
 @app.route('/register', methods=['POST', 'GET'])
@@ -111,27 +113,20 @@ def logout():
     logout_user()
     return redirect('/')
 
-##################
-# User templates #
-##################
-
-# Create blank user template file if does not exist. 
-#file_path = 'static/xml/user.xml'
-#with open(file_path, "w") as f:
-#    print("Succesfully opened: " + file_path)
-
-
-
 @app.route('/index/export-report', methods=['POST'])
 def export_report():
     req = request.get_json()
     xml = req["xml"]
-
-    #file_path = 'static/xml/user.xml'
-    #with open(file_path, "w") as f:
-    #    f.write(xml);
-
     current_user.save_templates(xml)
+    db.session.add(current_user)
+    db.session.commit()
+    return req
+
+@app.route('/index/export-module', methods=['POST'])
+def export_module():
+    req = request.get_json()
+    xml = req["xml"]
+    current_user.save_modules(xml)
     db.session.add(current_user)
     db.session.commit()
     return req
@@ -139,7 +134,11 @@ def export_report():
 
 @app.route('/', methods = ['POST', 'GET'])
 def index():
-    return render_template('index.html', title='Welcome')
+    return render_template('index.html', title='TemplateReporting')
+
+@app.route('/module-editor', methods = ['POST', 'GET'])
+def module_editor():
+    return render_template('module_editor.html', title='Module Editor')
 
 if __name__ == '__main__':
     app.run()

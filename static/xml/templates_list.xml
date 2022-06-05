@@ -502,6 +502,9 @@ Not present | Present
 		<name>
 			Blank
 		</name>
+		<specialty>
+			Generic
+		</specialty>
 		<title>
 			Blank
 		</title>
@@ -1669,64 +1672,6 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 		</content>
 	</module>
 
-	<template>
-		<name>
-			CT Head Non-Contrast: Routine
-		</name>
-		<modality>
-			CT
-		</modality>
-		<specialty>
-			Neuroradiology
-		</specialty>
-		<region>
-			Brain
-		</region>
-		<title>
-			CT Head
-		</title>
-		<content>
-			<insert>
-				Plain CT Start
-			</insert>
-			<insert>
-				Comparison
-			</insert>
-			<h1>Findings</h1>
-			<h2 flags="dont_print">
-				Acute pathology
-			</h2>
-			<text_entry subtype="medium" dont_print_label="true">
-			</text_entry>
-			<multi_radio>
-				<radio label="Acute infact" normaltext="There is no acute cortical infarct.">
-					Not present | Present
-				</radio>
-				<radio label="Acute haemorrhage" normaltext="There is no acute intracranial haemorrhage.">
-					Not present | Present
-				</radio>
-				<radio label="Collection" normaltext="No intracranial collection is present.">
-					Not present | Present
-				</radio>
-				<radio label="Space occupying lesion" normaltext="There are no space occupying lesions.">
-					Not present | Present
-				</radio>
-			</multi_radio>
-
-			<insert>
-				CT Head Checklist
-			</insert>
-			<h1>
-				Conclusion
-			</h1>
-			<selection label="No acute">No acute pathology is detected. </selection>
-
-			<text_entry label="" subtype="medium">
-			</text_entry>
-		</content>
-	</template>
-
-
 	<module>
 		<name>ASPECT Score
 		</name>
@@ -1769,7 +1714,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			CT Head Non-Contrast: Stroke
+			CT Head 
 		</name>
 		<modality>
 			CT
@@ -1830,7 +1775,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			CT Non-Contrast Head: Trauma
+			CT Head: Trauma
 		</name>
 		<modality>
 			CT
@@ -1899,7 +1844,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			CT Non-Contrast Head and Cervical Spine
+			CT Head and Cervical Spine
 		</name>
 		<modality>
 			CT
@@ -2734,7 +2679,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			CT Head: Post-Operative Deep Brain Stimulation Electrode Placement
+			CT Head: Deep Brain Stimulation 
 		</name>
 		<modality>
 			CT
@@ -2779,7 +2724,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 	</template>
 	<template>
 		<name>
-			CT Head: Post-Operative Subdural Evacuation
+			CT Head: Subdural Evacuation
 		</name>
 		<modality>
 			CT
@@ -3000,7 +2945,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI Head: Acute
+			MRI Head
 		</name>
 		<modality>
 			MRI
@@ -3062,7 +3007,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI and MRA Head/Brain: Stroke
+			MRI/MRA Head: Stroke
 		</name>
 		<modality>
 			MRI
@@ -3387,7 +3332,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI Head/Brain: Hearing loss
+			MRI Head: Hearing loss
 		</name>
 		<modality>
 			MRI
@@ -3462,7 +3407,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI Head/Brain: Facial Palsy
+			MRI Head: Facial Palsy
 		</name>
 		<modality>
 			MRI
@@ -3677,7 +3622,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI Head: Tumour/Mass Diagnosis
+			MRI Head: Tumour Diagnosis
 		</name>
 		<modality>
 			MRI
@@ -4376,7 +4321,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 	<template>
 		<name>
-			MRI Head: Neurodegenerative/Dementia
+			MRI Head: Neurodegenerative
 		</name>
 		<modality>
 			MRI
@@ -4654,7 +4599,7 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 
 
 	<template>
-		<name>MRI Head: Aneurysm Follow-Up (Treated)
+		<name>MRI/MRA Head: Aneurysm Follow-Up
 		</name>
 		<modality>
 			MRI
@@ -4715,75 +4660,6 @@ The risks of the procedure included failure to recanalize vasculature, worsening
 			</h1>
 			<selection label="Summary">
 				The aneurysm is excluded from the circulation | Stable imaging appearances
-			</selection>
-			<text_entry label="" subtype="medium">
-			</text_entry>
-		</content>
-	</template>
-
-
-	<template>
-		<name>MRI Head: Aneurysm Follow-Up (Untreated)
-		</name>
-		<modality>
-			MRI
-		</modality>
-		<specialty>
-			Neuroradiology
-		</specialty>
-		<region>
-			Brain
-		</region>
-		<title>MRI Head
-		</title>
-		<content>
-			<insert>
-				MRI Head Start
-			</insert>
-			<insert>
-				Comparison
-			</insert>
-			<h1>Findings</h1>
-
-			<text_entry subtype="medium">
-			</text_entry>
-
-			<insert>Aneurysm follow-up untreated</insert>
-			<query_insert>Aneurysm follow-up untreated</query_insert>
-			<query_insert>Aneurysm follow-up treated</query_insert>
-			
-
-
-			<insert>Intracranial Angiogram</insert>
-
-			<h2 flags="dont_print">
-				Acute pathology
-			</h2>
-			<multi_radio>
-				<radio label="Acute infact" normaltext="There is no acute cortical infarct.">
-					Not present | Present
-				</radio>
-				<radio label="Flow voids" normaltext="The major intracranial arteries and dural venous sinuses return normal signal flow void.">
-					Normal | Abnormal
-				</radio>
-				<radio label="Acute haemorrhage" normaltext="There is no acute intracranial haemorrhage.">
-					Not present | Present
-				</radio>
-				<radio label="Collection" normaltext="No intracranial collection is present.">
-					Not present | Present
-				</radio>
-				<radio label="Space occupying lesion" normaltext="There are no space occupying lesions.">
-					Not present | Present
-				</radio>
-			</multi_radio>
-			<insert>
-				MRI Head Checklist
-			</insert>
-			<h1>
-				Conclusion
-			</h1>
-			<selection label="Summary">
-				Stable imaging appearances
 			</selection>
 			<text_entry label="" subtype="medium">
 			</text_entry>
