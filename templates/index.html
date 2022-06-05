@@ -125,12 +125,11 @@
                 </template>
             </b-modal>
             <b-modal id="control_modal" title="Insert Module" ok-only>
-                <b-form-group label-for="search_module">
-                    <vue-bootstrap-typeahead id="search_module" :data="templates.modules" :serializer="item => item.name" placeholder="Search for module" @hit="selectModule($event)">
-                    </vue-bootstrap-typeahead>
-                </b-form-group>
+				<template v-for="n in templates.modules">
+					<b-button @click="insertModule(n.name); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
+				</template>
+
                 <template #modal-footer="{ close }">
-                    <b-button class="float-right" variant="success" @click="insertModule(); $bvModal.hide('control_modal')">Insert selected module</b-button>
                     <b-button @click="close()" variant="danger">Cancel</b-button>
                 </template>
             </b-modal>
@@ -680,11 +679,18 @@
 
             },
 
-            insertModule() {
+            // Insert module after selected element. If no values passed then uses module in this.module
+            insertModule(selected_module, insert_header) {
+            	if (selected_module) { 
+            		this.module = this.templates.modules.find(function(i) {
+                    return i.name == selected_module;
+                });
+            	}
+
                 var module_data = _.cloneDeep(this.module)
 
                 // Create title if not present
-                if (module_data.elements[0].type != "h2") {
+                if (module_data.elements[0].type != "h2" || module_data.elements[0].type != "h1") {
                     var el = {};
                     el.type = "h2";
                     el.flags = "dont_print";
