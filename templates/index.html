@@ -972,8 +972,8 @@
 
                 template = template_to_xml(template_gui, xml_doc);
                 var new_template = {
-                    name: this.templateForm.name,
-                    title: this.templateForm.title,
+                    name: this.templateForm.name.replace(/\t/g, '').trim(),
+                    title: this.templateForm.title.replace(/\t/g, '').trim(),
                     modality: this.templateForm.modality,
                     region: this.templateForm.region,
                     specialty: this.templateForm.specialty,
@@ -1019,7 +1019,7 @@
 
                     for (var i = 0; i < t.length; i++) {
                         var t_name = t[i].querySelector(
-                            "name").innerHTML.replace(/\t/g, '');
+                            "name").innerHTML.replace(/\t/g, '').trim();
                         var t_findings = t[i].querySelector(
                             "content").childNodes;
                         var elements = parseFindings(t_findings, null, t_name);
@@ -1041,7 +1041,7 @@
                 for (var i = 0; i < t.length; i++) {
                     var t_name = t[i]
                         .querySelector("name")
-                        .innerHTML.replace(/\t/g, "");
+                        .innerHTML.replace(/\t/g, "").trim();
                     var t_modality = t[i].querySelector("modality");
                     if (t_modality)
                         t_modality = t_modality.innerHTML.replace(/\t/g, "").trim();
@@ -1080,19 +1080,19 @@
 
                     for (var i = 0; i < t.length; i++) {
                         var t_name = t[i].querySelector(
-                            "name").innerHTML.replace(/\t/g, '');
+                            "name").innerHTML.replace(/[\n\r]\t/g, '').trim();
                         var t_modality = t[i].querySelector(
-                            "modality");
+                            "modality").innerHTML.replace(/[\n\r]\t/g, '');
                         if (t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
                         var t_region = t[i].querySelector("region");
                         if (t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
                         var t_specialty = t[i].querySelector("specialty");
                         if (t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
-                        var t_title = t[i].querySelector("title");
+                        var t_title = t[i].querySelector("title").innerHTML.replace(/[\n\r]\t/g, '').trim();
                         if (t_title == null || t_title == "") {
                             t_title = t_name;
                         } else {
-                            t_title = t_title.innerHTML.replace(/\t/g, '');
+                            t_title = t_title.innerHTML.replace(/[\n\r]\t/g, '').trim();
                         }
                         var t_findings = t[i].querySelector(
                             "content").childNodes;
