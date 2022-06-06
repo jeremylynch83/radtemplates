@@ -79,7 +79,7 @@
             <h1>
                 Comparison
             </h1>
-            <multi_select label="Comparative study available?" askfurtherdetails="true" normaltext="No comparitive studies are available for review">
+            <multi_select label="Comparative study available?" askfurtherdetails="true" normaltext="No comparative studies are available for review">
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     CTA | CT | CT/CTA | catheter angiography | MRI | MRI/MRA | ultrasound | Doppler ultrasound | series of cross-sectional studies
                 </dropdown>
