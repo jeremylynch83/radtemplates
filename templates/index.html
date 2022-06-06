@@ -735,6 +735,7 @@
                 }
 
                 var module_data = _.cloneDeep(this.module)
+                console.log(module_data)
 
                 // Create title if not present
                 /*if (module_data.elements[0].type != "h2" || module_data.elements[0].type != "h1") {
@@ -768,7 +769,7 @@
                 // Insert module elements
                 for (var n = 0; n < module_data.elements.length; n++) {
                     module_data.elements[n].array_id = unique_id();
-                    this.templateForm.splice(this.n_from_element(this.selected_n) + n + 2, 0, module_data.elements[n]);
+                    this.templateForm.splice(this.n_from_element(this.selected_n) + n + 1, 0, module_data.elements[n]);
                 }
             },
 
@@ -821,8 +822,9 @@
                 selected = selected - 1;
 
                 this.module = this.templates.modules.find(function(i) {
-                    return i.name == element.module;
+                    return i.name == element.text;
                 });
+                console.log(this.module)
                 this.insertModule();
             },
 

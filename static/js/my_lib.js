@@ -140,7 +140,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
 
                     // Query Insert
                 case "query_insert":
-                    el.module = xml[i].innerHTML.trim();
+                    //el.module = xml[i].innerHTML.trim();
                     el.text = xml[i].innerHTML.trim();
                     el.printContents = function() {
                         var print_text = "";
