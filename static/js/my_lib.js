@@ -99,16 +99,16 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     if (el.type == "h1") el.label = el.label.toUpperCase();
                     if (el.label[el.label.length - 1] != ":") el.label += ": ";
                     else el.label += " ";
-                    el.dontprint = false;
+                    el.dont_print = false;
                     if (
-                        xml[i].getAttribute("flags") &&
-                        xml[i].getAttribute("flags").includes("dont_print")
+                        xml[i].getAttribute("dont_print") &&
+                        xml[i].getAttribute("dont_print") == "true"
                     )
-                        el.dontprint = true;
+                        el.dont_print = true;
                     el.printspace = false;
                     if (
-                        xml[i].getAttribute("flags") &&
-                        xml[i].getAttribute("flags").includes("print_space")
+                        xml[i].getAttribute("print_space") &&
+                        xml[i].getAttribute("print_space") == "true"
                     )
                         el.printspace = true;
 
@@ -117,7 +117,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         if (this.printspace) {
                             print_text += "\n\n";
                         }
-                        if (!this.dontprint) {
+                        if (!this.dont_print) {
                             if (this.type == "h1")
                                 print_text += "\n\n" + this.label + "\n";
                             if (this.type == "h2")
@@ -129,9 +129,8 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         // Create structure
                         var xml_el = xml_doc.createElement(this.type);
                         var flags = "";
-                        if (this.dontprint) flags = flags + "dont_print";
-                        if (this.printspace) flags = flags + "|print_space";
-                        if (this.flags) xml_el.setAttribute("flags", flags);
+                        if (this.dont_print) xml_el.setAttribute("dont_print", "true");
+                        if (this.printspace) xml_el.setAttribute("printspace", "true");
                         xml_el.innerHTML = this.label;
                         return xml_el;
                     };
