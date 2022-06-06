@@ -37,15 +37,15 @@
         <b-modal id="login-modal" title="Log in">
             <form action="" method="POST">
                 <p>Email
-                    <b-form-input v-model="user_email" />
+                    <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" v-model="user_email" />
                 </p>
-                <p>Password <b-form-input type="password" v-model="user_password">
+                <p>Password <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" type="password" v-model="user_password">
                 </p>
             </form>
             <!--<a href = "%%url_for('register') %%">Don't have an account? Sign up</a>-->
             <b-button variant="link" v-b-modal.register-modal @click="$bvModal.hide('login-modal')">Don't have an account? Sign up</b-button>
             <template #modal-footer="{ close }">
-                <b-button @click="login(); $bvModal.hide('login-modal')">Submit</b-button>
+                <b-button  @click="login(); $bvModal.hide('login-modal')">Submit</b-button>
             </template>
         </b-modal>
         <b-modal id="register-modal" title="Create account">
