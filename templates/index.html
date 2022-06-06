@@ -726,7 +726,7 @@
                 var module_data = _.cloneDeep(this.module)
 
                 // Create title if not present
-                if (module_data.elements[0].type != "h2" || module_data.elements[0].type != "h1") {
+                /*if (module_data.elements[0].type != "h2" || module_data.elements[0].type != "h1") {
                     var el = {};
                     el.type = "h2";
                     el.flags = "dont_print";
@@ -752,7 +752,7 @@
                     if (el.label[el.label.length - 1] != ":") el.label += ": ";
                     else el.label += " ";
                     this.templateForm.splice(this.n_from_element(this.selected_n) + 1, 0, el);
-                }
+                }*/
 
                 // Insert module elements
                 for (var n = 0; n < module_data.elements.length; n++) {
