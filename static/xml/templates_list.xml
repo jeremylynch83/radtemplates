@@ -73,6 +73,14 @@
     </module>
     <module>
         <name>
+            Query Insert
+        </name>
+        <content>
+            <query_insert></query_insert>
+        </content>
+    </module>
+    <module>
+        <name>
             Comparison
         </name>
         <content>
@@ -1021,6 +1029,9 @@
             </text_entry>
         </content>
     </template>
+
+<template><name>MRI Lumbar Spine: Degenerative New</name><title>\n            MRI Lumber spine\n        </title><modality>MRI</modality><region>Spine</region><specialty>Neuroradiology</specialty><content><h1>TECHNIQUE: </h1><text_entry subtype="small">MR images were acquired of the spine without intravenous contrast.</text_entry><insert>Comparison</insert><h1>FINDINGS: </h1><selection label="Formation and segmentation">There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction. | </selection><selection label="Vertebral alignment">Vertebral alignment is normal. | </selection><h2 flags="dont_print|print_space">Levels: </h2><h2>Checklist: </h2><insert>Generic spine</insert><h1>CONCLUSION: </h1><selection label="Discs">No canal or foraminal stenosis. | </selection><text_entry subtype="medium"/></content></template><template><name>MRI Lumbar Spine: Degenerative New</name><title>\n            MRI Lumber spine\n        </title><modality>MRI</modality><region>Spine</region><specialty>Neuroradiology</specialty><content><h1>TECHNIQUE: </h1><text_entry subtype="small">MR images were acquired of the spine without intravenous contrast.</text_entry><insert>Comparison</insert><h1>FINDINGS: </h1><selection label="Formation and segmentation">There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction. | </selection><selection label="Vertebral alignment">Vertebral alignment is normal. | </selection><h2 flags="dont_print|print_space">Levels: </h2><h2>Checklist: </h2><insert>Generic spine</insert><h1>CONCLUSION: </h1><selection label="Discs">No canal or foraminal stenosis. | </selection><text_entry subtype="medium"/></content></template>
+
     <module>
         <name>
             Cervical spine level

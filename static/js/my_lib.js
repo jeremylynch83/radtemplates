@@ -854,7 +854,7 @@ function loadXML(path_template, path_user) {
         for (var i = 0; i < t.length; i++) {
             var t_name = t[i]
                 .querySelector("name")
-                .innerHTML.replace(/\t/g, "");
+                .innerHTML.replace(/\t/g, "").trim();
             var t_modality = t[i].querySelector("modality");
             if (t_modality)
                 t_modality = t_modality.innerHTML.replace(/\t/g, "").trim();
