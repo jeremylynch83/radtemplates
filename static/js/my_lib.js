@@ -105,24 +105,26 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         xml[i].getAttribute("dont_print") == "true"
                     )
                         el.dont_print = true;
-                    el.printspace = false;
+                    el.print_space = false;
                     if (
                         xml[i].getAttribute("print_space") &&
                         xml[i].getAttribute("print_space") == "true"
                     )
-                        el.printspace = true;
+                        el.print_space = true;
 
                     el.printContents = function() {
                         var print_text = "";
-                        if (this.printspace) {
+
+                        if (this.print_space) {
                             print_text += "\n\n";
                         }
-                        if (!this.dont_print) {
+                        if (this.dont_print == false) {
                             if (this.type == "h1")
                                 print_text += "\n\n" + this.label + "\n";
                             if (this.type == "h2")
                                 print_text += "\n\n" + this.label;
                         }
+
                         return print_text;
                     };
                     el.exportTemplate = function(xml_doc) {
@@ -130,7 +132,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         var xml_el = xml_doc.createElement(this.type);
                         var flags = "";
                         if (this.dont_print) xml_el.setAttribute("dont_print", "true");
-                        if (this.printspace) xml_el.setAttribute("printspace", "true");
+                        if (this.print_space) xml_el.setAttribute("print_space", "true");
                         xml_el.innerHTML = this.label;
                         return xml_el;
                     };
@@ -682,15 +684,15 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                 "label",
                                 this.multi[n].label
                             );
-                            if (this.multi[n].print_text_before)
+                            if (this.multi[n].normaltext)
                                 xml_multi.setAttribute(
                                     "normaltext",
                                     this.multi[n].normaltext
                                 );
-                            if (this.dont_print_normal)
+                            if (this.multi[n].dont_print_normal)
                                 xml_multi.setAttribute(
                                     "dont_print_normal",
-                                    this.dont_print_normal
+                                    this.multi[n].dont_print_normal
                                 );
 
                             if (this.multi[n].type == "radio") {
@@ -763,6 +765,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         var xml_el = xml_doc.createElement(this.type);
                         if (this.label)
                             xml_el.setAttribute("label", this.label);
+                        
                         if (this.askfurtherdetails)
                             xml_el.setAttribute(
                                 "askfurtherdetails",

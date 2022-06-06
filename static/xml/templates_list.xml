@@ -115,7 +115,7 @@
             Access technique
         </name>
         <content>
-            <h2 flags="dont_print|print_space">Puncture</h2>
+            <h2 dont_print="true" print_space="true">Puncture</h2>
             <multi_select label="Puncture" flags="dont_print_label">
                 <dropdown label="Local">
                     1% lidocaine was infiltrated into the puncture site superficial tissues.
@@ -148,7 +148,7 @@
             Angio technique
         </name>
         <content>
-            <h2 flags="dont_print|print_space">Angiography</h2>
+            <h2 dont_print="true" print_space="true">Angiography</h2>
             <multi_checkbox label="Catheters " print_text_before="A" print_text_after="catheter was used.">
                 <checkbox>
                     Berenstein
@@ -320,7 +320,7 @@
             Carotid angioplasty
         </name>
         <content>
-            <h2 flags="dont_print">Carotid angioplasty</h2>
+            <h2 dont_print="true" >Carotid angioplasty</h2>
             <multi_select label="Access">
                 <dropdown label="Guide gatheter" print_text_before="A" print_text_after=" guide catheter was kept">
                     Neuron max | Infinity | Cerebase | Flowgate 2
@@ -353,7 +353,7 @@
             Stroke pass
         </name>
         <content>
-            <h2 flags="dont_print">Pass</h2>
+            <h2 dont_print="true" >Pass</h2>
             <multi_select label="Access">
                 <dropdown label="Guide gatheter" print_text_before="A" print_text_after=" guide catheter was kept">
                     Neuron max | Infinity | Cerebase | Flowgate 2
@@ -465,7 +465,7 @@
             <query_insert>
                 Stroke pass
             </query_insert>
-            <h2 flags="dont_print">Closure</h2>
+            <h2 dont_print="true" >Closure</h2>
             <selection label="Haemostasis" showdetailson="1000">
                 Manual compression was used to achieve haemostasis. | An angioseal device was used to achieve groin haemostasis. | A pneumatic compression band was used to achieve wrist haemostasis.
             </selection>
@@ -588,7 +588,7 @@
             </insert>
             <query_insert>Aneurysm description
             </query_insert>
-            <h2 flags="dont_print|print_space">Treatment</h2>
+            <h2 dont_print="true" print_space="true">Treatment</h2>
             <selection label="Heparinisation">
                 Intravenous heparin was administered throughout the procedure after groin puncture. | Intravenous heparin was administered throughout the procedure after placement of the first coil.
             </selection>
@@ -782,46 +782,9 @@
             </multi_radio>
         </content>
     </module>
-    <module>
-        <name>
-            Lumbar spine level
-        </name>
-        <content>
-            <text_entry subtype="small">
-            </text_entry>
-            <selection label="Discs">
-                The disc is normal | There is disc degeneration. | There is disc degeneration and height loss.
-            </selection>
-            <multi_select label="Disc herniation" askfurtherdetails="true" normaltext="There is no disc herniation.">
-                <dropdown label="Type" print_text_before="There is a disc">
-                    bulge | prolapse | extrusion | migration | sequestration | intravertebral herniation
-                </dropdown>
-                <dropdown label="Side" print_text_before="protruding in to the">
-                    right | left | central
-                </dropdown>
-                <dropdown label="Location">
-                    canal | subarticular zone | foraminal zone | extraforaminal zone
-                </dropdown>
-            </multi_select>
-            <selection label="Ligamentum flavum">
-                There is no flaval thickening
-            </selection>
-            <multi_select label="Neural compression" askfurtherdetails="true" normaltext="There is no neural compression.">
-                <dropdown label="Type" print_text_before="There is">
-                    contact | impingement
-                </dropdown>
-                <dropdown label="Side" print_text_before="with the">
-                    right | left
-                </dropdown>
-                <dropdown label="Nerve" print_text_after="nerve root">
-                    descending | exiting
-                </dropdown>
-            </multi_select>
-            <selection label="Facet joint degeneration">
-                There is mild facetal degeneration | There is moderate facetal degeneration | There is severe facetal degeneration
-            </selection>
-        </content>
-    </module>
+
+<module><name>Lumbar spine level</name><content><h2 dont_print="true" print_space="true">Level: </h2><text_entry label="Level" subtype="small"/><selection label="Discs">The disc is normal | There is disc degeneration. | There is disc degeneration and height loss. | </selection><multi_select label="Disc herniation" askfurtherdetails="true" normaltext="There is no disc herniation."><dropdown label="Type" print_text_before="There is a disc">bulge | prolapse | extrusion | migration | sequestration | intravertebral herniation | </dropdown><dropdown label="Side" print_text_before="protruding in to the">right | left | central | </dropdown><dropdown label="Location">canal | subarticular zone | foraminal zone | extraforaminal zone | </dropdown></multi_select><selection label="Ligamentum flavum">There is no flaval thickening | </selection><multi_select label="Neural compression" askfurtherdetails="true" normaltext="There is no neural compression."><dropdown label="Type" print_text_before="There is">contact | impingement | </dropdown><dropdown label="Side" print_text_before="with the">right | left | </dropdown><dropdown label="Nerve" print_text_after="nerve root">descending | exiting | </dropdown></multi_select><selection label="Facet joint degeneration">There is mild facetal degeneration | There is moderate facetal degeneration | There is severe facetal degeneration | </selection></content></module>
+
     <template>
         <name>
             MRI Spine: Fracture
@@ -867,7 +830,7 @@
             </multi_select>
             <text_entry label="" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other details:
             </h2>
             <insert>
@@ -926,7 +889,7 @@
             </multi_select>
             <text_entry label="" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other details:
             </h2>
             <insert>
@@ -942,95 +905,8 @@
             </selection>
         </content>
     </template>
-    <template>
-        <name>
-            MRI Lumbar Spine: Degenerative
-        </name>
-        <modality>
-            MRI
-        </modality>
-        <specialty>
-            Neuroradiology
-        </specialty>
-        <region>
-            Spine
-        </region>
-        <title>
-            MRI Lumber spine
-        </title>
-        <content>
-            <h1>
-                Technique
-            </h1>
-            <text_entry label="" subtype="small">
-                MR images were acquired of the spine without intravenous contrast.
-            </text_entry>
-            <insert>
-                Comparison
-            </insert>
-            <h1>
-                Findings
-            </h1>
-            <selection label="Formation and segmentation">
-                There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction.
-            </selection>
-            <selection label="Vertebral alignment">
-                Vertebral alignment is normal.
-            </selection>
-            <h2>
-                T12-L1:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2>
-                L1-L2:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2>
-                L2-L3:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2>
-                L3-L4:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2>
-                L4-L5:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2>
-                L5-S1:
-            </h2>
-            <insert>
-                Lumbar spine level
-            </insert>
-            <h2 flags="dont_print|print_space">
-                Other details:
-            </h2>
-            <insert>
-                Generic spine
-            </insert>
-            <h1>
-                Conclusion
-            </h1>
-            <selection label="Discs">
-                No canal or foraminal stenosis.
-            </selection>
-            <text_entry label="" subtype="medium">
-            </text_entry>
-        </content>
-    </template>
 
-<template><name>MRI Lumbar Spine: Degenerative New</name><title>\n            MRI Lumber spine\n        </title><modality>MRI</modality><region>Spine</region><specialty>Neuroradiology</specialty><content><h1>TECHNIQUE: </h1><text_entry subtype="small">MR images were acquired of the spine without intravenous contrast.</text_entry><insert>Comparison</insert><h1>FINDINGS: </h1><selection label="Formation and segmentation">There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction. | </selection><selection label="Vertebral alignment">Vertebral alignment is normal. | </selection><h2 flags="dont_print|print_space">Levels: </h2><h2>Checklist: </h2><insert>Generic spine</insert><h1>CONCLUSION: </h1><selection label="Discs">No canal or foraminal stenosis. | </selection><text_entry subtype="medium"/></content></template><template><name>MRI Lumbar Spine: Degenerative New</name><title>\n            MRI Lumber spine\n        </title><modality>MRI</modality><region>Spine</region><specialty>Neuroradiology</specialty><content><h1>TECHNIQUE: </h1><text_entry subtype="small">MR images were acquired of the spine without intravenous contrast.</text_entry><insert>Comparison</insert><h1>FINDINGS: </h1><selection label="Formation and segmentation">There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction. | </selection><selection label="Vertebral alignment">Vertebral alignment is normal. | </selection><h2 flags="dont_print|print_space">Levels: </h2><h2>Checklist: </h2><insert>Generic spine</insert><h1>CONCLUSION: </h1><selection label="Discs">No canal or foraminal stenosis. | </selection><text_entry subtype="medium"/></content></template>
+<template><name>MRI Lumbar Spine</name><title>\\n            MRI Lumber spine\\n        </title><modality>MRI</modality><region>Spine</region><specialty>Neuroradiology</specialty><content><h1>TECHNIQUE: </h1><text_entry subtype="small">MR images were acquired of the spine without intravenous contrast.</text_entry><insert>Comparison</insert><h1>FINDINGS: </h1><selection label="Formation and segmentation">There is normal formation and segmentation of the lumbosacral spine. | There is a transitional lumbosacral junction. | </selection><selection label="Vertebral alignment">Vertebral alignment is normal. | </selection><query_insert>Lumbar spine level</query_insert><h2 dont_print="true" print_space="true">Checklist: </h2><insert>Generic spine</insert><h1>CONCLUSION: </h1><selection label="Discs">No canal or foraminal stenosis. | </selection><text_entry subtype="medium"/></content></template>
 
     <module>
         <name>
@@ -1130,7 +1006,7 @@
             <insert>
                 Cervical spine level
             </insert>
-            <h2 flags="dont_print|print_space">
+            <h2 dont_print="true" print_space="true">
                 Other details:
             </h2>
             <insert>
@@ -1188,7 +1064,7 @@
             <selection label="Vertebral body height and alignment">
                 Vertebral body height and alignment is normal.
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other details:
             </h2>
             <insert>
@@ -1250,7 +1126,7 @@
             <selection label="Vertebral body height and alignment">
                 Vertebral body height and alignment is normal.
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other details:
             </h2>
             <insert>
@@ -1311,7 +1187,7 @@
             <selection label="Vertebral body height and alignment">
                 Vertebral body height and alignment is normal.
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other details:
             </h2>
             <insert>
@@ -1347,7 +1223,7 @@
             CT Head Checklist
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Chronic pathology
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -1375,7 +1251,7 @@
             <selection label="Bones">
                 There are no skull fractures or destructive bony lesions
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Checklist
             </h2>
             <multi_radio>
@@ -1420,7 +1296,7 @@
             CT Head
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <text_entry subtype="medium" dont_print_label="true">
@@ -1445,7 +1321,7 @@
                     Normal | Enlarged
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Chronic pathology
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -1473,7 +1349,7 @@
             <selection label="Bones">
                 There are no skull fractures or destructive bony lesions
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Checklist
             </h2>
             <multi_radio>
@@ -1573,7 +1449,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <text_entry subtype="medium">
@@ -1631,7 +1507,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Traumatic pathology
             </h2>
             <text_entry subtype="medium">
@@ -1647,7 +1523,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other acute pathology
             </h2>
             <multi_radio>
@@ -1695,7 +1571,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Traumatic pathology
             </h2>
             <text_entry subtype="medium">
@@ -1711,7 +1587,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Other acute pathology
             </h2>
             <multi_radio>
@@ -1876,7 +1752,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Neurodegerative
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -1924,7 +1800,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -1964,7 +1840,7 @@
             Intracranial Angiogram
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Intracranial Angiogram
             </h2>
             <text_entry label="" subtype="medium">
@@ -2007,7 +1883,7 @@
             CT Angiogram Neck Extra
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 CT Angiogram Neck vessels
             </h2>
             <selection label="Subclavian/Arch">
@@ -2223,7 +2099,7 @@
                     The atlatoaxial joint is normal.
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">Other</h2>
+            <h2 dont_print="true" >Other</h2>
             <selection label="Lung apices">
                 Normal appearances of the visualised lung apices | Mild dependent atelectasis is present at the imaged lung apices
             </selection>
@@ -2311,7 +2187,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">Other</h2>
+            <h2 dont_print="true" >Other</h2>
             <selection label="Lung apices">
                 Normal appearances of the visualised lung apices | Mild dependent atelectasis is present at the imaged lung apices
             </selection>
@@ -2415,7 +2291,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">Other</h2>
+            <h2 dont_print="true" >Other</h2>
             <selection label="Lung bases">
                 Normal appearances of the visualised lung bases | Mild dependent atelectasis is present at the imaged lung bases
             </selection>
@@ -2539,7 +2415,7 @@
             MRI Head Checklist
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Chronic pathology
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -2572,7 +2448,7 @@
             <selection label="Bones">
                 There are no skull fractures or destructive bony lesions
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Diseases
             </h2>
             <multi_radio>
@@ -2598,7 +2474,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Regions
             </h2>
             <multi_radio>
@@ -2703,7 +2579,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <text_entry subtype="medium" dont_print_label="true">
@@ -2767,7 +2643,7 @@
             <h1>
                 Findings
             </h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <text_entry subtype="medium">
@@ -2789,7 +2665,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Intracranial MRA
             </h2>
             <multi_radio>
@@ -2819,7 +2695,7 @@
             Intracranial hypertension
         </name>
         <content>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Intracranial hypertension
             </h2>
             <selection label="Normal">No evidence of intracranial hypertension.
@@ -2867,7 +2743,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Skull base
             </h2>
             <selection label="Normal">No evidence of mass within the skull base, temporal bone, posterior fossa, or internal auditory canal.
@@ -2880,7 +2756,7 @@
             <insert>
                 Intracranial hypertension
             </insert>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Arterial
             </h2>
             <selection label="Normal">No arterial abnormalities are present.
@@ -2902,7 +2778,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Venous
             </h2>
             <selection label="Normal">No venous abnormalities are present.
@@ -2924,7 +2800,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3002,7 +2878,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute Intracranial pathology
             </h2>
             <multi_radio>
@@ -3074,7 +2950,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute Intracranial pathology
             </h2>
             <multi_radio>
@@ -3149,7 +3025,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute Intracranial pathology
             </h2>
             <multi_radio>
@@ -3217,7 +3093,7 @@
             <selection label="Myelination">The white matter is appropriately myelinated.</selection>
             <text_entry subtype="large">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3273,7 +3149,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology: head
             </h2>
             <text_entry subtype="medium" dont_print_label="true">
@@ -3402,7 +3278,7 @@
                 <text_entry subtype="large">
                 </text_entry>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3552,7 +3428,7 @@
                 <text_entry subtype="large">
                 </text_entry>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3610,7 +3486,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Headache causes
             </h2>
             <multi_radio>
@@ -3633,7 +3509,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3692,7 +3568,7 @@
             <h1>Findings</h1>
             <text_entry label="" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Malformations of cortical development
             </h2>
             <multi_radio>
@@ -3715,7 +3591,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Mass
             </h2>
             <multi_radio>
@@ -3723,7 +3599,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Injury
             </h2>
             <multi_radio>
@@ -3731,7 +3607,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Vascular
             </h2>
             <multi_radio>
@@ -3745,7 +3621,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Hippocampi
             </h2>
             <multi_radio>
@@ -3753,7 +3629,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Myelination
             </h2>
             <multi_radio>
@@ -3761,7 +3637,7 @@
                     Normal | Abnormal
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Extra-axial
             </h2>
             <multi_radio>
@@ -3774,7 +3650,7 @@
             </multi_radio>
             <text_entry subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3851,7 +3727,7 @@
             </selection>
             <text_entry subtype="large">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -3952,7 +3828,7 @@
             </selection>
             <text_entry subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4009,7 +3885,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 General
             </h2>
             <text_entry subtype="medium">
@@ -4033,7 +3909,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Atrophy
             </h2>
             <multi_select label="Atrophy" askfurtherdetails="true">
@@ -4050,7 +3926,7 @@
                     bilateral | right | left
                 </dropdown>
             </multi_select>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Brainstem/cerebellum
             </h2>
             <selection label="Brainstem/cerebellum">
@@ -4067,7 +3943,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Cortex/Basal ganglia
             </h2>
             <selection label="Cortex/Basal ganglia">
@@ -4084,7 +3960,7 @@
                     Not present | Present
                 </radio>
             </multi_radio>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4265,7 +4141,7 @@
             <query_insert>Aneurysm follow-up treated</query_insert>
             <query_insert>Aneurysm follow-up untreated</query_insert>
             <insert>Intracranial Angiogram</insert>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4335,7 +4211,7 @@
             <selection label="Trigeminal">
                 Both trigeminal nerves are unremarkable. Meckel's caves appear clear.
             </selection>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4442,7 +4318,7 @@
             </selection>
             <text_entry label="Other" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4553,7 +4429,7 @@
             </selection>
             <text_entry label="Other" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">
+            <h2 dont_print="true" >
                 Acute pathology
             </h2>
             <multi_radio>
@@ -4692,12 +4568,12 @@
             <h1>
                 Findings
             </h1>
-            <h2 flags="dont_print">Nasogastric tube</h2>
+            <h2 dont_print="true" >Nasogastric tube</h2>
             <selection label="Carina">The nasogastric tube bisects the carina. | The nasogastric tube does not bisects the carina.</selection>
             <selection label="Tip">The tip of the tube projects over the stomach. | The tip of the tube projects over the stomach.</selection>
             <text_entry label="Other" subtype="medium">
             </text_entry>
-            <h2 flags="dont_print">Chest</h2>
+            <h2 dont_print="true" >Chest</h2>
             <multi_radio>
                 <radio label="Lungs" normaltext="The lungs are clear.">
                     Clear | Not clear
@@ -4867,7 +4743,7 @@
             <selection label="Fractures">No acute fractures are identified. </selection>
             <selection label="Intactness">The metalwork is intact. There is no periprosthetic lucency or other periprosthetic complication.</selection>
             <selection label="Alignment">The vertebral alignment is normal.</selection>
-            <h2 flags="dont_print">Other</h2>
+            <h2 dont_print="true" >Other</h2>
             <selection label="Degeneration">There is no significant degenerative disease | There is mild multilevel degenerative disease. | There is moderate multilevel degenerative disease. | There is severe multilevel degenerative disease. </selection>
             <selection label="Disc spaces">The disc spaces are normal. | Disc space narrowing is noted. </selection>
             <selection label="Endplates">No endplate degeneration is demonstratd. </selection>

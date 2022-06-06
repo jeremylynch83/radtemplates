@@ -129,7 +129,7 @@
             </b-modal>
             <b-modal id="control_modal" title="Insert Module" ok-only>
                 <template v-for="n in templates.modules">
-                    <b-button @click="insertModule(n.name); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
+                    <b-button @click="insertModule(n.name, 'below'); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
                 </template>
                 <template #modal-footer="{ close }">
                     <b-button @click="close()" variant="danger">Cancel</b-button>
@@ -157,8 +157,8 @@
                             <b-form-input v-model="selected_n.label"></b-form-input>
                         </b-input-group>
                         <p></p>
-                        <b-form-checkbox v-model="selected_n.dontprint">Omit heading from report?</b-form-checkbox>
-                        <b-form-checkbox v-model="selected_n.printspace">Print spaces after heading?</b-form-checkbox>
+                        <b-form-checkbox v-model="selected_n.dont_print">Omit heading from report?</b-form-checkbox>
+                        <b-form-checkbox v-model="selected_n.print_space">Print spaces after heading?</b-form-checkbox>
                         <p></p>
                     </b-form-group>
                     <!--  TEXT TYPE -->
@@ -691,7 +691,7 @@
 
             blankTemplate: function() {
                 var index = this.templates.find(i => {
-                    console.log(i.name)
+                    //console.log(i.name)
                     return (i.name.trim() == "Blank")
                 });
                 this.selectTemplate(index);
@@ -727,7 +727,10 @@
             },
 
             // Insert module after selected element. If no values passed then uses module in this.module
-            insertModule(selected_module, insert_header) {
+            insertModule(selected_module, position) {
+            	var place = 0;
+            	if (position == "below") place = 1;
+
                 if (selected_module) {
                     this.module = this.templates.modules.find(function(i) {
                         return i.name == selected_module;
@@ -735,41 +738,13 @@
                 }
 
                 var module_data = _.cloneDeep(this.module)
-                console.log(module_data)
-
-                // Create title if not present
-                /*if (module_data.elements[0].type != "h2" || module_data.elements[0].type != "h1") {
-                    var el = {};
-                    el.type = "h2";
-                    el.flags = "dont_print";
-                    el.printContents = function() {
-                        var print_text = "";
-                        if (this.flags.includes("print_space")) {
-                            print_text += "\n\n";
-                        }
-                        if (!this.flags.includes("dont_print")) {
-                            if (this.type == "h1") print_text += "\n\n" + this.label + "\n";
-                            if (this.type == "h2") print_text += "\n\n" + this.label;
-                        }
-                        return print_text;
-                    }
-                    el.exportTemplate = function(xml_doc) {
-                        // Create structure
-                        var xml_el = xml_doc.createElement(this.type);
-                        if (this.flags) xml_el.setAttribute("flags", this.flags);
-                        xml_el.innerHTML = this.label;
-                        return xml_el;
-                    }
-                    el.label = module_data.name.trim();
-                    if (el.label[el.label.length - 1] != ":") el.label += ": ";
-                    else el.label += " ";
-                    this.templateForm.splice(this.n_from_element(this.selected_n) + 1, 0, el);
-                }*/
+                //console.log(module_data)
 
                 // Insert module elements
                 for (var n = 0; n < module_data.elements.length; n++) {
                     module_data.elements[n].array_id = unique_id();
-                    this.templateForm.splice(this.n_from_element(this.selected_n) + n + 1, 0, module_data.elements[n]);
+                    module_data.elements[n].meta.id = unique_id()
+                    this.templateForm.splice(this.n_from_element(this.selected_n) + place, 0, module_data.elements[n]);
                 }
             },
 
@@ -824,7 +799,7 @@
                 this.module = this.templates.modules.find(function(i) {
                     return i.name == element.text;
                 });
-                console.log(this.module)
+                //console.log(this.module)
                 this.insertModule();
             },
 
@@ -933,16 +908,19 @@
                         var temp_module = [];
                         var module_id = template_gui.elements[n].meta.id;
                         temp_module.push(template_gui.elements[n]);
+                        console.log(template_gui.elements[n].meta.this_is_module + " : " + template_gui.elements[n].meta.id);
                         if (template_gui.elements[n + 1].meta.id == module_id && (n + 1) < template_gui.elements.length) {
                             do {
                                 temp_module.push(template_gui.elements[n + 1]);
                                 n++;
                             }
-                            while (template_gui.elements[n + 1].meta.id == module_id && (n + 1) < template_gui.elements.length)
+                            while ((n + 1) < template_gui.elements.length && template_gui.elements[n + 1].meta.id == module_id)
                         }
                         module_array.push(temp_module);
                     }
                 }
+
+                console.log(module_array);
 
                 // TODO: check modules to see whether they have changed
                 module_array.forEach(n => {
