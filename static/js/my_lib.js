@@ -293,6 +293,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.askfurtherdetails =
                         xml[i].getAttribute("askfurtherdetails");
                     el.normaltext = xml[i].getAttribute("normaltext");
+                
 
                     for (var n = 0; n < nodes.length; n++) {
                         if (nodes[n].nodeName != "#text") {

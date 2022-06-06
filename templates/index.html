@@ -208,6 +208,10 @@
                                 <b-form-radio value='true'> Yes</b-form-radio>
                                 <b-form-radio value='false'> No</b-form-radio>
                             </b-form-radio-group>
+                            <b-input-group prepend="Next to print if no:">
+                                    <b-form-input v-model="selected_n.normaltext">
+                                    </b-form-input>
+                            </b-input-group>
                         </b-form>
                         <template v-for="nn in selected_n.multi">
                             <p></p>
