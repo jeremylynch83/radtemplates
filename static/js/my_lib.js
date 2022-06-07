@@ -765,7 +765,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         var xml_el = xml_doc.createElement(this.type);
                         if (this.label)
                             xml_el.setAttribute("label", this.label);
-                        
+
                         if (this.askfurtherdetails)
                             xml_el.setAttribute(
                                 "askfurtherdetails",
@@ -886,6 +886,14 @@ function loadXML(path_template, path_user) {
         }
         temp.modules = modules;
         temp.source_xml = t;
+
+        temp.sort((a, b) => {
+                    	return (a.name > b.name)
+                    });
+        temp.modules.sort((a, b) => {
+                    	return (a.name > b.name)
+                    });
+
     }
     return temp;
 }

@@ -7,32 +7,35 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Structured Reports</title>
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
-    <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap-vue.css')%%" />
-    <link href="%% url_for('static', filename='css/VueBootstrapTypeahead.css')%%" rel="stylesheet" />
+    <!--<link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap-vue.css')%%" />-->
+    <!--<link href="%% url_for('static', filename='css/VueBootstrapTypeahead.css')%%" rel="stylesheet" />-->
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/mytemplate.css')%%" />
     <!-- Load polyfills to support older browsers -->
-    <script src="%% url_for('static', filename='js/polyfill.min.js')%%"></script>
+    <!--<script src="%% url_for('static', filename='js/polyfill.min.js')%%"></script>-->
     <!-- Required scripts -->
     <script src="%% url_for('static', filename='js/vue.js')%%"></script>
     <script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
     <script src="%% url_for('static', filename='js/lodash.js')%%"></script>
     <!-- Type Ahead Library -->
-    <script src="%% url_for('static', filename='js/VueBootstrapTypeahead.umd.min.js')%%"></script>
+    <!--<script src="%% url_for('static', filename='js/VueBootstrapTypeahead.umd.min.js')%%"></script>-->
     <!-- My library -->
     <script src="%% url_for('static', filename='js/my_lib.js')%%"></script>
 </head>
 
 <body>
     <div id="app">
-        <b-navbar toggleable="lg" type="dark" variant="info">
+        <b-navbar type="dark" variant="info">
             <b-navbar-brand href="#">TemplateReporting.com</b-navbar-brand>
-            <b-button-toolbar class="float-right">
-                <b-nav-text class="px-2" v-if="logged_in">Welcome {{user_name}}</b-nav-text>
-                <b-button class="px-2" v-if="logged_in == false" v-b-modal.login-modal>Log in</b-button>
-                <b-button class="px-2" v-if="logged_in == false" v-b-modal.register-modal>Register</b-button>
-                <b-button class="px-2" v-if="logged_in == true" @click="logout()">Log out</b-button>
-            </b-button-toolbar>
-            <!--<a href="%% url_for('logout')%%">Logout Here</a>-->
+            <b-navbar-nav>
+                <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
+                	<b-dropdown-item v-if="logged_in == true" href="/module-editor">Edit modules</b-dropdown-item>
+                    <b-dropdown-item @click="download_templates()">Download my templates/modules</b-dropdown-item>
+                    <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
+                </b-nav-item-dropdown>
+                <b-nav-item  v-if="logged_in == false" v-b-modal.login-modal>Log in</b-nav-item>
+                <b-nav-item class="me-auto" v-if="logged_in == false" v-b-modal.register-modal>Register</b-nav-item>
+                </navbar-nav>
+                <!--<a href="%% url_for('logout')%%">Logout Here</a>-->
         </b-navbar>
         <b-modal id="login-modal" title="Log in">
             <form action="" method="POST">
@@ -86,8 +89,6 @@
 		</b-form-group>-->
             <b-form-group id="select_template" v-if="template ==''" title="Select Template" ok-only>
                 <b-form-group>
-                    <b-button href="/module-editor">Edit modules</b-button>
-                    <b-button @click="download_templates()">Download my templates/modules</b-button>
                     <h2>Generic</h2>
                     <b-button @click="blankTemplate()" variant="link">Blank Template</b-button>
                     <template v-for="x in specialties">
@@ -141,13 +142,11 @@
                     <p v-if="selected_n.meta.this_is_module">Part of module: <b>{{selected_n.meta.module_name}} </b></p>
                     <!-- QUERY INSERT TYPE -->
                     <b-form-group v-if="selected_n.type=='query_insert'" class="indent_bug">
-                        <b-input-group >
+                        <b-input-group>
                             <!--<b-form-input v-model="selected_n.text"></b-form-input>-->
-
                             <template v-for="n in templates.modules">
                                 <b-button @click="selected_n.text = n.name; $bvModal.hide('edit_modal')" variant="link">{{n.name}} </b-button>
                             </template>
-
                         </b-input-group>
                         <p></p>
                     </b-form-group>
@@ -360,14 +359,16 @@
             </b-modal>
             <b-form-group v-if="template != ''">
                 <b-card bg-variant="light">
-                    <b-button variant="success" @click="copyReport()">Show Report</b-button>
-                    <b-button variant="danger" @click="reset()">Close</b-button>
-                    <b-dropdown text="Template" class="m-md-2">
-                        <b-dropdown-item @click="blankTemplate()">Create blank template</b-dropdown-item>
-                        <b-dropdown-item @click="exportXML()">Save changes to this template</b-dropdown-item>
-                        <b-dropdown-item v-b-modal.save_as_new_modal>Save as new template</b-dropdown-item>
-                        <b-dropdown-item v-b-modal.delete_template>Delete template</b-dropdown-item>
-                    </b-dropdown>
+                    <template #header>
+                        <b-button variant="danger" @click="reset()">Close Template</b-button>
+                        <b-button variant="success" @click="copyReport()">Show Report</b-button>
+                        <b-dropdown class="float-right" right text="Edit Template">
+                            <!--<b-dropdown-item @click="blankTemplate()">Create blank template</b-dropdown-item>-->
+                            <b-dropdown-item @click="exportXML()">Save changes to this template</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.save_as_new_modal>Save as new template</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.delete_template>Delete template</b-dropdown-item>
+                        </b-dropdown>
+                    </template>
                     <h1>
                         {{templateForm.name}}
                     </h1>
@@ -444,8 +445,8 @@
                                             <b-row cols="1" cols-sm="2">
                                                 <template v-for="nn in n.multi">
                                                     <b-col>
-                                                        <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
-                                                            <b-form-select :options="nn.options" v-model="nn.selected">
+                                                        <b-form-group  v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                            <b-form-select style="font-size: xx-small!;" :options="nn.options" v-model="nn.selected">
                                                             </b-form-select>
                                                         </b-form-group>
                                                         <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
@@ -518,7 +519,7 @@
 
     window.app = new Vue({
         components: {
-            VueBootstrapTypeahead
+            //VueBootstrapTypeahead
         },
         el: '#app',
         data: {
@@ -687,6 +688,7 @@
                     el.array_id = unique_id();
                     this.templateForm.push(el);
                 }
+                window.history.pushState({}, '', "/");
             },
 
             blankTemplate: function() {
@@ -728,8 +730,8 @@
 
             // Insert module after selected element. If no values passed then uses module in this.module
             insertModule(selected_module, position) {
-            	var place = 0;
-            	if (position == "below") place = 1;
+                var place = 0;
+                if (position == "below") place = 1;
 
                 if (selected_module) {
                     this.module = this.templates.modules.find(function(i) {
@@ -826,9 +828,9 @@
                 this.$root.$emit('bv::show::modal', this.copyModal.id);
 
             },
-
+                
+            // Write the user_templates to server
             updateUserDatabase: function() {
-                // Write the user_templates to server
                 var save_doc = document.implementation.createDocument("", "", null);
                 var all = save_doc.createElement("all");
                 save_doc.appendChild(all);
@@ -1107,15 +1109,22 @@
                             elements: elements,
                             xml: xmlDoc.querySelector("content")
                         });
-                        //console.log(xmlDoc.querySelector("content"))
                     }
                     merge_templates(this.templates, user)
                     this.user_templates = user;
 
+                    this.user_templates.sort((a, b) => {
+                    	return (a.name > b.name)
+                    });
+                    this.templates.sort((a, b) => {
+                    	return (a.name > b.name)
+                    });
+                    this.templates.modules.sort((a, b) => {
+                    	return (a.name > b.name)
+                    });
+
                 }
                 this.reset()
-
-
 
             },
 
@@ -1217,11 +1226,12 @@
                     })
                     .then(response => {
                         if (response.ok) {
-                            alert("Logged out");
+
                             this.logged_in = false;
                             this.user_name = '';
                             this.user_password = '';
                             this.user_email = '';
+                            window.location.reload(true)
 
                         }
                         if (response.status !== 200) {
