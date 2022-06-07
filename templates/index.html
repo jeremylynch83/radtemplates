@@ -678,7 +678,7 @@
                 var elements = this.template.elements;
 
                 this.templateForm.name = this.template.name;
-                this.templateForm.title = this.template.title;
+                //this.templateForm.title = this.template.title;
                 this.templateForm.modality = this.template.modality;
                 this.templateForm.region = this.template.region;
                 this.templateForm.specialty = this.template.specialty;
@@ -840,9 +840,9 @@
                     var name = save_doc.createElement("name");
                     name.innerHTML = this.user_templates[n].name;
                     template.appendChild(name);
-                    var title = save_doc.createElement("title");
+                    /*var title = save_doc.createElement("title");
                     title.innerHTML = this.user_templates[n].title;
-                    template.appendChild(title);
+                    template.appendChild(title);*/
                     var modality = save_doc.createElement("modality");
                     modality.innerHTML = this.user_templates[n].modality;
                     template.appendChild(modality);
@@ -922,7 +922,7 @@
                     }
                 }
 
-                console.log(module_array);
+                //console.log(module_array);
 
                 // TODO: check modules to see whether they have changed
                 module_array.forEach(n => {
@@ -974,11 +974,11 @@
 
                 template = template_to_xml(template_gui, xml_doc);
                 var new_template = {
-                    name: this.templateForm.name.replace(/\t/g, '').trim(),
-                    title: this.templateForm.title.replace(/\t/g, '').trim(),
-                    modality: this.templateForm.modality,
-                    region: this.templateForm.region,
-                    specialty: this.templateForm.specialty,
+                    name: this.templateForm.name.replace(/[\n\r]\t/g, '').trim(),
+                    //title: this.templateForm.title.replace(/[\n\r]\t/g, '').trim(),
+                    modality: this.templateForm.modality.replace(/[\n\r]\t/g, '').trim(),
+                    region: this.templateForm.region.replace(/[\n\r]\t/g, '').trim(),
+                    specialty: this.templateForm.specialty.replace(/[\n\r]\t/g, '').trim(),
                     elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules, null),
                     xml: template.querySelector("content")
                 }
@@ -1053,18 +1053,18 @@
                     var t_specialty = t[i].querySelector("specialty");
                     if (t_specialty)
                         t_specialty = t_specialty.innerHTML.replace(/\t/g, "").trim();
-                    var t_title = t[i].querySelector("title");
+                    /*var t_title = t[i].querySelector("title");
                     if (t_title == null || t_title == "") {
                         t_title = t_name;
                     } else {
                         t_title = t_title.innerHTML.replace(/\t/g, "");
-                    }
+                    }*/
                     var t_findings = t[i].querySelector("content").childNodes;
                     var elements = parseFindings(t_findings, this.templates.modules);
 
                     this.templates.push({
                         name: t_name,
-                        title: t_title,
+                        //title: t_title,
                         specialty: t_specialty,
                         region: t_region,
                         modality: t_modality,
@@ -1084,25 +1084,25 @@
                         var t_name = t[i].querySelector(
                             "name").innerHTML.replace(/[\n\r]\t/g, '').trim();
                         var t_modality = t[i].querySelector(
-                            "modality").innerHTML.replace(/[\n\r]\t/g, '');
+                            "modality");
                         if (t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
                         var t_region = t[i].querySelector("region");
                         if (t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
                         var t_specialty = t[i].querySelector("specialty");
                         if (t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
-                        var t_title = t[i].querySelector("title").innerHTML.replace(/[\n\r]\t/g, '').trim();
+                        /*var t_title = t[i].querySelector("title").innerHTML.replace(/[\n\r]\t/g, '').trim();
                         if (t_title == null || t_title == "") {
                             t_title = t_name;
                         } else {
                             t_title = t_title.innerHTML.replace(/[\n\r]\t/g, '').trim();
-                        }
+                        }*/
                         var t_findings = t[i].querySelector(
                             "content").childNodes;
                         var elements = parseFindings(t_findings, this.templates.modules);
 
                         user.push({
                             name: t_name,
-                            title: t_title,
+                            //title: t_title,
                             specialty: t_specialty,
                             region: t_region,
                             modality: t_modality,
