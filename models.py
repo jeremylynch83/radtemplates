@@ -13,8 +13,7 @@ class userModel(UserMixin, db.Model):
     email = db.Column(db.String(80), unique=True)
     username = db.Column(db.String(100))
     password_hash = db.Column(db.String())
-    templates = db.Column(db.UnicodeText())
-    modules = db.Column(db.UnicodeText())
+    templates_modules = db.Column(db.UnicodeText())
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
@@ -25,17 +24,12 @@ class userModel(UserMixin, db.Model):
     def get_username(self):
         return self.username
 
-    def save_templates(self, text):
-        self.templates = text
+    def save_templates_modules(self, text):
+        self.templates_modules = text
 
-    def get_templates(self):
-        return self.templates
- 
-    def save_modules(self, text):
-        self.modules = text
+    def get_templates_modules(self):
+        return self.templates_modules
 
-    def get_modules(self):
-        return self.modules
  
 @login.user_loader
 def load_user(id):

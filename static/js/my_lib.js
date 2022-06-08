@@ -57,6 +57,7 @@ function format_sentence(str) {
     return sentence;
 }
 
+// If "modules" is not passed then assume you are parsing the modules list
 function parseFindings(xml, modules, module_name, dont_parse_modules) {
     var this_is_module = !modules; // this_is_module is true if this is a module
 
@@ -131,8 +132,10 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         // Create structure
                         var xml_el = xml_doc.createElement(this.type);
                         var flags = "";
-                        if (this.dont_print) xml_el.setAttribute("dont_print", "true");
-                        if (this.print_space) xml_el.setAttribute("print_space", "true");
+                        if (this.dont_print)
+                            xml_el.setAttribute("dont_print", "true");
+                        if (this.print_space)
+                            xml_el.setAttribute("print_space", "true");
                         xml_el.innerHTML = this.label;
                         return xml_el;
                     };
@@ -294,7 +297,6 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.askfurtherdetails =
                         xml[i].getAttribute("askfurtherdetails");
                     el.normaltext = xml[i].getAttribute("normaltext");
-                
 
                     for (var n = 0; n < nodes.length; n++) {
                         if (nodes[n].nodeName != "#text") {
@@ -420,10 +422,16 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                         if (
                                             this.multi[n].print_text_after != ""
                                         ) {
+                                            if (
+                                                this.multi[
+                                                    n
+                                                ].print_text_after.trim() != "."
+                                            )
+                                                print_text_in += " ";
                                             print_text_in +=
-                                                " " +
                                                 this.multi[n].print_text_after;
                                         }
+                                        print_text_in += " ";
                                     }
                                 }
 
@@ -451,10 +459,12 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                         print_text_in += value + " ";
                                         if (
                                             this.multi[n].print_text_after != ""
-                                        )
+                                        ) {
                                             print_text_in +=
-                                            this.multi[n].print_text_after +
-                                            " ";
+                                                this.multi[
+                                                    n
+                                                ].print_text_after.trim() + " ";
+                                        }
                                         if (
                                             print_text_in.substr(
                                                 print_text_in.length - 3,
@@ -788,26 +798,28 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
 
                 case "insert":
                     el.module = xml[i].innerHTML.trim();
+
                     var x = modules.findIndex((n) => {
                         return n.name == el.module;
                     });
                     if (x != -1 && dont_parse_modules != true) {
                         var id = unique_id();
                         var mods = _.cloneDeep(modules[x].elements);
-                        mods.forEach(n => {
+                        mods.forEach((n) => {
                             n.meta.id = id;
-                        })
+                            n.meta.module_name = el.module
+                        });
+                        //console.log(mods)
                         elements = elements.concat(mods);
-                    }
-                    else {
-                    el.exportTemplate = function(xml_doc) {
-                        var xml_el = xml_doc.createElement(this.type);
-                        xml_el.innerHTML = this.module.trim();
-                        return xml_el;
-                    };
+                    } else {
+                        el.exportTemplate = function(xml_doc) {
+                            var xml_el = xml_doc.createElement(this.type);
+                            xml_el.innerHTML = this.module.trim();
+                            return xml_el;
+                        };
 
-                    elements.push(el);
-                }
+                        elements.push(el);
+                    }
                     break;
             }
         }
@@ -819,92 +831,159 @@ function parseModules(xml, name) {
     return parseFindings(xml, null, name);
 }
 
+function parseXML(xmlDoc, temp) {
+    // Load array of report templates
+    if (xmlDoc == null) return;
+
+    var modules_xml = xmlDoc.getElementsByTagName("module");
+    var modules = [];
+    for (var i = 0; i < modules_xml.length; i++) {
+        var m_name = xmlDoc
+            .getElementsByTagName("module")[i].getElementsByTagName("name")[0]
+            .innerHTML.replace(/^\s+|\s+$/g, "");
+        var m_content = xmlDoc
+            .getElementsByTagName("module")[i].getElementsByTagName("content")[0].childNodes;
+        var elements = parseModules(m_content, m_name);
+        modules.push({
+            name: m_name,
+            elements: elements,
+        });
+    }
+
+    var t = xmlDoc.getElementsByTagName("template");
+
+    for (var i = 0; i < t.length; i++) {
+        var t_name = t[i]
+            .querySelector("name")
+            .innerHTML.replace(/\t/g, "")
+            .trim();
+        var t_modality = t[i].querySelector("modality");
+        if (t_modality)
+            t_modality = t_modality.innerHTML.replace(/\t/g, "").trim();
+        var t_region = t[i].querySelector("region");
+        if (t_region) t_region = t_region.innerHTML.replace(/\t/g, "").trim();
+        var t_specialty = t[i].querySelector("specialty");
+        if (t_specialty)
+            t_specialty = t_specialty.innerHTML.replace(/\t/g, "").trim();
+        var t_findings = t[i].querySelector("content").childNodes;
+        var elements = parseFindings(t_findings, modules);
+
+        temp.push({
+            name: t_name,
+            specialty: t_specialty,
+            region: t_region,
+            modality: t_modality,
+            elements: elements,
+        });
+    }
+    temp.modules = modules;
+    temp.source_xml = t;
+
+    temp.sort((a, b) => {
+        return a.name > b.name;
+    });
+    temp.modules.sort((a, b) => {
+        return a.name > b.name;
+    });
+    return temp;
+}
+
 function loadXML(path_template, path_user) {
     var xhttp = new XMLHttpRequest();
     var temp = [];
-    var user = [];
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            myFunction(this);
+            temp = parseXML(this.responseXML, temp);
         }
     };
     xhttp.open("GET", path_template, true);
     xhttp.send();
 
-    function myFunction(xml) {
-        // Load array of report templates
-        var xmlDoc = xml.responseXML;
-        if (xmlDoc == null) return;
-
-        var modules_xml = xmlDoc.getElementsByTagName("module");
-        var modules = [];
-        for (var i = 0; i < modules_xml.length; i++) {
-            var m_name = xmlDoc
-                .getElementsByTagName("module")[i].getElementsByTagName("name")[0]
-                .innerHTML.replace(/^\s+|\s+$/g, "");
-            var m_content = xmlDoc
-                .getElementsByTagName("module")[i].getElementsByTagName("content")[0].childNodes;
-            var elements = parseModules(m_content, m_name);
-            modules.push({
-                name: m_name,
-                elements: elements,
-            });
-        }
-
-        var t = xmlDoc.getElementsByTagName("template");
-
-        for (var i = 0; i < t.length; i++) {
-            var t_name = t[i]
-                .querySelector("name")
-                .innerHTML.replace(/\t/g, "").trim();
-            var t_modality = t[i].querySelector("modality");
-            if (t_modality)
-                t_modality = t_modality.innerHTML.replace(/\t/g, "").trim();
-            var t_region = t[i].querySelector("region");
-            if (t_region)
-                t_region = t_region.innerHTML.replace(/\t/g, "").trim();
-            var t_specialty = t[i].querySelector("specialty");
-            if (t_specialty)
-                t_specialty = t_specialty.innerHTML.replace(/\t/g, "").trim();
-            var t_title = t[i].querySelector("title");
-            if (t_title == null || t_title == "") {
-                t_title = t_name;
-            } else {
-                t_title = t_title.innerHTML.replace(/\t/g, "");
-            }
-            var t_findings = t[i].querySelector("content").childNodes;
-            var elements = parseFindings(t_findings, modules);
-
-            temp.push({
-                name: t_name,
-                title: t_title,
-                specialty: t_specialty,
-                region: t_region,
-                modality: t_modality,
-                elements: elements,
-            });
-        }
-        temp.modules = modules;
-        temp.source_xml = t;
-
-        temp.sort((a, b) => {
-                    	return (a.name > b.name)
-                    });
-        temp.modules.sort((a, b) => {
-                    	return (a.name > b.name)
-                    });
-
-    }
     return temp;
 }
 
-function merge_templates(master_templates, user_templates) {
+// Saves the user templates and modules to server
+function updateUserDatabase(user_templates, user_modules) {
+
+    var save_doc = document.implementation.createDocument("", "", null);
+    var all = save_doc.createElement("all");
+    save_doc.appendChild(all);
+
+    // Adds the templates
+    for (var n = 0; n < user_templates.length; n++) {
+        var template = save_doc.createElement("template");
+        var name = save_doc.createElement("name");
+        name.innerHTML = user_templates[n].name;
+        template.appendChild(name);
+        var modality = save_doc.createElement("modality");
+        modality.innerHTML = user_templates[n].modality;
+        template.appendChild(modality);
+        var region = save_doc.createElement("region");
+        region.innerHTML = user_templates[n].region;
+        template.appendChild(region);
+        var specialty = save_doc.createElement("specialty");
+        specialty.innerHTML = user_templates[n].specialty;
+        template.appendChild(specialty);
+        var content = save_doc.createElement("content");
+        content = user_templates[n].xml
+        template.appendChild(content);
+
+
+        all.appendChild(template);
+    }
+
+    // Adds the modules
+    for (var n = 0; n < user_modules.length; n++) {
+        var el = save_doc.createElement("el");
+        el = module_to_xml(user_modules[n], save_doc);
+
+        all.appendChild(el);
+    }
+
+    var xml = (new XMLSerializer()).serializeToString(save_doc);
+    var entry = {
+        xml: xml
+    }
+
+    fetch(`${window.origin}/index/export`, {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(entry),
+            cache: "no-cache",
+            headers: new Headers({
+                "content-type": "application/json"
+            })
+        })
+        .then(function(response) {
+            if (response.status !== 200) {
+                console.log(`Looks like there was a problem. Status code: ${response.status}`);
+                return;
+            }
+        })
+        .catch(function(error) {
+            console.log("Fetch error: " + error);
+        });
+}
+
+function merge_templates(master_templates, user_templates, overwrite = true) {
+    if (!master_templates) master_templates = user_templates;
     for (var n = 0; n < user_templates.length; n++) {
         var exists_in_master = null;
         for (var nn = 0; nn < master_templates.length; nn++) {
             if (user_templates[n].name == master_templates[nn].name) {
-                master_templates[nn] = user_templates[n];
-                exists_in_master = true;
+                if (overwrite == true) {
+                    master_templates[nn] = user_templates[n];
+                    exists_in_master = true;
+                } else {
+                    var new_name = user_templates[n].name;
+                    /*for (var i=0; i<100 && user_templates[n].name == new_name; i++) {
+                    	new_name = user_templates[n].name + " " + i;
+                    }*/
+                    user_templates[n].name = user_templates[n].name + " imported";
+                    master_templates.splice(nn, 0, user_templates[n]);
+                    exists_in_master = true;
+
+                }
             }
         }
         if (!exists_in_master) {
@@ -915,13 +994,11 @@ function merge_templates(master_templates, user_templates) {
 }
 
 function template_to_xml(template_gui, xml_doc) {
+
     var template = xml_doc.createElement("template");
     var name = xml_doc.createElement("name");
     name.innerHTML = template_gui.name;
     template.appendChild(name);
-    var title = xml_doc.createElement("title");
-    title.innerHTML = template_gui.title;
-    template.appendChild(title);
     var modality = xml_doc.createElement("modality");
     modality.innerHTML = template_gui.modality;
     template.appendChild(modality);
@@ -934,9 +1011,11 @@ function template_to_xml(template_gui, xml_doc) {
 
     var content = xml_doc.createElement("content");
     template.appendChild(content);
-    for (var n = 0; n < template_gui.elements.length; n++) {
-        content.appendChild(template_gui.elements[n].exportTemplate(xml_doc));
+
+    for (var n = 0; n < template_gui.length; n++) {
+        content.appendChild(template_gui[n].exportTemplate(xml_doc));
     }
+
     return template;
 }
 
@@ -948,9 +1027,11 @@ function module_to_xml(template_gui, xml_doc) {
 
     var content = xml_doc.createElement("content");
     template.appendChild(content);
+
     for (var n = 0; n < template_gui.elements.length; n++) {
         content.appendChild(template_gui.elements[n].exportTemplate(xml_doc));
     }
+
     return template;
 }
 
@@ -961,4 +1042,22 @@ function array_to_options(a) {
     });
 
     return new_array;
+}
+
+function save_to_file(data, filename, type) {
+    var file = new Blob([data], {type: type});
+    if (window.navigator.msSaveOrOpenBlob) // IE10+
+        window.navigator.msSaveOrOpenBlob(file, filename);
+    else { // Others
+        var a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+        }, 0); 
+    }
 }

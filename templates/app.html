@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Structured Reports</title>
+    <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
+    <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/mytemplate.css')%%" />
+    <!-- Required scripts -->
+    <script src="%% url_for('static', filename='js/vue.js')%%"></script>
+    <script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
+    <script src="%% url_for('static', filename='js/lodash.js')%%"></script>
+    <script src="%% url_for('static', filename='js/my_lib.js')%%"></script>
+</head>
+
+<body>
+    <div id="app">
+        <b-navbar type="dark" variant="info">
+            <b-navbar-brand href="#">TemplateReporting.com</b-navbar-brand>
+            <b-navbar-nav>
+                <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
+                    <b-dropdown-item v-b-modal.template-download>Get more templates!
+                    </b-dropdown-item>
+                    <b-dropdown-item v-if="logged_in == true" @click="edit_modules()">Edit modules</b-dropdown-item>
+                    <b-dropdown-item v-b-modal.import-modal>Upload templates from file
+                    </b-dropdown-item>
+                    <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
+                    <b-dropdown-item @click="delete_all_templates()">Delete all templates</b-dropdown-item>
+                    <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
+                </b-nav-item-dropdown>
+                <b-nav-item v-if="logged_in == false" v-b-modal.login-modal>Log in</b-nav-item>
+                <b-nav-item class="me-auto" v-if="logged_in == false" v-b-modal.register-modal>Register</b-nav-item>
+                </navbar-nav>
+        </b-navbar>
+        <p></p>
+        <b-modal id="login-modal" title="Log in">
+            <form action="" method="POST">
+                <p>Email
+                    <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" v-model="user_email" />
+                </p>
+                <p>Password <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" type="password" v-model="user_password">
+                </p>
+            </form>
+            <b-button variant="link" v-b-modal.register-modal @click="$bvModal.hide('login-modal')">Don't have an account? Sign up</b-button>
+            <template #modal-footer="{ close }">
+                <b-button @click="login(); $bvModal.hide('login-modal')">Submit</b-button>
+            </template>
+        </b-modal>
+        <b-modal id="register-modal" title="Create account">
+            <p>Registering allows you to create and save templates. </p>
+            <form action="" method="POST">
+                <p>Email
+                    <b-form-input v-model="user_email" />
+                </p>
+                <p>Username
+                    <b-form-input v-model="user_name_submit" />
+                </p>
+                <p>Password <b-form-input type="password" v-model="user_password">
+                </p>
+            </form>
+            <template #modal-footer="{ close }">
+                <b-button @click="register(); $bvModal.hide('register-modal')">Submit</b-button>
+            </template>
+        </b-modal>
+        <b-modal id="template-download" title="Templates">
+            <p>Get more templates </p>
+            <b-button @click="import_templates_from_server('neuro_diag'); $bvModal.hide('template-download')">Diagnostic neuroradiology</b-button>
+            <template #modal-footer="{ close }">
+                <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
+            </template>
+        </b-modal>
+        <b-modal id="import-modal" title="Import">
+            <p>Import templates/modules </p>
+            <b-form-file v-model="import_file" class="mt-3" plain></b-form-file>
+            <template #modal-footer="{ close }">
+                <b-button @click="import_templates_from_file(import_file); $bvModal.hide('import-modal')">Submit</b-button>
+            </template>
+        </b-modal>
+        <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
+            <p>The report has been copied to the clipboard!</p>
+            <b-form-group>
+                <b-form-textarea rows="20" v-model="copyModal.text">
+                </b-form-textarea>
+            </b-form-group>
+        </b-modal>
+        <b-modal :id="xmlModal.id" :title="xmlModal.title" ok-only>
+            <b-form-group>
+                <b-form-textarea rows="20" :value="xmlModal.text">
+                </b-form-textarea>
+            </b-form-group>
+        </b-modal>
+        <b-container fluid="sm">
+            <b-form-group v-if="mode=='templates' && template == ''" id="select_template" title="Select Template" ok-only>
+                <b-form-group>
+                    <h1>Templates</h1>
+                    <div v-if="this.templates.findIndex(n => {
+                    return (n.name == 'Blank');
+                }) != -1">
+                        <h2>Generic</h2>
+                        <b-button @click="blankTemplate()" variant="link">Blank Template</b-button>
+                    </div>
+                    <template v-for="x in specialties">
+                        <h2 v-if="items_in_list(x)">{{x}}</h2>
+                        <template v-for="y in modalities">
+                            <h3 v-if="items_in_list(x, y)">{{y}}</h3>
+                            <template v-for="z in regions">
+                                <h4 style="font-size:small" v-if="items_in_list(x, y, z)">{{z}}</h4>
+                                <template v-for="n in templates">
+                                    <b-button @click="selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
+                                </template>
+                            </template>
+                        </template>
+                    </template>
+                </b-form-group>
+            </b-form-group>
+            <b-form-group v-if="mode=='modules' && template == ''">
+                <b-form-group>
+                    <p></p>
+                    <b-button @click="mode='templates'">Back to templates</b-button>
+                    <h1>Modules</h1>
+                    <template v-for="n in templates.modules">
+                        <b-button @click="selectTemplate(n)" variant="link">{{n.name}} </b-button>
+                    </template>
+                </b-form-group>
+            </b-form-group>
+            <b-modal id="insert-component-modal" title="Insert Component" ok-only>
+                <b-form-group label-for="search_module">
+                    <p></p>
+                    <b-button @click="insertComponent('Text Entry')">Text</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('h1')">Large Header</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('h2')">Small Header</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('Selection')">Selection</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('Multi Select')">Multi Selection</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('Multi Checkbox')">Multi Checkbox</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('Multi Radio')">Multi Radio</b-button>
+                    <p></p>
+                    <b-button @click="insertComponent('Query Insert')">Query insert</b-button>
+                </b-form-group>
+                <template #modal-footer="{ close }">
+                    <b-button @click="close()" variant="danger">Cancel</b-button>
+                </template>
+            </b-modal>
+            <b-modal id="control_modal" title="Insert Module" ok-only>
+                <template v-for="n in templates.modules">
+                    <b-button @click="insertModule(n.name, 'below'); $bvModal.hide('control_modal')" variant="link">{{n.name}} </b-button>
+                </template>
+                <template #modal-footer="{ close }">
+                    <b-button @click="close()" variant="danger">Cancel</b-button>
+                </template>
+            </b-modal>
+            <!-- EDIT THE SELECTED ELEMENT -->
+            <b-modal v-if="selected_n !=null" id="edit_modal" :title="'Edit ' + selected_n.type" ok-only>
+                <div class="edit_style">
+                    <p v-if="selected_n.meta.this_is_module">Part of module: <b>{{selected_n.meta.module_name}} </b></p>
+                    <!-- QUERY INSERT TYPE -->
+                    <b-form-group v-if="selected_n.type=='query_insert'" class="indent_bug">
+                        <b-input-group>
+                            <!--<b-form-input v-model="selected_n.text"></b-form-input>-->
+                            <template v-for="n in templates.modules">
+                                <b-button @click="selected_n.text = n.name; $bvModal.hide('edit_modal')" variant="link">{{n.name}} </b-button>
+                            </template>
+                        </b-input-group>
+                        <p></p>
+                    </b-form-group>
+                    <!-- HEADER TYPE -->
+                    <b-form-group v-if="selected_n.type=='h1' || selected_n.type=='h2'" class="indent_bug">
+                        <b-input-group prepend="Header label">
+                            <b-form-input v-model="selected_n.label"></b-form-input>
+                        </b-input-group>
+                        <p></p>
+                        <b-form-checkbox v-model="selected_n.dont_print">Omit heading from report?</b-form-checkbox>
+                        <b-form-checkbox v-model="selected_n.print_space">Print spaces after heading?</b-form-checkbox>
+                        <p></p>
+                    </b-form-group>
+                    <!--  TEXT TYPE -->
+                    <b-form-group v-if=" selected_n.type=='text_entry'" class="indent_bug">
+                        <b-input-group prepend="Element label">
+                            <b-form-input v-model="selected_n.label">
+                            </b-form-input>
+                        </b-input-group>
+                        <p></p>
+                        <b-form-radio-group v-model="selected_n.subtype" name="radio-options">
+                            <b-form-radio value="small">Small</b-form-radio>
+                            <b-form-radio value="medium">Medium</b-form-radio>
+                            <b-form-radio value="large">Large</b-form-radio>
+                        </b-form-radio-group>
+                        <b-form-checkbox v-model="selected_n.dont_print_label">Omit label in report?</b-form-checkbox>
+                        <p></p>
+                        <label>Content:</label>
+                        <b-form-textarea v-model="selected_n.template_text">
+                        </b-form-textarea>
+                    </b-form-group>
+                    <!-- SELECTION TYPE -->
+                    <b-form-group v-if="selected_n.type == 'selection'" class="indent_bug">
+                        <b-input-group prepend="Element label">
+                            <b-form-input v-model="selected_n.label">
+                            </b-form-input>
+                        </b-input-group>
+                        <p></p>
+                        <label>Options:</label>
+                        <template v-for=" n in selected_n.options">
+                            <b-row>
+                                <b-col cols="8">
+                                    <b-form-input v-model="n.text">
+                                    </b-form-input>
+                                </b-col>
+                                <b-col>
+                                    <b-button-group>
+                                        <b-button variant="danger" @click="selected_n.options.splice(selected_n.options.indexOf(n), 1)">Delete</b-button>
+                                        <b-button variant="success" @click="selected_n.options.splice(selected_n.options.indexOf(n)+1, 0, {'text': '', 'value': selected_n.options.indexOf(n)+1})">Add</b-button>
+                                    </b-button-group>
+                                </b-col>
+                            </b-row>
+                        </template>
+                    </b-form-group>
+                    <!-- MULTISELECTION TYPE -->
+                    <b-form-group v-if="selected_n.type=='multi_select'" class="indent_bug">
+                        <b-input-group prepend="Element label">
+                            <b-form-input v-model="selected_n.label">
+                            </b-form-input>
+                        </b-input-group>
+                        <p></p>
+                        <b-form>
+                            <label>Ask further details? </label>
+                            <b-form-radio-group v-model="selected_n.askfurtherdetails">
+                                <b-form-radio value='true'> Yes</b-form-radio>
+                                <b-form-radio value='false'> No</b-form-radio>
+                            </b-form-radio-group>
+                            <b-input-group prepend="Next to print if no:">
+                                <b-form-input v-model="selected_n.normaltext">
+                                </b-form-input>
+                            </b-input-group>
+                        </b-form>
+                        <template v-for="nn in selected_n.multi">
+                            <p></p>
+                            <b-card>
+                                <template #header>
+                                    <b-button variant="danger" class="float-right" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn), 1)">Delete</b-button>
+                                </template>
+                                <b-input-group prepend="Label">
+                                    <b-form-input v-model="nn.label">
+                                    </b-form-input>
+                                </b-input-group>
+                                <b-input-group prepend="Text preceeding">
+                                    <b-form-input v-model="nn.print_text_before">
+                                    </b-form-input>
+                                </b-input-group>
+                                <b-input-group prepend="Text inserted after">
+                                    <b-form-input v-model="nn.print_text_after">
+                                    </b-form-input>
+                                </b-input-group>
+                                <template v-if="nn.type=='dropdown'" v-for="n_dropdown in nn.options">
+                                    <p></p>
+                                    <b-row>
+                                        <b-col cols="8">
+                                            <b-form-input v-model="n_dropdown.text">
+                                            </b-form-input>
+                                        </b-col>
+                                        <b-col>
+                                            <b-button-group>
+                                                <b-button variant="danger" @click="nn.options.splice(nn.options.indexOf(n_dropdown), 1)">-</b-button>
+                                                <b-button variant="success" @click="nn.options.splice(nn.options.indexOf(n_dropdown)+1, 0, {'text': '', 'value': nn.options.indexOf(n_dropdown)+1})">+</b-button>
+                                            </b-button-group>
+                                        </b-col>
+                                    </b-row>
+                                </template>
+                            </b-card>
+                            <p></p>
+                            <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}]})">Insert selection</b-button>
+                            <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
+                        </template>
+                        </template>
+                    </b-form-group>
+                    <!-- MULTIRADIO TYPE -->
+                    <b-form-group v-if="selected_n.type=='multi_radio'" class="indent_bug">
+                        <b-form-group class="indent_bug">
+                            <template v-for="nn in selected_n.multi">
+                                <b-card>
+                                    <template #header>
+                                        <b-button variant="danger" class="float-right" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn), 1)">Delete</b-button>
+                                    </template>
+                                    <b-form v-if="nn.options != '' && nn.type == 'radio'">
+                                        <b-input-group prepend="Label">
+                                            <b-form-input v-model="nn.label">
+                                            </b-form-input>
+                                        </b-input-group>
+                                        <b-form v-if="nn.options != '' && nn.type == 'radio'">
+                                            <b-input-group prepend="Text for first option">
+                                                <b-form-input v-model="nn.normaltext">
+                                                </b-form-input>
+                                            </b-input-group>
+                                            <template v-for="n_check in nn.options">
+                                                <b-row>
+                                                    <b-col cols="8">
+                                                        <b-form-input v-model="n_check.text">
+                                                        </b-form-input>
+                                                    </b-col>
+                                                    <b-col>
+                                                        <b-button-group>
+                                                            <b-button variant="danger" @click="nn.options.splice(nn.options.indexOf(n_check), 1)">-</b-button>
+                                                            <b-button variant="success" @click="nn.options.splice(nn.options.indexOf(n_check)+1, 0, {'text': '', 'value': nn.options.indexOf(n_check)+1})">+</b-button>
+                                                        </b-button-group>
+                                                    </b-col>
+                                                </b-row>
+                                            </template>
+                                            <b-form-checkbox v-model="nn.dont_print_normal">Don't mention in report if normal?</b-form-checkbox>
+                                </b-card>
+                                <p></p>
+                                <b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
+                                <p></p>
+                                </b-form>
+                                <b-form-group v-show="nn.selected >= nn.showdetailson">
+                                    <b-form-textarea :value="nn.details" @change="nn.details = $event">
+                                    </b-form-textarea>
+                                </b-form-group>
+                            </template>
+                        </b-form-group>
+                    </b-form-group>
+                    <!-- MULTI CHECKBOX TYPE -->
+                    <b-form-group v-if="selected_n.type == 'multi_checkbox'">
+                        <b-input-group prepend="Element label">
+                            <b-form-input v-model="selected_n.label">
+                            </b-form-input>
+                        </b-input-group>
+                        <p></p>
+                        <b-container>
+                            <template v-for="n_check in selected_n.multi">
+                                <b-row>
+                                    <b-col cols="8">
+                                        <b-form-input v-model="n_check.text">
+                                        </b-form-input>
+                                    </b-col>
+                                    <b-col>
+                                        <b-button-group>
+                                            <b-button variant="danger" @click="selected_n.multi.splice(selected_n.multi.indexOf(n_check), 1)">Remove</b-button>
+                                            <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(n_check)+1, 0, {'text': '', 'value': selected_n.multi.indexOf(n_check)+1})">Add</b-button>
+                                        </b-button-group>
+                                    </b-col>
+                                </b-row>
+                            </template>
+                        </b-container>
+                    </b-form-group>
+                </div>
+                <template #modal-footer="{ close }">
+                    <b-button @click="close()" variant="success">Ok</b-button>
+                </template>
+            </b-modal>
+            <b-modal id="save_as_new_modal" title="Save As New">
+                <b-form-group>
+                    <label>Name</label>
+                    <b-form-input v-model="templateForm.name"></b-form-input>
+                    <div v-if="mode=='templates'">
+                        <label>Specialty</label>
+                        <b-form-select :options="specialties" v-model="templateForm.specialty"></b-form-select>
+                        <label>Modality</label>
+                        <b-form-select :options="modalities" v-model="templateForm.modality"></b-form-select>
+                        <label>Body Region</label>
+                        <b-form-select :options="regions" v-model="templateForm.region"></b-form-select>
+                    </div>
+                </b-form-group>
+                <template #modal-footer="{ close }">
+                    <b-button variant="success" @click="saveAsNew();$bvModal.hide('save_as_new_modal')">Submit</b-button>
+                </template>
+            </b-modal>
+            <b-modal id="delete_template" title="Confirm deletion?">
+                <b-form-group>
+                    <p>Delete this template?</p>
+                </b-form-group>
+                <template #modal-footer="{ Close }">
+                    <b-button variant="success" @click="$bvModal.hide('delete_template')">Cancel</b-button>
+                    <b-button variant="danger" @click="deleteTemplate();$bvModal.hide('delete_template')">Delete</b-button>
+                </template>
+            </b-modal>
+            <b-form-group v-if="template != ''">
+                <b-card bg-variant="light">
+                    <template #header>
+                        <b-button variant="danger" @click="reset()">Close</b-button>
+                        <b-button variant="success" @click="copyReport()">Show Report</b-button>
+                        <b-dropdown v-if="mode=='templates'" class="float-right" right text="Options">
+                            <b-dropdown-item @click="exportXML_templates()">Save changes</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.delete_template>Delete</b-dropdown-item>
+                        </b-dropdown>
+                        <b-dropdown v-if="mode=='modules'" class="float-right" right text="Options">
+                            <b-dropdown-item @click="exportXML_modules()">Save changes</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                            <b-dropdown-item v-b-modal.delete_template>Delete</b-dropdown-item>
+                        </b-dropdown>
+                    </template>
+                    <h1>
+                        {{templateForm.name}}
+                    </h1>
+                    <template v-for=" n in templateForm">
+                        <div class="body">
+                            <div class="row">
+                                <div class="control">
+                                    <div class="op_icon">
+                                        <b-dropdown id="dropdown-1" text="Options" class="m-md-2">
+                                            <b-dropdown-item @click="selectElement(n); deleteElement()">Delete</b-dropdown-item>
+                                            <b-dropdown-item @click="selectElement(n); insertText()">Insert Text</b-dropdown-item>
+                                            <b-dropdown-item v-b-modal.insert-component-modal @click="selectElement(n)">Insert Component</b-dropdown-item>
+                                            <b-dropdown-item v-b-modal.control_modal @click="selectElement(n)">Insert Module</b-dropdown-item>
+                                            <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit</b-dropdown-item>
+                                        </b-dropdown>
+                                    </div>
+                                </div>
+                                <div class="element">
+                                    <!-- HEADER TYPE -->
+                                    <h2 v-if="n.type == 'h1'">{{n.label}}</h2>
+                                    <h3 v-if="n.type == 'h2'">{{n.label}}</h3>
+                                    <!-- QUERY INSERT TYPE -->
+                                    <button v-if=" n.type=='query_insert'" @click="queryInsert(n)">Insert {{n.text}}</button>
+                                    <!--  TEXT TYPE -->
+                                    <label v-if=" n.type=='text'">{{n.text}}</label>
+                                    <!-- FREE TEXT TYPE -->
+                                    <b-form-group :label=" n.label" v-if="n.type == 'free_text'" :disabled="n.disabled">
+                                        <b-form-textarea :value="n.text" @change="n.text = $event">
+                                        </b-form-textarea>
+                                    </b-form-group>
+                                    <!-- TEXT ENTRY TYPE SMALL/MEDIUM/LARGE -->
+                                    <b-form-group :disabled="n.disabled" v-if="n.type == 'text_entry'">
+                                        <b-row align-v="center">
+                                            <b-col md="auto" v-if="n.no_label != true">
+                                                <label>{{n.label}}</label>
+                                            </b-col>
+                                            <b-col>
+                                                <b-form-input :value="n.text" @change="n.text = $event" v-if="n.subtype  == 'small'">
+                                                </b-form-input>
+                                            </b-col>
+                                        </b-row>
+                                        <b-form-textarea :value="n.text" @change="n.text = $event" v-if="n.subtype  == 'medium'">
+                                        </b-form-textarea>
+                                        <b-form-textarea :value="n.text" @change="n.text = $event" rows="8" v-if="n.subtype  == 'large'">
+                                        </b-form-textarea>
+                                    </b-form-group>
+                                    <!-- SELECTION TYPE -->
+                                    <b-form-group :disabled="n.disabled" v-if="n.type == 'selection'">
+                                        <b-row align-v="center">
+                                            <b-col md="auto">
+                                                <label> {{n.label}}
+                                                </label>
+                                            </b-col>
+                                            <b-col>
+                                                <b-form-select v-model="n.selected" :options="n.options" @input="n.details = Boolean(n.selected >= n.showdetailson)">
+                                                </b-form-select>
+                                            </b-col>
+                                        </b-row>
+                                    </b-form-group>
+                                    <!-- MULTISELECTION TYPE -->
+                                    <b-form-group v-if="n.type=='multi_select'" class="indent_bug">
+                                        <b-row>
+                                            <b-col cols=" 1">
+                                                <label>{{n.label}}</label>
+                                            </b-col>
+                                            <b-col>
+                                                <b-form-group>
+                                                    <b-form-radio-group v-if="n.askfurtherdetails =='true'" :options="n.present_options" v-model="n.present" class="mb-2 mr-sm-2 mb-sm-0">
+                                                    </b-form-radio-group>
+                                                </b-form-group>
+                                            </b-col>
+                                        </b-row>
+                                        <b-container class="bv-example-row">
+                                            <b-row cols="1" cols-sm="2">
+                                                <template v-for="nn in n.multi">
+                                                    <b-col>
+                                                        <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                            <b-form-select style="font-size: xx-small!;" :options="nn.options" v-model="nn.selected">
+                                                            </b-form-select>
+                                                        </b-form-group>
+                                                        <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
+                                                            <b-form-input :value="nn.text" @change="nn.text = $event" placeholder="Other">
+                                                            </b-form-input>
+                                                        </b-form-group>
+                                                        <b-form-group v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                            <b-form-input :value="nn.text" @change="nn.text = $event">
+                                                            </b-form-input>
+                                                        </b-form-group>
+                                                    </b-col>
+                                                </template>
+                                            </b-row>
+                                        </b-container>
+                                    </b-form-group>
+                                    <!-- MULTIRADIO TYPE -->
+                                    <b-form-group v-if="n.type == 'multi_radio'" :disabled="n.disabled">
+                                        <template v-for="nn in n.multi">
+                                            <b-form inline v-if="nn.options != '' && nn.type == 'radio'">
+                                                <label class="mb-2 mr-sm-2 mb-sm-0">{{nn.label + ": "}}</label>
+                                                <b-form-radio-group :options="nn.options" v-model="nn.selected" class="mb-2 mr-sm-2 mb-sm-0">
+                                                </b-form-radio-group>
+                                            </b-form>
+                                            <b-form-group v-show="nn.selected >= nn.showdetailson">
+                                                <b-form-textarea :value="nn.details" @change="nn.details = $event">
+                                                </b-form-textarea>
+                                            </b-form-group>
+                                        </template>
+                                    </b-form-group>
+                                    <!-- MULTI CHECKBOX TYPE -->
+                                    <b-form-group v-if="n.type == 'multi_checkbox'" :disabled="n.disabled">
+                                        <label>{{n.label}}</label>
+                                        <b-container class="bv-example-row">
+                                            <b-row cols="1" cols-sm="2">
+                                                <template v-for="nn in n.multi">
+                                                    <b-col>
+                                                        <b-form-checkbox v-model="nn.selected">
+                                                            {{nn.text}}
+                                                        </b-form-checkbox>
+                                                    </b-col>
+                                                </template>
+                                            </b-row>
+                                        </b-container>
+                                    </b-form-group>
+                                    <!-- DETAILS BOX -->
+                                    <b-form-group v-show="n.details || n.present == 'yes'" :disabled="n.disabled">
+                                        <b-form-textarea :value="n.details_text" @change="n.details_text = $event" placeholder="Enter free text">
+                                            Details
+                                        </b-form-textarea>
+                                    </b-form-group>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </b-card>
+            </b-form-group>
+        </b-container>
+        <p></p>
+        <p></p>
+        <!---------------- MODALS -------------->
+        <b-modal id="help_modal" title="NeuroTool: Help" ok-only>
+        </b-modal>
+        <b-container class="footer">
+            This tool is for educational purposes only. <b-link href="mailto: jeremy.lynch@gmail.com"> Contact us.
+            </b-link>
+        </b-container>
+    </div>
+    <script>
+    /* GLOBAL VARIABLES */
+
+    window.app = new Vue({
+        components: {
+            //VueBootstrapTypeahead
+        },
+        el: '#app',
+        data: {
+            mode: 'templates',
+            edit_mode: 'templates',
+            modalities: ["CT", "MRI", "Radiography", "Angiography"],
+            specialties: ["Neuroradiology", "Thoracic", "Musculoskeletal"],
+            regions: ["Brain", "Spine", "Orbits", "Chest"],
+            module: "",
+            //user_modules: [],
+            components: loadXML("static/xml/components.xml"),
+            templates: loadXML("static/xml/empty.xml"),
+            //user_templates: [],
+            reportText: "",
+            template: "", // Pointer to the template in the templates array
+            index: "",
+            templateForm: [], // The current form being worked on
+            selected_n: null, // Currently selected element object
+            search: '',
+            user_name: '',
+            user_name_submit: '',
+            user_email: '',
+            user_password: '',
+            logged_in: false,
+            new_template_name: '',
+            import_file: null,
+            editModal: {
+                value: "null"
+            },
+            copyModal: {
+                id: 'copy-modal',
+                title: "Copy",
+                text: ''
+            },
+            xmlModal: {
+                id: 'xml-modal',
+                title: "XML",
+                text: ''
+            }
+        },
+        created() {
+
+            fetch(`${window.origin}/check-login`, {
+                    method: "GET",
+                    credentials: "include",
+                    cache: "no-cache",
+                    headers: new Headers({
+                        "content-type": "application/json"
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+
+                    }
+                    if (response.status !== 200) {
+                        alert("Login failure " + response.status)
+
+                        return;
+                    }
+                    return response.json()
+                })
+                .then(xml => {
+                    this.user_name = xml.username;
+                    this.logged_in = true;
+                    var obj = this.update_templates(xml.templates_modules, this.templates);
+
+                })
+                .catch(function(error) {
+                    console.log("Fetch error: " + error);
+                });
+
+        },
+
+
+
+        methods: {
+            edit_modules: function() {
+                this.mode = 'modules'
+                //console.log(this.mode)
+            },
+
+            import_templates_from_server: function(name) {
+
+                var entry = {
+                    user_email: this.user_email,
+                    user_password: this.user_password
+                }
+
+                fetch(`${window.origin}/import-templates`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: JSON.stringify(entry),
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Login failure " + response.status)
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(xml => {
+                        var obj = this.update_templates(xml.templates_modules, this.templates, false);
+                        updateUserDatabase(this.templates, this.templates.modules)
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+
+
+
+            },
+
+            import_templates_from_file: function(import_file) {
+                var file = import_file;
+                if (!file) {
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.call_func = this.update_templates
+                reader.onload = function(e) {
+                    var contents = e.target.result;
+                    xml = contents;
+                    this.call_func(xml, null, false);
+
+                }
+                reader.readAsText(file);
+            },
+
+            download_templates: function() {
+                fetch(`${window.origin}/check-login`, {
+                        method: "GET",
+                        credentials: "include",
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Login failure " + response.status)
+
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(xml => {
+                        var save=  "<?xml version=\"1.0\" encoding=\"ISO8859-1\"?>" +xml.templates_modules;
+
+
+                        save_to_file(save, "my_templates.xml", "text/xml")
+
+
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+            },
+
+            items_in_list: function(specialty, modality, region) {
+                var is_in = this.templates.filter(x => {
+                    return x.specialty == specialty;
+                })
+
+                if (modality) is_in = is_in.filter(x => {
+                    return x.modality == modality;
+                });
+
+                if (region) is_in = is_in.filter(x => {
+                    return x.region == region;
+                });
+
+                return is_in.length;
+            },
+            update: function(event) {},
+
+            findList: function(text, symbol_start, symbol_end) {
+                var n = 0 - symbol_start.length;
+                do {
+                    n = text.indexOf(symbol_start, n + symbol_start.length);
+                    if (n != -1) {
+                        end = text.indexOf(symbol_end, n);
+                    }
+                } while (n != -1);
+                return text;
+            },
+
+            reset: function() {
+                this.reportText = "";
+                this.module = "";
+                this.template = "";
+                this.index = "";
+                this.templateForm = [];
+                this.selected_n = null;
+            },
+
+            selectTemplate: function(event) {
+                this.reset();
+                this.template = event;
+                this.writeTemplate();
+                window.scrollTo(0, 0);
+            },
+
+            selectModule: function(event) {
+                this.module = event;
+            },
+
+            writeTemplate: function() { // Writes the form from the selected template
+                this.templateForm = [];
+                var elements = this.template.elements;
+
+
+                this.templateForm = parseFindings(this.template.xml.childNodes, this.templates.modules)
+
+                for (var n = 0; n < this.templateForm.length; n++) {
+                    this.templateForm[n].array_id = unique_id();
+                }
+                //console.log(this.template.xml.childNodes)
+
+                this.templateForm.name = this.template.name;
+                this.templateForm.modality = this.template.modality;
+                this.templateForm.region = this.template.region;
+                this.templateForm.specialty = this.template.specialty;
+
+                //console.log(this.templateForm)
+
+
+                window.history.pushState({}, '', "/");
+            },
+
+            blankTemplate: function() {
+                var index = this.templates.find(i => {
+                    //console.log(i.name)
+                    return (i.name.trim() == "Blank")
+                });
+                this.selectTemplate(index);
+
+            },
+
+            n_from_element(element) { // Returns n in templateform of element
+                var index = this.templateForm.findIndex(i => {
+                    return (i.array_id == element.array_id)
+                });
+                return index;
+            },
+
+            deleteElement() {
+                var index = this.n_from_element(this.selected_n)
+                this.templateForm.splice(index, 1);
+            },
+
+            deleteTemplate() {
+                var i = this.templates.findIndex(n => {
+                    return (n.name == this.templateForm.name);
+                });
+                this.templates.splice(i, 1);
+                var u = this.templates.findIndex(n => {
+                    return (n.name == this.templateForm.name)
+                });
+                this.templates.splice(u, 1);
+                updateUserDatabase(this.templates, this.templates.modules);
+                this.reset();
+            },
+
+            delete_all_templates() {
+                this.templates = [];
+                this.templates.modules = [];
+                updateUserDatabase(this.templates, this.templates.modules);
+                this.reset();
+
+
+            },
+
+            // Insert module after selected element. If no values passed then uses module in this.module
+            insertModule(selected_module, position) {
+                var place = 0;
+                if (position == "below") place = 1;
+
+                if (selected_module) {
+                    this.module = this.templates.modules.find(function(i) {
+                        return i.name == selected_module;
+                    });
+                }
+
+                var module_data = _.cloneDeep(this.module)
+                var module_id = unique_id();
+                // Insert module elements
+                for (var n = 0; n < module_data.elements.length; n++) {
+                    module_data.elements[n].array_id = unique_id();
+                    module_data.elements[n].meta.id = module_id;
+                    this.templateForm.splice(this.n_from_element(this.selected_n) + n + place, 0, module_data.elements[n]);
+                }
+            },
+
+            insertComponent(component_name, dont_show_options) {
+                this.$root.$emit('bv::hide::modal', 'insert-component-modal');
+
+                var component = this.components.modules.findIndex(i => {
+                    return (i.name == component_name)
+                });
+
+                var module_data = _.cloneDeep(this.components.modules[component].elements[0]);
+                var id = unique_id();
+                module_data.meta.this_is_module = false;
+                module_data.array_id = unique_id();
+                this.templateForm.splice(this.n_from_element(this.selected_n) + 1, 0, module_data);
+
+                if (!dont_show_options) {
+                    this.selectElement(module_data);
+                    this.setupEdit(module_data);
+                    this.$root.$emit('bv::show::modal', 'edit_modal');
+                }
+
+            },
+
+            insertText() {
+                this.insertComponent("Text Entry", true);
+            },
+
+            selectElement(element) {
+                this.selected_n = element
+            },
+
+            setupEdit(element) {
+                this.selectElement(element);
+                this.editModal.value = JSON.stringify(this.templateForm[this.n_from_element(this.selected_n)]);
+
+            },
+
+            queryInsert: function(element) {
+                this.selectElement(element);
+                var selected = this.n_from_element(this.selected_n)
+
+                selected = selected - 1;
+
+                this.module = this.templates.modules.find(function(i) {
+                    return i.name == element.text;
+                });
+                //console.log(this.module)
+                this.insertModule();
+            },
+
+            copyReport: function() {
+
+                var copyText = "";
+                for (var n = 0; n < this.templateForm.length; n++) {
+                    copyText += this.templateForm[n].printContents();
+                }
+
+                copyText = copyText.trim();
+
+                // Put in clipboard
+                const listener = function(ev) {
+                    ev.preventDefault();
+                    ev.clipboardData.setData('text/plain', copyText);
+                };
+                document.addEventListener('copy', listener);
+                document.execCommand('copy');
+                document.removeEventListener('copy', listener);
+
+                // Display Modal
+                this.copyModal.text = copyText;
+                this.$root.$emit('bv::show::modal', this.copyModal.id);
+
+            },
+
+            // Saves this module locally (and then calls to save on server)
+            exportXML_modules: function() {
+                if (this.logged_in == false) {
+                    alert("You need to login to save");
+                    return;
+                }
+                // First I turn the gui elements to xml and then back again to blank the entries. 
+                var xml_doc = document.implementation.createDocument("", "", null);
+                var template_gui = this.templateForm;
+
+                // Build new template xml from GUI
+                template = template_to_xml(template_gui, xml_doc);
+                var new_element = {
+                    name: this.templateForm.name,
+                    elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules),
+                    xml: template.querySelector("content")
+
+                }
+
+                var exists_in_user_modules = null;
+                for (var n = 0; n < this.templates.modules.length; n++) {
+                    if (this.templates.modules[n].name == this.templateForm.name) {
+                        this.templates.modules[n] = new_element;
+                        exists_in_user_modules = true;
+                    }
+                }
+                if (!exists_in_user_modules) {
+                    this.templates.modules.push(new_element);
+                }
+
+                // Save to server                   
+                updateUserDatabase(this.templates, this.templates.modules);
+            },
+
+            // Saves this template locally (and then calls to save on server)
+            exportXML_templates: function() {
+                if (this.logged_in == false) {
+                    alert("You need to login to save");
+                    return;
+                }
+
+                // I turn the gui elements to xml and then back again to blank the entries. 
+                var xml_doc = document.implementation.createDocument("", "", null);
+                var template_gui = _.cloneDeep(this.templateForm);
+
+                // Search in the template for modules
+                var module_array = []
+                for (var n = 0; n < template_gui.length; n++) {
+                    if (template_gui[n].meta.this_is_module) {
+                        var temp_module = [];
+                        var module_id = template_gui[n].meta.id;
+                        temp_module.push(template_gui[n]);
+                        if (template_gui[n + 1] && template_gui[n + 1].meta.id == module_id && (n + 1) < template_gui.length) {
+                            do {
+                                temp_module.push(template_gui[n + 1]);
+                                n++;
+                            }
+                            while ((n + 1) < template_gui.length && template_gui[n + 1].meta.id == module_id)
+                        }
+                        module_array.push(temp_module);
+                    }
+                }
+
+                //console.log(module_array)
+
+                // Check modules to see whether they have changed
+                module_array.forEach(n => {
+                    var temp_module = [];
+                    for (var nn = 0; nn < n.length; nn++) {
+                        temp_module.push(_.cloneDeep(n[nn]))
+                        delete temp_module[nn].meta.id;
+                        delete temp_module[nn].array_id;
+                    }
+                    //console.log(n[0].meta.module_name)
+                    var i = this.templates.modules.find(m => {
+
+                        return (m.name == n[0].meta.module_name)
+                    });
+
+                    if (JSON.stringify(temp_module) != JSON.stringify(i.elements)) {
+                        module_array = module_array.filter(m => {
+                            return !(m[0].meta.id == n[0].meta.id)
+                        })
+                    }
+                })
+
+                // Remove modules and replace with "Insert"
+                for (var n = 0; n < module_array.length; n++) {
+                    var id = module_array[n][0].meta.id;
+                    var index = template_gui.findIndex(x => {
+                        if (x.meta.this_is_module && x.meta.id == id) return true;
+                        else return false;
+                    });
+                    template_gui.splice(index, module_array[n].length);
+
+                    template_gui.splice(index, 0, {
+                        type: "insert",
+                        module: module_array[n][0].meta.module_name,
+                        meta: {
+                            this_is_module: false
+                        },
+                        exportTemplate: function(xml_doc) {
+                            var xml_el = xml_doc.createElement(this.type);
+                            xml_el.innerHTML = this.module.trim();
+                            return xml_el;
+                        }
+                    })
+                }
+
+                template = template_to_xml(template_gui, xml_doc);
+                var new_template = {
+                    name: this.templateForm.name.replace(/[\n\r]\t/g, '').trim(),
+                    modality: this.templateForm.modality.replace(/[\n\r]\t/g, '').trim(),
+                    region: this.templateForm.region.replace(/[\n\r]\t/g, '').trim(),
+                    specialty: this.templateForm.specialty.replace(/[\n\r]\t/g, '').trim(),
+                    elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules, null),
+                    xml: template.querySelector("content")
+                }
+
+                var xml = (new XMLSerializer()).serializeToString(template);
+
+                // Search in the user_templates and replace if exists. If not then append. 
+                var exists_in_user_templates = null;
+                for (var n = 0; n < this.templates.length; n++) {
+                    if (this.templates[n].name == this.templateForm.name) {
+                        this.templates[n] = new_template;
+                        exists_in_user_templates = true;
+                    }
+                }
+                if (!exists_in_user_templates) {
+                    this.templates.push(new_template);
+                }
+
+                // Search in normal templates and replace if exists. If not then append. 
+                //merge_templates(this.templates, this.user_templates)
+
+                updateUserDatabase(this.templates, this.templates.modules);
+            },
+
+            // Reload templates/modules by adding xml to existing
+            update_templates: function(xml, templates, overwrite = true) {
+                templates = this.templates;
+
+                if (!xml) return;
+                //  Update modules
+                if (xml != null) {
+                    parser = new DOMParser();
+                    xmlDoc = parser.parseFromString(xml, "text/xml");
+
+                    var user = []
+                    var t = xmlDoc.getElementsByTagName("module");
+
+                    for (var i = 0; i < t.length; i++) {
+                        var t_name = t[i].querySelector(
+                            "name").innerHTML.replace(/\t/g, '').trim();
+                        var t_findings = t[i].querySelector(
+                            "content").childNodes;
+                        var elements = parseFindings(t_findings, null, t_name);
+
+                        user.push({
+                            name: t_name,
+                            elements: elements,
+                            xml: t[i].querySelector(
+                                "content")
+                        });
+                    }
+                    console.log(templates)
+                    merge_templates(templates.modules, user, overwrite)
+                }
+
+                // Parse user templates
+                if (xml != null) {
+                    parser = new DOMParser();
+                    xmlDoc = parser.parseFromString(xml, "text/xml");
+
+                    var user = []
+                    var t = xmlDoc.getElementsByTagName("template");
+
+                    for (var i = 0; i < t.length; i++) {
+                        var t_name = t[i].querySelector(
+                            "name").innerHTML.replace(/[\n\r]\t/g, '').trim();
+                        var t_modality = t[i].querySelector(
+                            "modality");
+                        if (t_modality) t_modality = t_modality.innerHTML.replace(/\t/g, '').trim();
+                        var t_region = t[i].querySelector("region");
+                        if (t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
+                        var t_specialty = t[i].querySelector("specialty");
+                        if (t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
+
+                        var t_findings = t[i].querySelector(
+                            "content").childNodes;
+                        var elements = parseFindings(t_findings, templates.modules);
+
+                        var text = t[i].querySelector(
+                            "content").innerHTML
+
+                        user.push({
+                            name: t_name,
+                            specialty: t_specialty,
+                            region: t_region,
+                            modality: t_modality,
+                            elements: elements,
+                            xml: t[i].querySelector(
+                                "content")
+                        });
+                    }
+                    merge_templates(templates, user, overwrite)
+
+                    templates.sort((a, b) => {
+                        return (a.name > b.name)
+                    });
+                    templates.modules.sort((a, b) => {
+                        return (a.name > b.name)
+                    });
+                }
+                this.templates = templates;
+            },
+
+            saveAsNew: function() {
+                if (this.logged_in == false) {
+                    alert("You need to login to save");
+                    return;
+                }
+                var list = null;
+                if (this.mode == 'templates') list = this.templates;
+                else list = this.templates.modules;
+
+                // Search if name already 
+                if (-1 != list.findIndex(n => {
+                        return (n.name.trim() == this.templateForm.name.trim())
+                    })) {
+                    alert("Name already exists!" + this.templateForm.name);
+                    return;
+                }
+                if (this.mode == 'templates') this.exportXML_templates();
+                else this.exportXML_modules()
+            },
+
+            login: function() {
+                var entry = {
+                    user_email: this.user_email,
+                    user_password: this.user_password
+                }
+
+                fetch(`${window.origin}/login`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: JSON.stringify(entry),
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Login failure " + response.status)
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(xml => {
+                        this.user_name = xml.username;
+                        this.logged_in = true;
+                        var obj = this.update_templates(xml.templates_modules, this.templates);
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+
+
+            },
+
+
+            register: function() {
+                var entry = {
+                    user_email: this.user_email,
+                    user_password: this.user_password,
+                    user_name: this.user_name_submit
+                }
+
+                fetch(`${window.origin}/register`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: JSON.stringify(entry),
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            alert("Registration success")
+                            this.$root.$emit('bv::show::modal', 'login-modal');
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Registration failure " + response.status)
+
+                            return;
+                        }
+                        return response
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+
+            },
+            logout: function() {
+                fetch(`${window.origin}/logout`, {
+                        method: "POST",
+                        credentials: "include",
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                            this.logged_in = false;
+                            this.user_name = '';
+                            this.user_password = '';
+                            this.user_email = '';
+                            window.location.reload(true)
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Registration failure " + response.status)
+
+                            return;
+                        }
+                        return response
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+            }
+        }
+    });
+    </script>
+</body>
+
+</html>

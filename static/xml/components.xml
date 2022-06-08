@@ -1,0 +1,80 @@
+<all>
+    <module>
+        <name>
+            Text Entry
+        </name>
+        <content>
+            <text_entry label="" subtype="medium">
+            </text_entry>
+        </content>
+    </module>
+    <module>
+        <name>
+            h1
+        </name>
+        <content>
+            <h1>
+            </h1>
+        </content>
+    </module>
+    <module>
+        <name>
+            h2
+        </name>
+        <content>
+            <h2>
+            </h2>
+        </content>
+    </module>
+    <module>
+        <name>
+            Selection
+        </name>
+        <content>
+            <selection label="">
+            </selection>
+        </content>
+    </module>
+    <module>
+        <name>
+            Multi Radio
+        </name>
+        <content>
+            <multi_radio>
+                <radio label="">
+                    Not present | Present
+                </radio>
+            </multi_radio>
+        </content>
+    </module>
+    <module>
+        <name>
+            Multi Checkbox
+        </name>
+        <content>
+            <multi_checkbox label="">
+                <checkbox>
+                </checkbox>
+            </multi_checkbox>
+        </content>
+    </module>
+    <module>
+        <name>
+            Multi Select
+        </name>
+        <content>
+            <multi_select label="" askfurtherdetails="true">
+                <dropdown label="" print_text_before="">
+                </dropdown>
+            </multi_select>
+        </content>
+    </module>
+    <module>
+        <name>
+            Query Insert
+        </name>
+        <content>
+            <query_insert></query_insert>
+        </content>
+    </module>
+</all>

@@ -45,9 +45,8 @@ def login():
 
     if current_user.is_authenticated:
             data = {
-                "templates": current_user.get_templates(),
                 "username": current_user.get_username(),
-                "modules": current_user.get_modules()
+                "templates_modules": current_user.get_templates_modules(),
             }
             return jsonify(data)
      
@@ -57,28 +56,31 @@ def login():
         user = userModel.query.filter_by(email = email).first()
         if user is not None and user.check_password(req['user_password']):
             login_user(user)
-            #print(user.get_templates())
-            data = {
-                "templates": user.get_templates(),
-                "username": user.get_username(),
-                "modules": current_user.get_modules()
-            }
-            return jsonify(data)
+            return redirect('/app-page')
 
         if user is None or not user.check_password(req['user_password']):
             return "failure", 400
-            
-    return redirect('/')
+    
 
 @app.route('/check-login', methods=['GET'])
 def check_login():
     if current_user.is_authenticated:
             data = {
-                "templates": current_user.get_templates(),
+                "templates_modules": current_user.get_templates_modules(),
                 "username": current_user.get_username(),
-                "modules": current_user.get_modules()
             }
-            #print(data)
+            return jsonify(data)
+    else:
+        return "failure", 200
+
+@app.route('/import-templates', methods=['POST', 'GET'])
+def import_templates():
+    if current_user.is_authenticated:
+        with app.open_resource('static/xml/neuro.xml') as f:
+            str = f.read().decode('utf-8')
+            data = {
+                "templates_modules": str,
+            }
             return jsonify(data)
     else:
         return "failure", 200
@@ -113,20 +115,11 @@ def logout():
     logout_user()
     return redirect('/')
 
-@app.route('/index/export-report', methods=['POST'])
-def export_report():
-    req = request.get_json()
-    xml = req["xml"]
-    current_user.save_templates(xml)
-    db.session.add(current_user)
-    db.session.commit()
-    return req
-
-@app.route('/index/export-module', methods=['POST'])
+@app.route('/index/export', methods=['POST'])
 def export_module():
     req = request.get_json()
     xml = req["xml"]
-    current_user.save_modules(xml)
+    current_user.save_templates_modules(xml)
     db.session.add(current_user)
     db.session.commit()
     return req
@@ -136,9 +129,9 @@ def export_module():
 def index():
     return render_template('index.html', title='TemplateReporting')
 
-@app.route('/module-editor', methods = ['POST', 'GET'])
-def module_editor():
-    return render_template('module_editor.html', title='Module Editor')
+@app.route('/app-page', methods = ['POST', 'GET'])
+def app_page():
+    return render_template('app.html', title='TemplateReporting')
 
 if __name__ == '__main__':
     app.run()
