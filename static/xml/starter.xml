@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="ISO8859-1"?>
 <all>
-
-      <template>
+    <template>
         <name>
             Blank
         </name>
@@ -35,8 +34,16 @@
             </text_entry>
         </content>
     </template>
-
-        <module>
+    <module>
+        <name>
+            Blank
+        </name>
+        <content>
+            <h1>
+            </h1>
+        </content>
+    </module>
+    <module>
         <name>
             Comparison
         </name>
@@ -53,8 +60,7 @@
             </multi_select>
         </content>
     </module>
-
-        <module>
+    <module>
         <name>
             Plain CT Start
         </name>
@@ -66,7 +72,6 @@
             </text_entry>
             <selection label="Contrast administered?">Non-contrast study. | Intravenous contrast has been administered.
             </selection>
-
         </content>
     </module>
     <module>
@@ -74,7 +79,7 @@
             CT Head Checklist
         </name>
         <content>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Chronic pathology
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -102,7 +107,7 @@
             <selection label="Bones">
                 There are no skull fractures or destructive bony lesions
             </selection>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Checklist
             </h2>
             <multi_radio>
@@ -147,7 +152,7 @@
             CT Head
         </name>
         <content>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Acute pathology
             </h2>
             <text_entry subtype="medium" dont_print_label="true">
@@ -172,7 +177,7 @@
                     Normal | Enlarged
                 </radio>
             </multi_radio>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Chronic pathology
             </h2>
             <multi_select label="White matter changes" askfurtherdetails="true">
@@ -200,7 +205,7 @@
             <selection label="Bones">
                 There are no skull fractures or destructive bony lesions
             </selection>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Checklist
             </h2>
             <multi_radio>
@@ -300,7 +305,7 @@
                 Comparison
             </insert>
             <h1>Findings</h1>
-            <h2 dont_print="true" >
+            <h2 dont_print="true">
                 Acute pathology
             </h2>
             <text_entry subtype="medium">
@@ -334,6 +339,4 @@
             </text_entry>
         </content>
     </template>
-
-
 </all>

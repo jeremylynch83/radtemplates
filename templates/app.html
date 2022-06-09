@@ -36,7 +36,7 @@
                 </navbar-nav>
         </b-navbar>
         <p></p>
-        <b-modal id="login-modal" title="Log in">
+        <!--<b-modal id="login-modal" title="Log in">
             <form action="" method="POST">
                 <p>Email
                     <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" v-model="user_email" />
@@ -63,6 +63,14 @@
             </form>
             <template #modal-footer="{ close }">
                 <b-button @click="register(); $bvModal.hide('register-modal')">Submit</b-button>
+            </template>
+        </b-modal>-->
+        <b-modal id="position-insert-modal" title="Where?">
+            <p>Would you like to insert at the beginning of template or below this component </p>
+            <b-button @click="$bvModal.hide('position-insert-modal')">Beginning of template</b-button>
+            <b-button @click="$bvModal.hide('position-insert-modal')">Below this component</b-button>
+            <template #modal-footer="{ close }">
+                <b-button variant="danger" @click="$bvModal.hide('position-insert-modal')">Cancel</b-button>
             </template>
         </b-modal>
         <b-modal id="template-download" title="Templates">
@@ -136,6 +144,13 @@
                 <b-form-group>
                     <p></p>
                     <b-button @click="mode='templates'">Back to templates</b-button>
+                    <p></p>
+                    <div v-if="this.templates.modules.findIndex(n => {
+                    return (n.name == 'Blank');
+                }) != -1">
+                        <b-button variant="primary" @click="blankModule()">Insert Blank Module</b-button>
+                        </b-button>
+                    </div>
                     <h1>Modules</h1>
                     <template v-for="n in templates.modules">
                         <b-button @click="selectTemplate(n)" variant="link">{{n.name}} </b-button>
@@ -212,7 +227,7 @@
                         <b-form-checkbox v-model="selected_n.dont_print_label">Omit label in report?</b-form-checkbox>
                         <p></p>
                         <label>Content:</label>
-                        <b-form-textarea v-model="selected_n.template_text">
+                        <b-form-textarea v-model="selected_n.template_text" @change="selected_n.text = selected_n.template_text">
                         </b-form-textarea>
                     </b-form-group>
                     <!-- SELECTION TYPE -->
@@ -231,7 +246,7 @@
                                 </b-col>
                                 <b-col>
                                     <b-button-group>
-                                        <b-button variant="danger" @click="selected_n.options.splice(selected_n.options.indexOf(n), 1)">Delete</b-button>
+                                        <b-button variant="danger" @click=" selected_n.options.splice(selected_n.options.indexOf(n), 1)">Delete</b-button>
                                         <b-button variant="success" @click="selected_n.options.splice(selected_n.options.indexOf(n)+1, 0, {'text': '', 'value': selected_n.options.indexOf(n)+1})">Add</b-button>
                                     </b-button-group>
                                 </b-col>
@@ -256,6 +271,9 @@
                                 </b-form-input>
                             </b-input-group>
                         </b-form>
+                        <p></p>
+                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
+                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}]})">Insert selection</b-button>
                         <template v-for="nn in selected_n.multi">
                             <p></p>
                             <b-card>
@@ -283,7 +301,7 @@
                                         </b-col>
                                         <b-col>
                                             <b-button-group>
-                                                <b-button variant="danger" @click="nn.options.splice(nn.options.indexOf(n_dropdown), 1)">-</b-button>
+                                                <b-button variant="danger" @click=" nn.options.splice(nn.options.indexOf(n_dropdown), 1)">-</b-button>
                                                 <b-button variant="success" @click="nn.options.splice(nn.options.indexOf(n_dropdown)+1, 0, {'text': '', 'value': nn.options.indexOf(n_dropdown)+1})">+</b-button>
                                             </b-button-group>
                                         </b-col>
@@ -299,6 +317,8 @@
                     <!-- MULTIRADIO TYPE -->
                     <b-form-group v-if="selected_n.type=='multi_radio'" class="indent_bug">
                         <b-form-group class="indent_bug">
+                            <b-button block @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
+                            <p></p>
                             <template v-for="nn in selected_n.multi">
                                 <b-card>
                                     <template #header>
@@ -322,7 +342,7 @@
                                                     </b-col>
                                                     <b-col>
                                                         <b-button-group>
-                                                            <b-button variant="danger" @click="nn.options.splice(nn.options.indexOf(n_check), 1)">-</b-button>
+                                                            <b-button variant="danger" @click=" nn.options.splice(nn.options.indexOf(n_check), 1)">-</b-button>
                                                             <b-button variant="success" @click="nn.options.splice(nn.options.indexOf(n_check)+1, 0, {'text': '', 'value': nn.options.indexOf(n_check)+1})">+</b-button>
                                                         </b-button-group>
                                                     </b-col>
@@ -411,14 +431,14 @@
                         <b-button variant="danger" @click="reset()">Close</b-button>
                         <b-button variant="success" @click="copyReport()">Show Report</b-button>
                         <b-dropdown v-if="mode=='templates'" class="float-right" right text="Options">
-                            <b-dropdown-item @click="saveChanges()">Save changes</b-dropdown-item>
+                            <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
                             <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                            <b-dropdown-item v-b-modal.delete_template>Delete</b-dropdown-item>
+                            <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
                         </b-dropdown>
                         <b-dropdown v-if="mode=='modules'" class="float-right" right text="Options">
-                            <b-dropdown-item @click="exportXML_modules()">Save changes</b-dropdown-item>
+                            <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
                             <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                            <b-dropdown-item v-b-modal.delete_module>Delete</b-dropdown-item>
+                            <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
                         </b-dropdown>
                     </template>
                     <h1>
@@ -433,7 +453,7 @@
                                             <b-dropdown-item @click="selectElement(n); deleteElement()">Delete</b-dropdown-item>
                                             <b-dropdown-item @click="selectElement(n); insertText()">Insert Text</b-dropdown-item>
                                             <b-dropdown-item v-b-modal.insert-component-modal @click="selectElement(n)">Insert Component</b-dropdown-item>
-                                            <b-dropdown-item v-b-modal.control_modal @click="selectElement(n)">Insert Module</b-dropdown-item>
+                                            <b-dropdown-item v-if="mode=='templates'" v-b-modal.control_modal @click="selectElement(n)">Insert Module</b-dropdown-item>
                                             <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit</b-dropdown-item>
                                         </b-dropdown>
                                     </div>
@@ -453,15 +473,11 @@
                                     </b-form-group>
                                     <!-- TEXT ENTRY TYPE SMALL/MEDIUM/LARGE -->
                                     <b-form-group :disabled="n.disabled" v-if="n.type == 'text_entry'">
-                                        <b-row align-v="center">
-                                            <b-col md="auto" v-if="n.no_label != true">
-                                                <label>{{n.label}}</label>
-                                            </b-col>
-                                            <b-col>
-                                                <b-form-input :value="n.text" @change="n.text = $event" v-if="n.subtype  == 'small'">
-                                                </b-form-input>
-                                            </b-col>
-                                        </b-row>
+                                        <label v-if="n.subtype  != 'small' && n.label != '' && n.no_label != true" md="auto">{{n.label}}</label>
+                                        <b-input-group :prepend="n.label" v-if="n.subtype  == 'small'">
+                                            <b-form-input :value="n.text" @change="n.text = $event">
+                                        </b-input-group>
+                                        </b-form-input>
                                         <b-form-textarea :value="n.text" @change="n.text = $event" v-if="n.subtype  == 'medium'">
                                         </b-form-textarea>
                                         <b-form-textarea :value="n.text" @change="n.text = $event" rows="8" v-if="n.subtype  == 'large'">
@@ -581,10 +597,8 @@
             specialties: ["Generic", "Neuroradiology", "Thoracic", "Musculoskeletal"],
             regions: ["Generic", "Brain", "Spine", "Orbits", "Chest"],
             module: "",
-            //user_modules: [],
             components: loadXML("static/xml/components.xml"),
             templates: loadXML("static/xml/empty.xml"),
-            //user_templates: [],
             reportText: "",
             template: "", // Pointer to the template in the templates array
             index: "",
@@ -598,6 +612,7 @@
             logged_in: false,
             new_template_name: '',
             import_file: null,
+            template_changed: null,
             editModal: {
                 value: "null"
             },
@@ -819,6 +834,14 @@
 
             },
 
+            blankModule: function() {
+                var index = this.templates.modules.find(i => {
+                    return (i.name.trim() == "Blank")
+                });
+                this.selectTemplate(index);
+
+            },
+
             n_from_element(element) { // Returns n in templateform of element
                 var index = this.templateForm.findIndex(i => {
                     return (i.array_id == element.array_id)
@@ -866,10 +889,24 @@
 
 
             },
+            queryInsert: function(element) {
+                if (-1 == this.templates.modules.findIndex(n => { return (n.name == element.text) })) {
+                    alert("Module not installed!")
+                    return
+                };
+
+                this.selectElement(element);
+                var selected = this.n_from_element(this.selected_n)
+                selected = selected - 1;
+                this.module = this.templates.modules.find(function(i) {
+                    return i.name == element.text;
+                });
+                this.insertModule(null, "below");
+            },
 
             // Insert module after selected element. If no values passed then uses module in this.module
             insertModule(selected_module, position) {
-                var place = 0;
+                var place = -1;
                 if (position == "below") place = 1;
 
                 if (selected_module) {
@@ -877,7 +914,6 @@
                         return i.name == selected_module;
                     });
                 }
-
                 var module_data = _.cloneDeep(this.module)
                 var module_id = unique_id();
                 // Insert module elements
@@ -888,15 +924,15 @@
                 }
             },
 
-            insertComponent(component_name, dont_show_options) {
-                this.$root.$emit('bv::hide::modal', 'insert-component-modal');
 
+            insertComponent(component_name, dont_show_options) {
+
+                this.$root.$emit('bv::show::modal', 'position-insert-modal');
                 var component = this.components.modules.findIndex(i => {
                     return (i.name == component_name)
                 });
 
                 var module_data = _.cloneDeep(this.components.modules[component].elements[0]);
-                var id = unique_id();
                 module_data.meta.this_is_module = false;
                 module_data.array_id = unique_id();
                 this.templateForm.splice(this.n_from_element(this.selected_n) + 1, 0, module_data);
@@ -922,25 +958,6 @@
                 this.editModal.value = JSON.stringify(this.templateForm[this.n_from_element(this.selected_n)]);
 
             },
-
-            queryInsert: function(element) {
-                if (-1 == this.templates.modules.findIndex(n => { return (n.name == element.name) })) {
-                    alert("Module not installed!")
-                return
-            };
-
-                this.selectElement(element);
-                var selected = this.n_from_element(this.selected_n)
-
-                selected = selected - 1;
-
-                this.module = this.templates.modules.find(function(i) {
-                    return i.name == element.text;
-                });
-                //console.log(this.module)
-                this.insertModule();
-            },
-
             copyReport: function() {
 
                 var copyText = "";
@@ -1028,8 +1045,6 @@
                     }
                 }
 
-                //console.log(module_array)
-
                 // Check modules to see whether they have changed
                 module_array.forEach(n => {
                     var temp_module = [];
@@ -1038,9 +1053,7 @@
                         delete temp_module[nn].meta.id;
                         delete temp_module[nn].array_id;
                     }
-                    //console.log(n[0].meta.module_name)
                     var i = this.templates.modules.find(m => {
-
                         return (m.name == n[0].meta.module_name)
                     });
 
@@ -1184,7 +1197,6 @@
             },
 
             saveChanges: function() {
-                //console.log(this.templateForm.name)
                 if (this.templateForm.name != "Blank") this.exportXML_templates();
                 else this.$root.$emit('bv::show::modal', 'save_as_new_modal');
             },

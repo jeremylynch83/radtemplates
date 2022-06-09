@@ -121,7 +121,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         }
                         if (this.dont_print == false) {
                             if (this.type == "h1")
-                                print_text += "\n\n" + this.label + "\n";
+                                print_text += "\n\n" + this.label.toUpperCase() + "\n";
                             if (this.type == "h2")
                                 print_text += "\n\n" + this.label;
                         }
@@ -803,7 +803,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         return n.name == el.module;
                     });
                     if (x == -1) break;
-                    
+
                     if (x != -1 && dont_parse_modules != true) {
                         var id = unique_id();
                         var mods = _.cloneDeep(modules[x].elements);
