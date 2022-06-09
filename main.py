@@ -98,13 +98,18 @@ def register():
         email = req["user_email"]
         username = req["user_name"]
         password = req["user_password"]
- 
-        #if userModel.query.filter(email==email):
+        starter_data = ""
+        with app.open_resource('static/xml/starter.xml') as f:
+            starter_data = f.read().decode('utf-8')
+        print(starter_data)
+
+         #if userModel.query.filter(email==email):
         #    print("failure")
         #    return ('Email already Present'), 400
              
         user = userModel(email=email, username=username)
         user.set_password(password)
+        user.save_templates_modules(starter_data)
         db.session.add(user)
         db.session.commit()
         return "success"

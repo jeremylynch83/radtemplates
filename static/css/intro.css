@@ -178,4 +178,9 @@
   left: 16px;
      z-index: 100;
 } 
+
+
+.intro_text {
+    margin-top:  10%;
+    margin-left: 15%;
 }

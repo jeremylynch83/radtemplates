@@ -5,156 +5,142 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <title>Structured Reports</title>
+    <title>TemplateReporting</title>
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/intro.css')%%" />
     <!-- Required scripts -->
     <script src="%% url_for('static', filename='js/vue.js')%%"></script>
     <script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
-    <script src="%% url_for('static', filename='js/lodash.js')%%"></script>
     <script src="%% url_for('static', filename='js/my_lib.js')%%"></script>
+    <script src="%% url_for('static', filename='js/validator.js')%%"></script>
 </head>
 
 <body>
     <div id="app">
-        <b-navbar type="dark" variant="info">
+        <b-navbar toggleable="lg" type="dark" variant="info">
             <b-navbar-brand href="#">TemplateReporting.com</b-navbar-brand>
+            <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+            <b-collapse id="nav-collapse" is-nav>
+                <!-- Right aligned nav items -->
+                <b-navbar-nav class="ml-auto">
+                    <b-nav-form>
+                        <b-form-input size="sm" class="mr-sm-2" placeholder="Search"></b-form-input>
+                        <b-button size="sm" class="my-2 my-sm-0" type="submit">Search</b-button>
+                    </b-nav-form>
+                    <b-nav-item-dropdown text="Lang" right>
+                        <b-dropdown-item href="#">EN</b-dropdown-item>
+                        <b-dropdown-item href="#">ES</b-dropdown-item>
+                        <b-dropdown-item href="#">RU</b-dropdown-item>
+                        <b-dropdown-item href="#">FA</b-dropdown-item>
+                    </b-nav-item-dropdown>
+                </b-navbar-nav>
+            </b-collapse>
         </b-navbar>
-        <p></p>
-        <div class="container">
-            <b-card overlay img-src="%% url_for('static', filename='img/smiling.jpg')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting">
-                <b-row>
-                    <b-col>
-                        <b-card-text>
-                            Our browser based, vendor-neutral system does not require any installation. You can generate the report directly at your workstation without entering any sensitive patient data. Reports are never shared or publicly accessible.
-                            <p></p>
-                            <b-button variant="success" v-if="logged_in == false" v-b-modal.login-modal>Login</b-button>
-                            <p></p>
-                            <b-button variant="success" v-if="logged_in == false" v-b-modal.register-modal>Sign up</b-button>
-                        </b-card-text>
-                    </b-col>
-                    <b-col></b-col>
-                </b-row>
-            </b-card>
-        </div>
-        <p></p>
-        <div>
-            <b-container class="bv-example-row">
-                <ul class="list-unstyled">
-                    <b-media tag="li">
-                        <template #aside>
-                        </template>
-                        <h5 class="mt-0 mb-1">Speed and flexibility</h5>
-                        <p class="mb-0">
-                            The app is designed to speed up reporting but get out of your way when you want to enter free text. Your templates, your way.
-                        </p><p></p>
-                    </b-media>
-                    <b-media tag="li">
-                        <template #aside>
-                        </template>
-                        <h5 class="mt-0 mb-1">Create your own
-                            custom templates</h5>
-                        <p class="mb-0">
-                            If you find a template does not suit your needs, use our template editor to develop your own.
-                            Creating your own template enables you to adress the specific needs of your referring physicians or build on existing department-specific standards.
+        <b-row>
+            <b-col>
+                <div class="intro_text">
+                    <h1>Your radiology templates. Your way.</h1>
+                    <p></p> No installation is required as you can generate the report directly at your computer without entering any identifiable patient information. Reports are never shared or publicly accessible.<p></p>
+                    <div>
+                        <b-card>
+                            <b-tabs content-class="mt-3">
+                                <b-tab title="Login" active>
+                                    <b-form id="login_form" @submit="onSubmit_login">
+                                        <fieldset>
+                                            <div class="field">
+                                                <p>Email
+                                                    <b-form-input v-model="user_email" required="required" id="email" name="email" type="email" />
+                                                </p>
+                                            </div>
+                                            <div class="field">
+                                                <p>Password
+                                                    <b-form-input type="password" v-model="user_password" />
+                                                </p>
+                                            </div>
+                                        </fieldset>
+                                        <b-button variant="success" type="submit" class="btn btn-primary">
+                                            Submit
+                                        </b-button>
+                                    </b-form>
+                                </b-tab>
+                                <b-tab title="Sign up">
+                                    <p>Register for free to start now! </p>
+                                    <b-form id="register_form" @submit="onSubmit_register">
+                                        <fieldset>
+                                            <p>Email
+                                                <b-form-input type="email" v-model="user_email" />
+                                            </p>
+                                            <p>Username
+                                                <b-form-input type="text" v-model="user_name_submit" />
+                                            </p>
+                                            <p>Password
+                                                <b-form-input type="password" v-model="user_password" />
+                                            </p>
+                                            <b-button variant="success" type="submit">Submit</b-button>
+                                        </fieldset>
+                                    </b-form>
+                                </b-tab>
+                            </b-tabs>
+                        </b-card>
+                    </div>
+                </div>
+            </b-col>
+            <b-col>
+                <b-img fluid-grow src="%% url_for('static', filename='img/banner2.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting">
+            </b-col>
+        </b-row>
+
+        <footer class="site-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <h6>About</h6>
+                        <p class="text-justify">Sign Up for free
+                            and make the most out of your workflow.
+                            Our browser based, vendor-neutral system does not require any installation. You can generate the report directly at your workstation without entering any sensitive patient data. Reports are never shared or publicly accessible.</p>
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <h6>Categories</h6>
+                        <ul class="footer-links">
+                            <li><a href="">Medical certification</a></li>
+                            <li><a href="">Radiology</a></li>
+                            <li><a href="">Research</a></li>
+                            <li><a href="">Equal opportunities</a></li>
+                            <li><a href="">Training</a></li>
+                            <li><a href="">Work for us</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <h6>Quick Links</h6>
+                        <ul class="footer-links">
+                            <li><a href="">About Us</a></li>
+                            <li><a href="">Contact Us</a></li>
+                            <li><a href="">Contribute</a></li>
+                            <li><a href="">Privacy Policy</a></li>
+                            <li><a href="">Sitemap</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-sm-6 col-xs-12">
+                        <p class="copyright-text">Copyright &copy; 2022 All Rights Reserved by
+                            <a href="#">Kinech</a>.
                         </p>
-                    </b-media>
-                    <b-media tag="li" class="my-4">
-                        <template #aside>
-                        </template>
-                        <h5 class="mt-0 mb-1">Anonymisation</h5>
-                        <p class="mb-0">
-                            Patient specific information is not acquired or stored ensuring compliance with data protection regulations. Due to the design of the app there is no danger of leaking confidential information.
-                        </p>
-                    </b-media>
-                </ul>
-            </b-container>
-        </div>
-        <p></p>
-        <b-modal id="login-modal" title="Log in">
-            <form action="" method="POST">
-                <p>Email
-                    <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" v-model="user_email" />
-                </p>
-                <p>Password <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" type="password" v-model="user_password">
-                </p>
-            </form>
-            <b-button variant="link" v-b-modal.register-modal @click="$bvModal.hide('login-modal')">Don't have an account? Sign up</b-button>
-            <template #modal-footer="{ close }">
-                <b-button @click="login(); $bvModal.hide('login-modal')">Submit</b-button>
-            </template>
-        </b-modal>
-        <b-modal id="register-modal" title="Create account">
-            <p>Registering allows you to create and save templates. </p>
-            <form action="" method="POST">
-                <p>Email
-                    <b-form-input v-model="user_email" />
-                </p>
-                <p>Username
-                    <b-form-input v-model="user_name_submit" />
-                </p>
-                <p>Password <b-form-input type="password" v-model="user_password">
-                </p>
-            </form>
-            <template #modal-footer="{ close }">
-                <b-button @click="register(); $bvModal.hide('register-modal')">Submit</b-button>
-            </template>
-        </b-modal>
-        <b-container class="footer">
-        </b-container>
+                    </div>
+                    <div class="col-md-4 col-sm-6 col-xs-12">
+                        <ul class="social-icons">
+                            <li><a class="facebook" href="#"><i class="fa fa-facebook"></i></a></li>
+                            <li><a class="twitter" href="#"><i class="fa fa-twitter"></i></a></li>
+                            <li><a class="dribbble" href="#"><i class="fa fa-dribbble"></i></a></li>
+                            <li><a class="linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
     </div>
-    <p></p>
-    <!-- Site footer -->
-    <footer class="site-footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-12 col-md-6">
-                    <h6>About</h6>
-                    <p class="text-justify">Sign Up for free
-                        and make the most out of your workflow.
-                        Our browser based, vendor-neutral system does not require any installation. You can generate the report directly at your workstation without entering any sensitive patient data. Reports are never shared or publicly accessible.</p>
-                </div>
-                <div class="col-xs-6 col-md-3">
-                    <h6>Categories</h6>
-                    <ul class="footer-links">
-                        <li><a href="">Medical certification</a></li>
-                        <li><a href="">Radiology</a></li>
-                        <li><a href="">Research</a></li>
-                        <li><a href="">Equal opportunities</a></li>
-                        <li><a href="">Training</a></li>
-                        <li><a href="">Work for us</a></li>
-                    </ul>
-                </div>
-                <div class="col-xs-6 col-md-3">
-                    <h6>Quick Links</h6>
-                    <ul class="footer-links">
-                        <li><a href="">About Us</a></li>
-                        <li><a href="">Contact Us</a></li>
-                        <li><a href="">Contribute</a></li>
-                        <li><a href="">Privacy Policy</a></li>
-                        <li><a href="">Sitemap</a></li>
-                    </ul>
-                </div>
-            </div>
-            <hr>
-        </div>
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8 col-sm-6 col-xs-12">
-                    <p class="copyright-text">Copyright &copy; 2022 All Rights Reserved by
-                        <a href="#">Kinech</a>.
-                    </p>
-                </div>
-                <div class="col-md-4 col-sm-6 col-xs-12">
-                    <ul class="social-icons">
-                        <li><a class="facebook" href="#"><i class="fa fa-facebook"></i></a></li>
-                        <li><a class="twitter" href="#"><i class="fa fa-twitter"></i></a></li>
-                        <li><a class="dribbble" href="#"><i class="fa fa-dribbble"></i></a></li>
-                        <li><a class="linkedin" href="#"><i class="fa fa-linkedin"></i></a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
     </footer>
     <script>
     /* GLOBAL VARIABLES */
@@ -171,110 +157,112 @@
             user_email: '',
             user_password: '',
             logged_in: false,
+            validator: new FormValidator({ "events": ['blur', 'paste', 'change'] })
 
         },
+
         created() {
+
+            var form = document.getElementById("login_form");
+
+            function handleForm(event) {
+                event.preventDefault();
+                this.login()
+            }
+            form.addEventListener('submit', handleForm);
 
         },
 
 
 
         methods: {
+            onSubmit_login(event) {
+                event.preventDefault();
+                this.login();
+            },
+            onSubmit_register(event) {
+                event.preventDefault();
+                this.register();
+            },
+
+
             login: function() {
-                var entry = {
-                    user_email: this.user_email,
-                    user_password: this.user_password
-                }
 
-                fetch(`${window.origin}/login`, {
-                        method: "POST",
-                        credentials: "include",
-                        body: JSON.stringify(entry),
-                        cache: "no-cache",
-                        headers: new Headers({
-                            "content-type": "application/json"
+                var validatorResult = this.validator.checkAll(document.getElementById("login_form"));
+
+                if (!!validatorResult.valid) {
+
+                    var entry = {
+                        user_email: this.user_email,
+                        user_password: this.user_password
+                    }
+
+                    fetch(`${window.origin}/login`, {
+                            method: "POST",
+                            credentials: "include",
+                            body: JSON.stringify(entry),
+                            cache: "no-cache",
+                            headers: new Headers({
+                                "content-type": "application/json"
+                            })
                         })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            window.location.href = "/app-page";
+                        .then(response => {
+                            if (response.ok) {
+                                window.location.href = "/app-page";
 
-                        }
-                        if (response.status !== 200) {
-                            alert("Login failure " + response.status)
-                            return;
-                        }
-                        return response.json()
-                    })
-                    .catch(function(error) {
-                        console.log("Fetch error: " + error);
-                    });
+                            }
+                            if (response.status !== 200) {
+                                alert("Login failure " + response.status)
+                                return;
+                            }
+                            return response.json()
+                        })
+                        .catch(function(error) {
+                            console.log("Fetch error: " + error);
+                        });
+                }
             },
 
 
             register: function() {
-                var entry = {
-                    user_email: this.user_email,
-                    user_password: this.user_password,
-                    user_name: this.user_name_submit
+                var validatorResult = this.validator.checkAll(document.getElementById("login_form"));
+
+                if (!!validatorResult.valid) {
+
+
+                    var entry = {
+                        user_email: this.user_email,
+                        user_password: this.user_password,
+                        user_name: this.user_name_submit
+                    }
+
+                    fetch(`${window.origin}/register`, {
+                            method: "POST",
+                            credentials: "include",
+                            body: JSON.stringify(entry),
+                            cache: "no-cache",
+                            headers: new Headers({
+                                "content-type": "application/json"
+                            })
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                alert("Registration success")
+                            //window.location.reload(true)
+
+                            }
+                            if (response.status !== 200) {
+                                alert("Registration failure " + response.status)
+
+                                return;
+                            }
+                            return response
+                        })
+                        .catch(function(error) {
+                            console.log("Fetch error: " + error);
+                        });
                 }
 
-                fetch(`${window.origin}/register`, {
-                        method: "POST",
-                        credentials: "include",
-                        body: JSON.stringify(entry),
-                        cache: "no-cache",
-                        headers: new Headers({
-                            "content-type": "application/json"
-                        })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-                            alert("Registration success")
-                            this.$root.$emit('bv::show::modal', 'login-modal');
-
-                        }
-                        if (response.status !== 200) {
-                            alert("Registration failure " + response.status)
-
-                            return;
-                        }
-                        return response
-                    })
-                    .catch(function(error) {
-                        console.log("Fetch error: " + error);
-                    });
-
-            },
-            logout: function() {
-                fetch(`${window.origin}/logout`, {
-                        method: "POST",
-                        credentials: "include",
-                        cache: "no-cache",
-                        headers: new Headers({
-                            "content-type": "application/json"
-                        })
-                    })
-                    .then(response => {
-                        if (response.ok) {
-
-                            this.logged_in = false;
-                            this.user_name = '';
-                            this.user_password = '';
-                            this.user_email = '';
-                            window.location.href = "/";
-
-                        }
-                        if (response.status !== 200) {
-                            alert("Registration failure " + response.status)
-
-                            return;
-                        }
-                        return response
-                    })
-                    .catch(function(error) {
-                        console.log("Fetch error: " + error);
-                    });
             }
         }
     });

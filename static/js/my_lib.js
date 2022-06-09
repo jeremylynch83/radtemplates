@@ -802,6 +802,8 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     var x = modules.findIndex((n) => {
                         return n.name == el.module;
                     });
+                    if (x == -1) break;
+                    
                     if (x != -1 && dont_parse_modules != true) {
                         var id = unique_id();
                         var mods = _.cloneDeep(modules[x].elements);
