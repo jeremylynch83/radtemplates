@@ -428,22 +428,25 @@
             <b-form-group v-if="template != ''">
                 <b-card bg-variant="light">
                     <template #header>
-                        <b-button variant="danger" @click="reset()">Close</b-button>
-                        <b-button variant="success" @click="copyReport()">Show Report</b-button>
-                        <b-dropdown v-if="mode=='templates'" class="float-right" right text="Options">
-                            <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
-                            <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                            <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
-                        </b-dropdown>
-                        <b-dropdown v-if="mode=='modules'" class="float-right" right text="Options">
-                            <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
-                            <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                            <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
-                        </b-dropdown>
+                        <b-navbar >
+                            <b-button style="margin-right:10px" variant="danger" @click="reset()">Close</b-button>
+                            <b-button style="margin-right:10px" variant="success" @click="copyReport()">Show Report</b-button>
+                            <b-dropdown style="margin-right:10px"v-if="mode=='templates'" class="float-right" right text="Options">
+                                <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
+                                <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                                <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
+                            </b-dropdown>
+                            <b-dropdown style="margin-right:10px"v-if="mode=='modules'" class="float-right" right text="Options">
+                                <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
+                                <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                                <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
+                            </b-dropdown>
+                                                        <b-navbar-brand href="#">{{templateForm.name}}</b-navbar-brand>
+
+                        </b-navbar>
                     </template>
-                    <h1>
-                        {{templateForm.name}}
-                    </h1>
+<!--------------------------------------------------------------------------------------------------------->   
+<!--------------------------------------------------------------------------------------------------------->
                     <template v-for=" n in templateForm">
                         <div class="body">
                             <div class="row">
@@ -561,7 +564,7 @@
                                     </b-form-group>
                                     <!-- DETAILS BOX -->
                                     <b-form-group v-show="n.details || n.present == 'yes'" :disabled="n.disabled">
-                                        <b-form-textarea :value="n.details_text" @change="n.details_text = $event" placeholder="Enter free text">
+                                        <b-form-textarea :value="n.details_text" @change="n.details_text = $event" >
                                             Details
                                         </b-form-textarea>
                                     </b-form-group>

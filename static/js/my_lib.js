@@ -261,7 +261,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     };
                     var showdetailson = xml[i].getAttribute("showdetailson");
                     if (showdetailson) el.showdetailson = Number(showdetailson);
-                    else el.showdetailson = 1;
+                    else el.showdetailson = el.options.length-1;
 
                     el.exportTemplate = function(xml_doc) {
                         // Create structure
@@ -409,7 +409,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                             print_text_in +=
                                                 this.multi[n]
                                                 .print_text_before + " ";
-                                        } else if (
+                                        } /*else if (
                                             !this.multi[n].flags.includes(
                                                 "dont_print_label"
                                             ) &&
@@ -417,7 +417,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                         ) {
                                             print_text_in +=
                                                 this.multi[n].label + ": ";
-                                        }
+                                        }*/
                                         print_text_in += this.multi[n].text;
                                         if (
                                             this.multi[n].print_text_after != ""
