@@ -906,7 +906,6 @@ function loadXML(path_template, path_user) {
 
 // Saves the user templates and modules to server
 function updateUserDatabase(user_templates, user_modules) {
-
     var save_doc = document.implementation.createDocument("", "", null);
     var all = save_doc.createElement("all");
     save_doc.appendChild(all);
@@ -929,8 +928,6 @@ function updateUserDatabase(user_templates, user_modules) {
         var content = save_doc.createElement("content");
         content = user_templates[n].xml
         template.appendChild(content);
-
-
         all.appendChild(template);
     }
 
@@ -982,7 +979,7 @@ function merge_templates(master_templates, user_templates, overwrite = true) {
                     	new_name = user_templates[n].name + " " + i;
                     }*/
                     user_templates[n].name = user_templates[n].name + " imported";
-                    master_templates.splice(nn, 0, user_templates[n]);
+                    //master_templates.splice(nn, 0, user_templates[n]);
                     exists_in_master = true;
 
                 }
@@ -1062,4 +1059,13 @@ function save_to_file(data, filename, type) {
             window.URL.revokeObjectURL(url);  
         }, 0); 
     }
+}
+
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+  );
 }

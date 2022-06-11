@@ -28,6 +28,7 @@
                     </b-dropdown-item>
                     <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
                     <b-dropdown-item @click="delete_all_templates()">Delete all templates</b-dropdown-item>
+                    <b-dropdown-item @click="delete_all_modules()">Delete all modules</b-dropdown-item>
                     <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
                 <!--
@@ -67,17 +68,21 @@
         </b-modal>-->
         <b-modal id="position-insert-modal" title="Where?">
             <p>Would you like to insert at the beginning of template or below this component </p>
-            <b-button @click="$bvModal.hide('position-insert-modal')">Beginning of template</b-button>
-            <b-button @click="$bvModal.hide('position-insert-modal')">Below this component</b-button>
+            <b-button @click="$bvModal.hide('position-insert-modal'); insertObject(object.type, 'above')">Beginning of template</b-button>
+            <b-button @click="$bvModal.hide('position-insert-modal'); insertObject(object.type, 'below')">Below this component</b-button>
             <template #modal-footer="{ close }">
-                <b-button variant="danger" @click="$bvModal.hide('position-insert-modal')">Cancel</b-button>
+                <b-button variant="danger" @click="$bvModal.hide('position-insert-modal'); object.type=null">Cancel</b-button>
             </template>
         </b-modal>
         <b-modal id="template-download" title="Templates">
             <p>Get more templates </p>
+            <p></p>
             <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Diagnostic neuroradiology</b-button>
+            <p></p>
             <b-button @click="import_templates_from_server('thoracic.xml'); $bvModal.hide('template-download')">Thoracic radiology</b-button>
+            <p></p>
             <b-button @click="import_templates_from_server('msk.xml'); $bvModal.hide('template-download')">Musculoskeletal radiology</b-button>
+            <p></p>
             <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Diagnostic neuroradiology</b-button>
             <template #modal-footer="{ close }">
                 <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
@@ -428,25 +433,24 @@
             <b-form-group v-if="template != ''">
                 <b-card bg-variant="light">
                     <template #header>
-                        <b-navbar >
+                        <b-navbar>
                             <b-button style="margin-right:10px" variant="danger" @click="reset()">Close</b-button>
                             <b-button style="margin-right:10px" variant="success" @click="copyReport()">Show Report</b-button>
-                            <b-dropdown style="margin-right:10px"v-if="mode=='templates'" class="float-right" right text="Options">
+                            <b-dropdown style="margin-right:10px" v-if="mode=='templates'" class="float-right" right text="Template">
                                 <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
                                 <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
                                 <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
                             </b-dropdown>
-                            <b-dropdown style="margin-right:10px"v-if="mode=='modules'" class="float-right" right text="Options">
+                            <b-dropdown style="margin-right:10px" v-if="mode=='modules'" class="float-right" right text="Module">
                                 <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
                                 <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
                                 <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
                             </b-dropdown>
-                                                        <b-navbar-brand href="#">{{templateForm.name}}</b-navbar-brand>
-
+                            <b-navbar-brand href="#">{{templateForm.name}}</b-navbar-brand>
                         </b-navbar>
                     </template>
-<!--------------------------------------------------------------------------------------------------------->   
-<!--------------------------------------------------------------------------------------------------------->
+                    <!--------------------------------------------------------------------------------------------------------->
+                    <!--------------------------------------------------------------------------------------------------------->
                     <template v-for=" n in templateForm">
                         <div class="body">
                             <div class="row">
@@ -454,9 +458,9 @@
                                     <div class="op_icon">
                                         <b-dropdown id="dropdown-1" text="Options" class="m-md-2">
                                             <b-dropdown-item @click="selectElement(n); deleteElement()">Delete</b-dropdown-item>
-                                            <b-dropdown-item @click="selectElement(n); insertText()">Insert Text</b-dropdown-item>
-                                            <b-dropdown-item v-b-modal.insert-component-modal @click="selectElement(n)">Insert Component</b-dropdown-item>
-                                            <b-dropdown-item v-if="mode=='templates'" v-b-modal.control_modal @click="selectElement(n)">Insert Module</b-dropdown-item>
+                                            <b-dropdown-item @click="selectElement(n); insertObject('text')">Insert Text</b-dropdown-item>
+                                            <b-dropdown-item @click="selectElement(n); insertObject('component')">Insert Component</b-dropdown-item>
+                                            <b-dropdown-item v-if="mode=='templates'" @click="selectElement(n); insertObject('module')">Insert Module</b-dropdown-item>
                                             <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit</b-dropdown-item>
                                         </b-dropdown>
                                     </div>
@@ -564,7 +568,7 @@
                                     </b-form-group>
                                     <!-- DETAILS BOX -->
                                     <b-form-group v-show="n.details || n.present == 'yes'" :disabled="n.disabled">
-                                        <b-form-textarea :value="n.details_text" @change="n.details_text = $event" >
+                                        <b-form-textarea :value="n.details_text" @change="n.details_text = $event">
                                             Details
                                         </b-form-textarea>
                                     </b-form-group>
@@ -607,7 +611,6 @@
             index: "",
             templateForm: [], // The current form being worked on
             selected_n: null, // Currently selected element object
-            search: '',
             user_name: '',
             user_name_submit: '',
             user_email: '',
@@ -628,6 +631,10 @@
                 id: 'xml-modal',
                 title: "XML",
                 text: ''
+            },
+            object: {
+                type: null,
+                position: 'below'
             }
         },
         created() {
@@ -669,7 +676,6 @@
         methods: {
             edit_modules: function() {
                 this.mode = 'modules'
-                //console.log(this.mode)
             },
 
             import_templates_from_server: function(name) {
@@ -815,22 +821,15 @@
                 for (var n = 0; n < this.templateForm.length; n++) {
                     this.templateForm[n].array_id = unique_id();
                 }
-                //console.log(this.template.xml.childNodes)
-
                 this.templateForm.name = this.template.name;
                 this.templateForm.modality = this.template.modality;
                 this.templateForm.region = this.template.region;
                 this.templateForm.specialty = this.template.specialty;
-
-                //console.log(this.templateForm)
-
-
                 window.history.pushState({}, '', "/");
             },
 
             blankTemplate: function() {
                 var index = this.templates.find(i => {
-                    //console.log(i.name)
                     return (i.name.trim() == "Blank")
                 });
                 this.selectTemplate(index);
@@ -889,8 +888,14 @@
                 //this.templates.modules = [];
                 updateUserDatabase(this.templates, this.templates.modules);
                 this.reset();
-
-
+            },
+            delete_all_modules() {
+                //var temp = this.templates.modules;
+                this.templates.modules = this.templates.modules.filter(n => {
+                    return (n.name == "Blank")
+                })
+                updateUserDatabase(this.templates, this.templates.modules);
+                this.reset();
             },
             queryInsert: function(element) {
                 if (-1 == this.templates.modules.findIndex(n => { return (n.name == element.text) })) {
@@ -906,9 +911,25 @@
                 });
                 this.insertModule(null, "below");
             },
+            insertObject(type, position = false) {
+                var index = this.n_from_element(this.selected_n);
+                this.object.type = type;
+                if (index == 0 && position == false) {
+                    this.$root.$emit('bv::show::modal', 'position-insert-modal');
+                } else {
+                    this.object.position = position;
+                    // Component
+                    if (this.object.type == "component") this.$root.$emit('bv::show::modal', 'insert-component-modal');
+                    // Text entry
+                    if (this.object.type == "text") this.insertComponent("Text Entry", true);
+                    // Module
+                    if (this.object.type == "module") this.$root.$emit('bv::show::modal', 'control_modal');
+                }
+            },
 
             // Insert module after selected element. If no values passed then uses module in this.module
             insertModule(selected_module, position) {
+                var offset = (this.object.position == 'above') ? -1 : 0;
                 var place = -1;
                 if (position == "below") place = 1;
 
@@ -919,18 +940,25 @@
                 }
                 var module_data = _.cloneDeep(this.module)
                 var module_id = unique_id();
-                // Insert module elements
+                var index_start = this.n_from_element(this.selected_n) + offset + place;
+
                 for (var n = 0; n < module_data.elements.length; n++) {
                     module_data.elements[n].array_id = unique_id();
                     module_data.elements[n].meta.id = module_id;
-                    this.templateForm.splice(this.n_from_element(this.selected_n) + n + place, 0, module_data.elements[n]);
+                    this.templateForm.splice(index_start + n, 0, module_data.elements[n]);
                 }
+
+
+                this.object.type = null;
+                this.object.position = null;
             },
 
 
             insertComponent(component_name, dont_show_options) {
+                this.$root.$emit('bv::hide::modal', 'insert-component-modal');
+                var offset = (this.object.position == 'above') ? 0 : 1;
 
-                this.$root.$emit('bv::show::modal', 'position-insert-modal');
+                var index = this.n_from_element(this.selected_n);
                 var component = this.components.modules.findIndex(i => {
                     return (i.name == component_name)
                 });
@@ -938,20 +966,16 @@
                 var module_data = _.cloneDeep(this.components.modules[component].elements[0]);
                 module_data.meta.this_is_module = false;
                 module_data.array_id = unique_id();
-                this.templateForm.splice(this.n_from_element(this.selected_n) + 1, 0, module_data);
+                this.templateForm.splice(this.n_from_element(this.selected_n) + offset, 0, module_data);
 
                 if (!dont_show_options) {
                     this.selectElement(module_data);
                     this.setupEdit(module_data);
                     this.$root.$emit('bv::show::modal', 'edit_modal');
                 }
-
+                this.object.type = null;
+                this.object.position = null;
             },
-
-            insertText() {
-                this.insertComponent("Text Entry", true);
-            },
-
             selectElement(element) {
                 this.selected_n = element
             },
@@ -1122,14 +1146,13 @@
 
             // Reload templates/modules by adding xml to existing
             update_templates: function(xml, templates, overwrite = true) {
-                templates = this.templates;
-
                 if (!xml) return;
+                templates = this.templates;
+                var parser = new DOMParser();
+                xmlDoc = parser.parseFromString(xml, "text/xml");
+
                 //  Update modules
                 if (xml != null) {
-                    parser = new DOMParser();
-                    xmlDoc = parser.parseFromString(xml, "text/xml");
-
                     var user = []
                     var t = xmlDoc.getElementsByTagName("module");
 
@@ -1147,15 +1170,11 @@
                                 "content")
                         });
                     }
-                    //console.log(templates)
                     merge_templates(templates.modules, user, overwrite)
                 }
 
                 // Parse user templates
                 if (xml != null) {
-                    parser = new DOMParser();
-                    xmlDoc = parser.parseFromString(xml, "text/xml");
-
                     var user = []
                     var t = xmlDoc.getElementsByTagName("template");
 
