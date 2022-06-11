@@ -83,6 +83,9 @@
             </p>
         </b-container>
         <b-container fluid="sm" v-if="logged_in">
+            <b-alert show="1"  variant="warning" >
+                Welcome {{user_name}}
+            </b-alert>
             <b-form-group v-if="mode=='templates' && template == ''" id="select_template" title="Select Template" ok-only>
                 <b-form-group>
                     <div v-if="this.templates.findIndex(n => {
@@ -405,7 +408,7 @@
                             <b-button-group style="margin-right:10px">
                                 <b-button variant="danger" @click="reset()">Close</b-button>
                                 <b-button variant="success" @click="copyReport()">Show Report</b-button>
-                                <b-dropdown  v-if="mode=='templates'" class="float-right" right text="Template">
+                                <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
                                     <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
                                     <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
                                     <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
