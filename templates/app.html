@@ -31,41 +31,9 @@
                     <b-dropdown-item @click="delete_all_modules()">Delete all modules</b-dropdown-item>
                     <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
-                <!--
-                <b-nav-item v-if="logged_in == false" v-b-modal.login-modal>Log in</b-nav-item>
-                <b-nav-item class="me-auto" v-if="logged_in == false" v-b-modal.register-modal>Register</b-nav-item>-->
                 </navbar-nav>
         </b-navbar>
         <p></p>
-        <!--<b-modal id="login-modal" title="Log in">
-            <form action="" method="POST">
-                <p>Email
-                    <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" v-model="user_email" />
-                </p>
-                <p>Password <b-form-input @keyup.enter="login(); $bvModal.hide('login-modal')" type="password" v-model="user_password">
-                </p>
-            </form>
-            <b-button variant="link" v-b-modal.register-modal @click="$bvModal.hide('login-modal')">Don't have an account? Sign up</b-button>
-            <template #modal-footer="{ close }">
-                <b-button @click="login(); $bvModal.hide('login-modal')">Submit</b-button>
-            </template>
-        </b-modal>
-        <b-modal id="register-modal" title="Create account">
-            <p>Registering allows you to create and save templates. </p>
-            <form action="" method="POST">
-                <p>Email
-                    <b-form-input v-model="user_email" />
-                </p>
-                <p>Username
-                    <b-form-input v-model="user_name_submit" />
-                </p>
-                <p>Password <b-form-input type="password" v-model="user_password">
-                </p>
-            </form>
-            <template #modal-footer="{ close }">
-                <b-button @click="register(); $bvModal.hide('register-modal')">Submit</b-button>
-            </template>
-        </b-modal>-->
         <b-modal id="position-insert-modal" title="Where?">
             <p>Would you like to insert at the beginning of template or below this component </p>
             <b-button @click="$bvModal.hide('position-insert-modal'); insertObject(object.type, 'above')">Beginning of template</b-button>
@@ -398,7 +366,7 @@
             <b-modal id="save_as_new_modal" title="Save As New">
                 <b-form-group>
                     <label>Name</label>
-                    <b-form-input v-model="templateForm.name"></b-form-input>
+                    <b-form-input v-model="save_as_new_modal.new_name"></b-form-input>
                     <div v-if="mode=='templates'">
                         <label>Specialty</label>
                         <b-form-select :options="specialties" v-model="templateForm.specialty"></b-form-select>
@@ -434,19 +402,21 @@
                 <b-card bg-variant="light">
                     <template #header>
                         <b-navbar>
-                            <b-button style="margin-right:10px" variant="danger" @click="reset()">Close</b-button>
-                            <b-button style="margin-right:10px" variant="success" @click="copyReport()">Show Report</b-button>
-                            <b-dropdown style="margin-right:10px" v-if="mode=='templates'" class="float-right" right text="Template">
-                                <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
-                                <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                                <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
-                            </b-dropdown>
-                            <b-dropdown style="margin-right:10px" v-if="mode=='modules'" class="float-right" right text="Module">
-                                <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
-                                <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                                <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
-                            </b-dropdown>
-                            <b-navbar-brand href="#">{{templateForm.name}}</b-navbar-brand>
+                            <b-button-group style="margin-right:10px">
+                                <b-button variant="danger" @click="reset()">Close</b-button>
+                                <b-button variant="success" @click="copyReport()">Show Report</b-button>
+                                <b-dropdown  v-if="mode=='templates'" class="float-right" right text="Template">
+                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
+                                    <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
+                                </b-dropdown>
+                                <b-dropdown v-if="mode=='modules'" class="float-right" right text="Module">
+                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
+                                    <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
+                                </b-dropdown>
+                            </b-button-group>
+                            <div id="template_name">{{templateForm.name}}</div>
                         </b-navbar>
                     </template>
                     <!--------------------------------------------------------------------------------------------------------->
@@ -456,12 +426,12 @@
                             <div class="row">
                                 <div class="control">
                                     <div class="op_icon">
-                                        <b-dropdown id="dropdown-1" text="Options" class="m-md-2">
+                                        <b-dropdown id="dropdown-1" text="Edit" class="m-md-2">
                                             <b-dropdown-item @click="selectElement(n); deleteElement()">Delete</b-dropdown-item>
                                             <b-dropdown-item @click="selectElement(n); insertObject('text')">Insert Text</b-dropdown-item>
                                             <b-dropdown-item @click="selectElement(n); insertObject('component')">Insert Component</b-dropdown-item>
                                             <b-dropdown-item v-if="mode=='templates'" @click="selectElement(n); insertObject('module')">Insert Module</b-dropdown-item>
-                                            <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit</b-dropdown-item>
+                                            <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Change Element</b-dropdown-item>
                                         </b-dropdown>
                                     </div>
                                 </div>
@@ -635,6 +605,9 @@
             object: {
                 type: null,
                 position: 'below'
+            },
+            save_as_new_modal: {
+                new_name: null
             }
         },
         created() {
@@ -825,6 +798,9 @@
                 this.templateForm.modality = this.template.modality;
                 this.templateForm.region = this.template.region;
                 this.templateForm.specialty = this.template.specialty;
+
+                this.save_as_new_modal.new_name = this.template.name;
+
                 window.history.pushState({}, '', "/");
             },
 
@@ -992,7 +968,7 @@
                     copyText += this.templateForm[n].printContents();
                 }
 
-                copyText = copyText.trim();
+                copyText = copyText.trim().replace(/(\n){3,}/g, "\n\n");
 
                 // Put in clipboard
                 const listener = function(ev) {
@@ -1011,10 +987,6 @@
 
             // Saves this module locally (and then calls to save on server)
             exportXML_modules: function() {
-                if (this.logged_in == false) {
-                    alert("You need to login to save");
-                    return;
-                }
                 // First I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = this.templateForm;
@@ -1045,11 +1017,6 @@
 
             // Saves this template locally (and then calls to save on server)
             exportXML_templates: function() {
-                if (this.logged_in == false) {
-                    alert("You need to login to save");
-                    return;
-                }
-
                 // I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
@@ -1123,7 +1090,6 @@
                     elements: parseFindings(template.querySelector("content").childNodes, this.templates.modules, null),
                     xml: template.querySelector("content")
                 }
-
                 var xml = (new XMLSerializer()).serializeToString(template);
 
                 // Search in the user_templates and replace if exists. If not then append. 
@@ -1137,10 +1103,6 @@
                 if (!exists_in_user_templates) {
                     this.templates.push(new_template);
                 }
-
-                // Search in normal templates and replace if exists. If not then append. 
-                //merge_templates(this.templates, this.user_templates)
-
                 updateUserDatabase(this.templates, this.templates.modules);
             },
 
@@ -1224,20 +1186,19 @@
             },
 
             saveAsNew: function() {
-                if (this.logged_in == false) {
-                    alert("You need to login to save");
-                    return;
-                }
                 var list = null;
                 if (this.mode == 'templates') list = this.templates;
                 else list = this.templates.modules;
-
                 // Search if name already 
                 if (-1 != list.findIndex(n => {
-                        return (n.name.trim() == this.templateForm.name.trim())
+                        return (n.name.trim() == this.save_as_new_modal.new_name.trim())
                     })) {
-                    //alert("Name already exists!" + this.templateForm.name);
+                    alert("Name already exists: " + this.save_as_new_modal.new_name);
                     return;
+                } else {
+                    this.templateForm.name = this.save_as_new_modal.new_name;
+                    document.getElementById("template_name").innerHTML = this.save_as_new_modal.new_name
+
                 }
                 if (this.mode == 'templates') this.exportXML_templates();
                 else this.exportXML_modules()
