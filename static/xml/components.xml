@@ -63,8 +63,8 @@
             Multi Select
         </name>
         <content>
-            <multi_select label="" askfurtherdetails="true">
-                <dropdown label="" print_text_before="">
+            <multi_select label="Enter label" askfurtherdetails="false">
+                <dropdown label="Enter label">
                 </dropdown>
             </multi_select>
         </content>

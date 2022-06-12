@@ -26,7 +26,7 @@ app.secret_key = secret
 
 
 # Link our SQLite database with SQLALchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///<db_name>.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user_templates.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 

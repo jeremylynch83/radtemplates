@@ -83,7 +83,7 @@
             </p>
         </b-container>
         <b-container fluid="sm" v-if="logged_in">
-            <b-alert show="1"  variant="warning" >
+            <b-alert show="1" variant="warning">
                 Welcome {{user_name}}
             </b-alert>
             <b-form-group v-if="mode=='templates' && template == ''" id="select_template" title="Select Template" ok-only>
@@ -124,7 +124,7 @@
                     <div v-if="this.templates.modules.findIndex(n => {
                     return (n.name == 'Blank');
                 }) != -1">
-                        <b-button variant="primary" @click="blankModule()">Insert Blank Module</b-button>
+                        <b-button variant="primary" @click="blankModule()">Blank Module</b-button>
                         </b-button>
                     </div>
                     <h1>Modules</h1>
@@ -242,14 +242,14 @@
                                 <b-form-radio value='true'> Yes</b-form-radio>
                                 <b-form-radio value='false'> No</b-form-radio>
                             </b-form-radio-group>
-                            <b-input-group prepend="Next to print if no:">
+                            <b-input-group prepend="Text to include in report if 'No'">
                                 <b-form-input v-model="selected_n.normaltext">
                                 </b-form-input>
                             </b-input-group>
                         </b-form>
                         <p></p>
-                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
                         <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}]})">Insert selection</b-button>
+                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
                         <template v-for="nn in selected_n.multi">
                             <p></p>
                             <b-card>
@@ -408,6 +408,7 @@
                             <b-button-group style="margin-right:10px">
                                 <b-button variant="danger" @click="reset()">Close</b-button>
                                 <b-button variant="success" @click="copyReport()">Show Report</b-button>
+                                <b-button variant="warning" @click="clearTemplate()">Clear</b-button>
                                 <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
                                     <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
                                     <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
@@ -434,7 +435,7 @@
                                             <b-dropdown-item @click="selectElement(n); insertObject('text')">Insert Text</b-dropdown-item>
                                             <b-dropdown-item @click="selectElement(n); insertObject('component')">Insert Component</b-dropdown-item>
                                             <b-dropdown-item v-if="mode=='templates'" @click="selectElement(n); insertObject('module')">Insert Module</b-dropdown-item>
-                                            <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Change Element</b-dropdown-item>
+                                            <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit Element</b-dropdown-item>
                                         </b-dropdown>
                                     </div>
                                 </div>
@@ -638,8 +639,6 @@
                     this.user_name = xml.username;
                     this.logged_in = true;
                     var obj = this.update_templates(xml.templates_modules, this.templates);
-
-
                 })
                 .catch(function(error) {
                     console.log("Fetch error: " + error);
@@ -686,6 +685,26 @@
                     .catch(function(error) {
                         console.log("Fetch error: " + error);
                     });
+
+            },
+            loadXML_new: function(path_template, path_user) {
+                var xhttp = new XMLHttpRequest();
+                var temp = [];
+                xhttp.my_func = this.update_templates
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        temp = parseXML(this.responseXML, temp);
+
+                        console.log(temp)
+                        //var obj = this.update_templates(this.responseXML, this.templates, false);
+
+                    }
+                };
+                xhttp.open("GET", path_template, true);
+                xhttp.send();
+
+                return temp;
+
 
             },
 
@@ -765,6 +784,16 @@
                     }
                 } while (n != -1);
                 return text;
+            },
+
+            clearTemplate:function() {
+                this.reportText = "";
+                this.module = "";
+                //this.template = "";
+                this.index = "";
+                this.templateForm = [];
+                this.selected_n = null;
+                this.writeTemplate();
             },
 
             reset: function() {
@@ -888,7 +917,7 @@
                 this.module = this.templates.modules.find(function(i) {
                     return i.name == element.text;
                 });
-                this.insertModule(null, "below");
+                this.insertModule(null, "above");
             },
             insertObject(type, position = false) {
                 var index = this.n_from_element(this.selected_n);
@@ -942,9 +971,14 @@
                     return (i.name == component_name)
                 });
 
-                var module_data = _.cloneDeep(this.components.modules[component].elements[0]);
-                module_data.meta.this_is_module = false;
+                //var module_data = _.cloneDeep(this.components.modules[component].elements[0]);
+                var module_data = parseFindings(this.components.modules[component].xml.childNodes, this.templates.modules)[0]
+
+                module_data.meta = {
+                    this_is_module: false,
+                }
                 module_data.array_id = unique_id();
+                //module_data.present = true
                 this.templateForm.splice(this.n_from_element(this.selected_n) + offset, 0, module_data);
 
                 if (!dont_show_options) {
@@ -969,6 +1003,7 @@
                 var copyText = "";
                 for (var n = 0; n < this.templateForm.length; n++) {
                     copyText += this.templateForm[n].printContents();
+                    //console.log(this.templateForm[n].printContents())
                 }
 
                 copyText = copyText.trim().replace(/(\n){3,}/g, "\n\n");
@@ -1115,6 +1150,7 @@
                 templates = this.templates;
                 var parser = new DOMParser();
                 xmlDoc = parser.parseFromString(xml, "text/xml");
+                //console.log(xml)
 
                 //  Update modules
                 if (xml != null) {

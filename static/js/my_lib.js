@@ -261,7 +261,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     };
                     var showdetailson = xml[i].getAttribute("showdetailson");
                     if (showdetailson) el.showdetailson = Number(showdetailson);
-                    else el.showdetailson = el.options.length-1;
+                    else el.showdetailson = el.options.length - 1;
 
                     el.exportTemplate = function(xml_doc) {
                         // Create structure
@@ -397,6 +397,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                             this.present == "yes" ||
                             this.askfurtherdetails != "true"
                         ) {
+
                             for (var n = 0; n < this.multi.length; n++) {
                                 var print_text_in = "";
 
@@ -409,15 +410,16 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                             print_text_in +=
                                                 this.multi[n]
                                                 .print_text_before + " ";
-                                        } /*else if (
-                                            !this.multi[n].flags.includes(
-                                                "dont_print_label"
-                                            ) &&
-                                            this.multi[n].label != null
-                                        ) {
-                                            print_text_in +=
-                                                this.multi[n].label + ": ";
-                                        }*/
+                                        }
+                                        /*else if (
+                                                                                   !this.multi[n].flags.includes(
+                                                                                       "dont_print_label"
+                                                                                   ) &&
+                                                                                   this.multi[n].label != null
+                                                                               ) {
+                                                                                   print_text_in +=
+                                                                                       this.multi[n].label + ": ";
+                                                                               }*/
                                         print_text_in += this.multi[n].text;
                                         if (
                                             this.multi[n].print_text_after != ""
@@ -439,8 +441,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                     if (
                                         Number.isInteger(
                                             this.multi[n].selected
-                                        ) &&
-                                        this.multi[n].selected > 0
+                                        ) 
                                     ) {
                                         if (
                                             this.multi[n].print_text_before !=
@@ -481,6 +482,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                 }
 
                                 print_text += print_text_in;
+
                             }
                         }
                         if (this.present == "yes") {
@@ -560,6 +562,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
 
                         return xml_el;
                     };
+                    //console.log(el)
                     elements.push(el);
                     break;
 
@@ -849,6 +852,9 @@ function parseXML(xmlDoc, temp) {
         modules.push({
             name: m_name,
             elements: elements,
+            xml: xmlDoc
+            .getElementsByTagName("module")[i].querySelector(
+                "content")
         });
     }
 
@@ -876,6 +882,8 @@ function parseXML(xmlDoc, temp) {
             region: t_region,
             modality: t_modality,
             elements: elements,
+            xml: t[i].querySelector(
+                "content")
         });
     }
     temp.modules = modules;
@@ -896,6 +904,7 @@ function loadXML(path_template, path_user) {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             temp = parseXML(this.responseXML, temp);
+
         }
     };
     xhttp.open("GET", path_template, true);
@@ -1044,28 +1053,28 @@ function array_to_options(a) {
 }
 
 function save_to_file(data, filename, type) {
-    var file = new Blob([data], {type: type});
+    var file = new Blob([data], { type: type });
     if (window.navigator.msSaveOrOpenBlob) // IE10+
         window.navigator.msSaveOrOpenBlob(file, filename);
     else { // Others
         var a = document.createElement("a"),
-                url = URL.createObjectURL(file);
+            url = URL.createObjectURL(file);
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         setTimeout(function() {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);  
-        }, 0); 
+            window.URL.revokeObjectURL(url);
+        }, 0);
     }
 }
 
 function toTitleCase(str) {
-  return str.replace(
-    /\w\S*/g,
-    function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-    }
-  );
+    return str.replace(
+        /\w\S*/g,
+        function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        }
+    );
 }
