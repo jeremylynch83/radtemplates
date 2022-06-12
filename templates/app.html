@@ -23,7 +23,7 @@
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
                     <b-dropdown-item v-b-modal.template-download>Get more templates!
                     </b-dropdown-item>
-                    <b-dropdown-item v-if="logged_in == true" @click="edit_modules()">Edit modules</b-dropdown-item>
+                    <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
                     <b-dropdown-item v-b-modal.import-modal>Upload templates from file
                     </b-dropdown-item>
                     <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
@@ -45,13 +45,7 @@
         <b-modal id="template-download" title="Templates">
             <p>Get more templates </p>
             <p></p>
-            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Diagnostic neuroradiology</b-button>
-            <p></p>
-            <b-button @click="import_templates_from_server('thoracic.xml'); $bvModal.hide('template-download')">Thoracic radiology</b-button>
-            <p></p>
-            <b-button @click="import_templates_from_server('msk.xml'); $bvModal.hide('template-download')">Musculoskeletal radiology</b-button>
-            <p></p>
-            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Diagnostic neuroradiology</b-button>
+            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Neuroradiology starter</b-button>
             <template #modal-footer="{ close }">
                 <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
             </template>
@@ -83,16 +77,16 @@
             </p>
         </b-container>
         <b-container fluid="sm" v-if="logged_in">
-            <b-alert show="1" variant="warning">
+            <!--<b-alert show="5" variant="warning">
                 Welcome {{user_name}}
-            </b-alert>
+            </b-alert>-->
             <b-form-group v-if="mode=='templates' && template == ''" id="select_template" title="Select Template" ok-only>
                 <b-form-group>
                     <div v-if="this.templates.findIndex(n => {
                     return (n.name == 'Blank');
                 }) != -1">
                         <b-button variant="primary" @click="blankTemplate()">Blank Template</b-button>
-                        <b-button variant="primary" v-b-modal.template-download>Download more templates!
+                        <b-button variant="info" @click="edit_modules()">Edit modules
                         </b-button>
                     </div>
                     <p></p>
@@ -112,6 +106,14 @@
                                     </template>
                             </template>
                             </b-tab>
+                            <b-form-group v-if="templates.length < 3">
+                                <b-card border-variant="light">
+                                    <b-jumbotron lead="Download templates">
+                                        <p>You don't have many templates. Would you like to download some?</p>
+                                        <b-button variant="primary" v-b-modal.template-download>Download</b-button>
+                                    </b-jumbotron>
+                                </b-card>
+                            </b-form-group>
                         </b-tabs>
                     </b-card>
                 </b-form-group>
@@ -786,7 +788,7 @@
                 return text;
             },
 
-            clearTemplate:function() {
+            clearTemplate: function() {
                 this.reportText = "";
                 this.module = "";
                 //this.template = "";
@@ -938,7 +940,7 @@
             // Insert module after selected element. If no values passed then uses module in this.module
             insertModule(selected_module, position) {
                 var offset = (this.object.position == 'above') ? -1 : 0;
-                var place = -1;
+                var place = 0;
                 if (position == "below") place = 1;
 
                 if (selected_module) {

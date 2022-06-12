@@ -175,12 +175,40 @@
             created() {
 
                 var form = document.getElementById("login_form");
-
                 function handleForm(event) {
                     event.preventDefault();
                     this.login()
                 }
                 form.addEventListener('submit', handleForm);
+
+
+            fetch(`${window.origin}/check-login`, {
+                    method: "GET",
+                    credentials: "include",
+                    cache: "no-cache",
+                    headers: new Headers({
+                        "content-type": "application/json"
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+
+                    }
+                    if (response.status !== 200) {
+                        alert("Login failure " + response.status)
+                               window.location.href = "/app-page";
+                        return;
+                    }
+                    return response.json()
+                })
+                .then(xml => {
+                    this.user_name = xml.username;
+                    this.logged_in = true;
+
+                })
+                .catch(function(error) {
+                    console.log("Fetch error: " + error);
+                });
 
             },
 
