@@ -784,8 +784,6 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         return format_sentence(print_text);
                     };
                     el.exportTemplate = function(xml_doc) {
-                        // Create structure
-                        //var xml_doc = document.implementation.createDocument("", "", null);
                         var xml_el = xml_doc.createElement(this.type);
                         if (this.label)
                             xml_el.setAttribute("label", this.label);

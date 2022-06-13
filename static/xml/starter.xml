@@ -39,8 +39,8 @@
             Blank
         </name>
         <content>
-            <h1>
-            </h1>
+            <h2 dont_print="true">
+            </h2>
         </content>
     </module>
     <module>
