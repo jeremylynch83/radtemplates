@@ -196,6 +196,10 @@
                             <b-form-input v-model="selected_n.label">
                             </b-form-input>
                         </b-input-group>
+                        <b-input-group prepend="Text to insert after">
+                            <b-form-input v-model="selected_n.print_text_after">
+                            </b-form-input>
+                        </b-input-group>
                         <p></p>
                         <b-form-radio-group v-model="selected_n.subtype" name="radio-options">
                             <b-form-radio value="small">Small</b-form-radio>
@@ -1008,7 +1012,15 @@
                     //console.log(this.templateForm[n].printContents())
                 }
 
-                copyText = copyText.trim().replace(/(\n){3,}/g, "\n\n");
+                // Some grammer corrections
+                copyText = copyText.trim();
+                copyText = copyText.replace(/(\n){3,}/g, "\n\n"); // Remove triple or more newlines
+                /*copyText = copyText.replace(/(\s)A\s+([aeiou])/g, x=> {
+                    return "An " + x.
+                });*/
+
+
+
 
                 // Put in clipboard
                 const listener = function(ev) {

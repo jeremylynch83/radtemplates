@@ -2,6 +2,13 @@
     font-size: small
 }
 
+
+/*@media (max-width: 800px) {                  
+   .banner_img {
+      display: none;
+   }
+}*/
+
 .site-footer
 {
   background-color:#26272b;

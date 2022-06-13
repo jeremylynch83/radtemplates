@@ -189,6 +189,11 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         xml[i].getAttribute("dont_print_label") == "true"
                     )
                         el.dont_print_label = true;
+                    el.print_text_after =
+                        xml[i].getAttribute("print_text_after");
+                    if (el.print_text_after) el.print_text_after.trim();
+                    else el.print_text_after = "";
+
 
                     el.printContents = function() {
                         var print_text = "";
@@ -199,6 +204,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                 print_text += " " + this.text.toLowerCase();
                             else if (this.label) print_text += " " + this.text;
                             else print_text += this.text;
+                            print_text += this.print_text_after;
                             print_text += this.details_text;
                             if (this.text + this.details_text != "")
                                 print_text = format_sentence(print_text);
@@ -210,6 +216,11 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         if (this.label)
                             xml_el.setAttribute("label", this.label);
                         xml_el.setAttribute("subtype", this.subtype);
+                        if (this.print_text_after)
+                            xml_el.setAttribute(
+                                "print_text_after",
+                                this.print_text_after
+                            );
                         if (this.dont_print_label)
                             xml_el.setAttribute(
                                 "dont_print_label",
@@ -441,7 +452,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                     if (
                                         Number.isInteger(
                                             this.multi[n].selected
-                                        ) 
+                                        )
                                     ) {
                                         if (
                                             this.multi[n].print_text_before !=
@@ -853,8 +864,8 @@ function parseXML(xmlDoc, temp) {
             name: m_name,
             elements: elements,
             xml: xmlDoc
-            .getElementsByTagName("module")[i].querySelector(
-                "content")
+                .getElementsByTagName("module")[i].querySelector(
+                    "content")
         });
     }
 
