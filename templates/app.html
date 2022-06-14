@@ -182,7 +182,7 @@
                     <!-- HEADER TYPE -->
                     <b-form-group v-if="selected_n.type=='h1' || selected_n.type=='h2'" class="indent_bug">
                         <b-input-group prepend="Header label">
-                            <b-form-input v-model.lazy="selected_n.label"></b-form-input>
+                            <b-form-input :value="selected_n.label" @change="selected_n.label = $event"></b-form-input>
                         </b-input-group>
                         <p></p>
                         <b-form-checkbox v-model="selected_n.dont_print">Omit heading from report?</b-form-checkbox>
@@ -192,11 +192,11 @@
                     <!--  TEXT TYPE -->
                     <b-form-group v-if=" selected_n.type=='text_entry'" class="indent_bug">
                         <b-input-group prepend="Element label">
-                            <b-form-input v-model.lazy="selected_n.label">
+                            <b-form-input :value="selected_n.label" @change="selected_n.label = $event">
                             </b-form-input>
                         </b-input-group>
                         <b-input-group prepend="Text to insert after">
-                            <b-form-input v-model="selected_n.print_text_after">
+                            <b-form-input :value="selected_n.print_text_after" @change="selected_n.print_text_after = $event">
                             </b-form-input>
                         </b-input-group>
                         <p></p>
@@ -214,7 +214,7 @@
                     <!-- SELECTION TYPE -->
                     <b-form-group v-if="selected_n.type == 'selection'" class="indent_bug">
                         <b-input-group prepend="Element label">
-                            <b-form-input v-model="selected_n.label">
+                            <b-form-input :value="selected_n.label" @change="selected_n.label = $event">
                             </b-form-input>
                         </b-input-group>
                         <p></p>
@@ -222,7 +222,7 @@
                         <template v-for=" n in selected_n.options">
                             <b-row>
                                 <b-col cols="8">
-                                    <b-form-input v-model="n.text">
+                                    <b-form-input :value="n.text" @change="n.text = $event">
                                     </b-form-input>
                                 </b-col>
                                 <b-col>
@@ -237,7 +237,7 @@
                     <!-- MULTISELECTION TYPE -->
                     <b-form-group v-if="selected_n.type=='multi_select'" class="indent_bug">
                         <b-input-group prepend="Element label">
-                            <b-form-input v-model="selected_n.label">
+                            <b-form-input :value="selected_n.label" @change="selected_n.label = $event">
                             </b-form-input>
                         </b-input-group>
                         <p></p>
@@ -248,7 +248,7 @@
                                 <b-form-radio value='false'> No</b-form-radio>
                             </b-form-radio-group>
                             <b-input-group prepend="Text to include in report if 'No'">
-                                <b-form-input v-model="selected_n.normaltext">
+                                <b-form-input :value="selected_n.normaltext" @change="selected_n.normaltext = $event">
                                 </b-form-input>
                             </b-input-group>
                         </b-form>
@@ -262,22 +262,22 @@
                                     <b-button variant="danger" class="float-right" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn), 1)">Delete</b-button>
                                 </template>
                                 <b-input-group prepend="Label">
-                                    <b-form-input v-model="nn.label">
+                                    <b-form-input :value="nn.label" @change="nn.label = $event">
                                     </b-form-input>
                                 </b-input-group>
                                 <b-input-group prepend="Text preceeding">
-                                    <b-form-input v-model="nn.print_text_before">
+                                    <b-form-input :value="nn.print_text_before" @change="nn.print_text_before = $event">
                                     </b-form-input>
                                 </b-input-group>
                                 <b-input-group prepend="Text inserted after">
-                                    <b-form-input v-model="nn.print_text_after">
+                                    <b-form-input :value="nn.print_text_after" @change="nn.print_text_after = $event">
                                     </b-form-input>
                                 </b-input-group>
                                 <template v-if="nn.type=='dropdown'" v-for="n_dropdown in nn.options">
                                     <p></p>
                                     <b-row>
                                         <b-col cols="8">
-                                            <b-form-input v-model="n_dropdown.text">
+                                            <b-form-input :value="n_dropdown.text" @change="n_dropdown.text = $event">
                                             </b-form-input>
                                         </b-col>
                                         <b-col>
@@ -307,18 +307,18 @@
                                     </template>
                                     <b-form v-if="nn.options != '' && nn.type == 'radio'">
                                         <b-input-group prepend="Label">
-                                            <b-form-input v-model="nn.label">
+                                            <b-form-input :value="nn.label" @change="nn.label = $event">
                                             </b-form-input>
                                         </b-input-group>
                                         <b-form v-if="nn.options != '' && nn.type == 'radio'">
                                             <b-input-group prepend="Text for first option">
-                                                <b-form-input v-model="nn.normaltext">
+                                                <b-form-input :value="nn.normaltext" @change="nn.normaltext = $event">
                                                 </b-form-input>
                                             </b-input-group>
                                             <template v-for="n_check in nn.options">
                                                 <b-row>
                                                     <b-col cols="8">
-                                                        <b-form-input v-model="n_check.text">
+                                                        <b-form-input :value="n_check.text" @change="n_check.text = $event">
                                                         </b-form-input>
                                                     </b-col>
                                                     <b-col>
@@ -345,7 +345,7 @@
                     <!-- MULTI CHECKBOX TYPE -->
                     <b-form-group v-if="selected_n.type == 'multi_checkbox'">
                         <b-input-group prepend="Element label">
-                            <b-form-input v-model="selected_n.label">
+                            <b-form-input :value="selected_n.label" @change="selected_n.label = $event">
                             </b-form-input>
                         </b-input-group>
                         <p></p>
@@ -353,7 +353,7 @@
                             <template v-for="n_check in selected_n.multi">
                                 <b-row>
                                     <b-col cols="8">
-                                        <b-form-input v-model="n_check.text">
+                                        <b-form-input :value="n_check.text" @change="n_check.text = $event">
                                         </b-form-input>
                                     </b-col>
                                     <b-col>
@@ -374,7 +374,7 @@
             <b-modal id="save_as_new_modal" title="Save As New">
                 <b-form-group>
                     <label>Name</label>
-                    <b-form-input v-model="save_as_new_modal.new_name"></b-form-input>
+                    <b-form-input :value="save_as_new_modal.new_name" @change="save_as_new_modal.new_name = $event"></b-form-input>
                     <div v-if="mode=='templates'">
                         <label>Specialty</label>
                         <b-form-select :options="specialties" v-model="templateForm.specialty"></b-form-select>
