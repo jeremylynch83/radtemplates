@@ -42,10 +42,24 @@
                 <b-button variant="danger" @click="$bvModal.hide('position-insert-modal'); object.type=null">Cancel</b-button>
             </template>
         </b-modal>
-        <b-modal id="template-download" title="Templates">
-            <p>Get more templates </p>
+        <b-modal id="template-download" title="Get more radiology templates">
             <p></p>
-            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Neuroradiology starter</b-button>
+            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Curated neuroradiology</b-button>
+            <p></p>
+            <p>Search for RSNA approved templates on RadReport.com </p>
+            <b-input-group>
+                <b-form-input v-model="radreport_search_term"></b-form-input>
+                <b-input-group-append>
+                    <b-button @click="update_radreport_search()" variant="success">Search</b-button>
+                </b-input-group-append>
+            </b-input-group>
+            <b-table sticky-header striped hover :items="radreport_table">
+                <template #cell(title)="row">
+                    <b-button variant="link" size="sm" @click="download_radreport(row.item)">
+                        {{row.item.title}}
+                    </b-button>
+                </template>
+            </b-table>
             <template #modal-footer="{ close }">
                 <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
             </template>
@@ -110,7 +124,7 @@
                                 <b-card border-variant="light">
                                     <b-jumbotron lead="Download templates">
                                         <p>You don't have many templates. Would you like to download some?</p>
-                                        <b-button variant="primary" v-b-modal.template-download>Download</b-button>
+                                        <b-button variant="primary" @click="get_templates()">Download</b-button>
                                     </b-jumbotron>
                                 </b-card>
                             </b-form-group>
@@ -172,6 +186,7 @@
                     <p v-if="selected_n.meta.this_is_module">Part of module: <b>{{selected_n.meta.module_name}} </b></p>
                     <!-- QUERY INSERT TYPE -->
                     <b-form-group v-if="selected_n.type=='query_insert'" class="indent_bug">
+                        <b-form-checkbox v-model="selected_n.disappear">Diseappear after insertion?</b-form-checkbox>
                         <b-input-group>
                             <template v-for="n in templates.modules">
                                 <b-button @click="selected_n.text = n.name; $bvModal.hide('edit_modal')" variant="link">{{n.name}} </b-button>
@@ -217,6 +232,7 @@
                             <b-form-input :value="selected_n.label" @change="selected_n.label = $event">
                             </b-form-input>
                         </b-input-group>
+                        <b-form-checkbox v-model="selected_n.dont_print_label">Omit heading from report?</b-form-checkbox>
                         <p></p>
                         <label>Options:</label>
                         <template v-for=" n in selected_n.options">
@@ -415,17 +431,17 @@
                                 <b-button variant="success" @click="copyReport()">Show Report</b-button>
                                 <b-button variant="warning" @click="clearTemplate()">Clear</b-button>
                                 <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
-                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="saveChanges()">Save changes</b-dropdown-item>
+                                    <b-dropdown-item @click="saveChanges()">Save changes</b-dropdown-item>
                                     <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_template>Delete</b-dropdown-item>
+                                    <b-dropdown-item v-b-modal.delete_template>Delete</b-dropdown-item>
                                 </b-dropdown>
                                 <b-dropdown v-if="mode=='modules'" class="float-right" right text="Module">
-                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" @click="exportXML_modules()">Save changes</b-dropdown-item>
+                                    <b-dropdown-item @click="exportXML_modules()">Save changes</b-dropdown-item>
                                     <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
-                                    <b-dropdown-item v-if="templateForm.name != 'Blank'" v-b-modal.delete_module>Delete</b-dropdown-item>
+                                    <b-dropdown-item v-b-modal.delete_module>Delete</b-dropdown-item>
                                 </b-dropdown>
                             </b-button-group>
-                            <div id="template_name">{{templateForm.name}}</div>
+                            <div style="right: 0" id="template_name">{{templateForm.name}}</div>
                         </b-navbar>
                     </template>
                     <!--------------------------------------------------------------------------------------------------------->
@@ -495,26 +511,24 @@
                                                 </b-form-group>
                                             </b-col>
                                         </b-row>
-                                        <b-container class="bv-example-row">
-                                            <b-row cols="1" cols-sm="2">
-                                                <template v-for="nn in n.multi">
-                                                    <b-col>
-                                                        <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
-                                                            <b-form-select style="font-size: xx-small!;" :options="nn.options" v-model="nn.selected">
-                                                            </b-form-select>
-                                                        </b-form-group>
-                                                        <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
-                                                            <b-form-input :value="nn.text" @change="nn.text = $event" placeholder="Other">
-                                                            </b-form-input>
-                                                        </b-form-group>
-                                                        <b-form-group v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
-                                                            <b-form-input :value="nn.text" @change="nn.text = $event">
-                                                            </b-form-input>
-                                                        </b-form-group>
-                                                    </b-col>
-                                                </template>
-                                            </b-row>
-                                        </b-container>
+                                        <b-row cols="1" cols-sm="2">
+                                            <template v-for="nn in n.multi">
+                                                <b-col>
+                                                    <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                        <b-form-select style="font-size: xx-small!;" :options="nn.options" v-model="nn.selected">
+                                                        </b-form-select>
+                                                    </b-form-group>
+                                                    <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
+                                                        <b-form-input :value="nn.text" @change="nn.text = $event" placeholder="Other">
+                                                        </b-form-input>
+                                                    </b-form-group>
+                                                    <b-form-group v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                        <b-form-input :value="nn.text" @change="nn.text = $event">
+                                                        </b-form-input>
+                                                    </b-form-group>
+                                                </b-col>
+                                            </template>
+                                        </b-row>
                                     </b-form-group>
                                     <!-- MULTIRADIO TYPE -->
                                     <b-form-group v-if="n.type == 'multi_radio'" :disabled="n.disabled">
@@ -524,7 +538,7 @@
                                                 <b-form-radio-group :options="nn.options" v-model="nn.selected" class="mb-2 mr-sm-2 mb-sm-0">
                                                 </b-form-radio-group>
                                             </b-form>
-                                            <b-form-group v-show="nn.selected >= nn.showdetailson">
+                                            <b-form-group v-if="nn.selected >= nn.showdetailson">
                                                 <b-form-textarea :value="nn.details" @change="nn.details = $event">
                                                 </b-form-textarea>
                                             </b-form-group>
@@ -563,10 +577,10 @@
         <!---------------- MODALS -------------->
         <b-modal id="help_modal" title="NeuroTool: Help" ok-only>
         </b-modal>
-        <b-container v-if="logged_in" class="footer">
+        <!--<b-container v-if="logged_in" class="footer">
             This tool is for educational purposes only. <b-link href="mailto: jeremy.lynch@gmail.com"> Contact us.
             </b-link>
-        </b-container>
+        </b-container>-->
     </div>
     <script>
     /* GLOBAL VARIABLES */
@@ -579,9 +593,9 @@
         data: {
             mode: 'templates',
             edit_mode: 'templates',
-            modalities: ["Generic", "CT", "MRI", "Radiography", "Angiography"],
-            specialties: ["Generic", "Neuroradiology", "Thoracic", "Musculoskeletal"],
-            regions: ["Generic", "Brain", "Spine", "Orbits", "Chest"],
+            modalities: [],
+            specialties: [],
+            regions: [],
             module: "",
             components: loadXML("static/xml/components.xml"),
             templates: loadXML("static/xml/empty.xml"),
@@ -598,6 +612,9 @@
             new_template_name: '',
             import_file: null,
             template_changed: null,
+            radreport_titles: [],
+            radreport_table: [],
+            radreport_search_term: '',
             editModal: {
                 value: "null"
             },
@@ -649,9 +666,8 @@
                     console.log("Fetch error: " + error);
                 });
 
+                this.get_templates();
         },
-
-
 
         methods: {
             edit_modules: function() {
@@ -700,7 +716,7 @@
                     if (this.readyState == 4 && this.status == 200) {
                         temp = parseXML(this.responseXML, temp);
 
-                        console.log(temp)
+                        //console.log(temp)
                         //var obj = this.update_templates(this.responseXML, this.templates, false);
 
                     }
@@ -709,8 +725,6 @@
                 xhttp.send();
 
                 return temp;
-
-
             },
 
             import_templates_from_file: function(import_file) {
@@ -720,7 +734,7 @@
                 }
 
                 var reader = new FileReader();
-                reader.call_func = this.update_templates
+                reader.context = this;
                 reader.onload = function(e) {
                     var contents = e.target.result;
                     xml = contents;
@@ -728,12 +742,100 @@
                     if (xml != null) {
                         var parser = new DOMParser();
                         xmlDoc = parser.parseFromString(xml, "text/xml");
-                        if (xmlDoc.getElementsByTagName("html").length == 1) return;
-                        if (xmlDoc.getElementsByTagName("all").length == 0) this.call_func(xml, null, false);
-
+                        if (xmlDoc.getElementsByTagName("html").length == 1) {
+                            var user = parse_radreport(xml);
+                            merge_templates(this.context.templates, user, true);
+                            this.context.selectTemplate(user[0]);
+                        } else if (xmlDoc.getElementsByTagName("all").length == 0) this.context.update_templates(xml, null, false);
                     }
                 }
                 reader.readAsText(file);
+            },
+
+            get_templates: function() {
+                fetch(`${window.origin}/radreport-list`, {
+                        method: "GET",
+                        credentials: "include",
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Failure " + response.status);
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(json => {
+                        t_radreport_titles = json.DATA;
+
+                        for (var n = 0; n < t_radreport_titles.length; n++) {
+                            if (t_radreport_titles[n].lang == "English") {
+                                this.radreport_titles.push({
+                                    "title": t_radreport_titles[n].title,
+                                    "template_id": t_radreport_titles[n].template_id,
+                                    "template_version": t_radreport_titles[n].template_version,
+                                })
+                            }
+                        }
+
+                        //console.log("Titles obtained")
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+                //this.$root.$emit('bv::show::modal', "template-download");
+            },
+
+            update_radreport_search() {
+                this.radreport_table = this.radreport_titles.filter(t => {
+                    return (t.title.search(this.radreport_search_term) != -1)
+                })
+            },
+
+            download_radreport: function(item) {
+
+                fetch(`${window.origin}/radreport-get-template`, {
+                        method: "POST",
+                        credentials: "include",
+                        body: JSON.stringify(item),
+                        cache: "no-cache",
+                        headers: new Headers({
+                            "content-type": "application/json"
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+
+                        }
+                        if (response.status !== 200) {
+                            alert("Failure " + response.status)
+                            return;
+                        }
+                        return response.json()
+                    })
+                    .then(json => {
+                        //console.log(json.DATA.templateData);  
+                        //console.log(json.xml);
+                        var user = parse_radreport(json.xml);
+                        merge_templates(this.templates, user, true);
+                        ///console.log(user[0])
+                        this.selectTemplate(user[0]);
+                        this.$root.$emit('bv::hide::modal', 'template-download');
+
+
+                    })
+                    .catch(function(error) {
+                        console.log("Fetch error: " + error);
+                    });
+
+
+
             },
 
             download_templates: function() {
@@ -808,6 +910,7 @@
             },
 
             reset: function() {
+                this.save_as_new_modal.new_name = null;
                 this.reportText = "";
                 this.module = "";
                 this.template = "";
@@ -829,11 +932,7 @@
 
             writeTemplate: function() { // Writes the form from the selected template
                 this.templateForm = [];
-                var elements = this.template.elements;
-
-
                 this.templateForm = parseFindings(this.template.xml.childNodes, this.templates.modules)
-
                 for (var n = 0; n < this.templateForm.length; n++) {
                     this.templateForm[n].array_id = unique_id();
                 }
@@ -841,7 +940,6 @@
                 this.templateForm.modality = this.template.modality;
                 this.templateForm.region = this.template.region;
                 this.templateForm.specialty = this.template.specialty;
-
                 this.save_as_new_modal.new_name = this.template.name;
 
                 window.history.pushState({}, '', "/");
@@ -876,6 +974,8 @@
             },
 
             deleteModule() {
+                if (this.templateForm.name == "Blank") { alert("You cannot delete the blank module"); return; }
+
                 var i = this.templates.modules.findIndex(n => {
                     return (n.name == this.templateForm.name);
                 });
@@ -887,7 +987,7 @@
             },
 
             deleteTemplate() {
-                if (this.templateForm.name == "Blank") return;
+                if (this.templateForm.name == "Blank") { alert("You cannot delete the blank template"); return; }
 
                 var i = this.templates.findIndex(n => {
                     return (n.name == this.templateForm.name);
@@ -928,7 +1028,8 @@
                 this.module = this.templates.modules.find(function(i) {
                     return i.name == element.text;
                 });
-                this.insertModule(null, "above");
+
+                this.insertModule(null, "above", element.disappear);
             },
             insertObject(type, position = false) {
                 var index = this.n_from_element(this.selected_n);
@@ -947,7 +1048,7 @@
             },
 
             // Insert module after selected element. If no values passed then uses module in this.module
-            insertModule(selected_module, position) {
+            insertModule(selected_module, position, disappear) {
                 var offset = (this.object.position == 'above') ? -1 : 0;
                 var place = 0;
                 if (position == "below") place = 1;
@@ -960,6 +1061,10 @@
                 var module_data = _.cloneDeep(this.module)
                 var module_id = unique_id();
                 var index_start = this.n_from_element(this.selected_n) + offset + place;
+
+                if (disappear) {
+                    this.templateForm.splice(this.n_from_element(this.selected_n), 1)
+                }
 
                 for (var n = 0; n < module_data.elements.length; n++) {
                     module_data.elements[n].array_id = unique_id();
@@ -1014,18 +1119,10 @@
                 var copyText = "";
                 for (var n = 0; n < this.templateForm.length; n++) {
                     copyText += this.templateForm[n].printContents();
-                    //console.log(this.templateForm[n].printContents())
                 }
-
                 // Some grammer corrections
                 copyText = copyText.trim();
                 copyText = copyText.replace(/(\n){3,}/g, "\n\n"); // Remove triple or more newlines
-                /*copyText = copyText.replace(/(\s)A\s+([aeiou])/g, x=> {
-                    return "An " + x.
-                });*/
-
-
-
 
                 // Put in clipboard
                 const listener = function(ev) {
@@ -1044,6 +1141,11 @@
 
             // Saves this module locally (and then calls to save on server)
             exportXML_modules: function() {
+                if (this.templateForm.name == "Blank") {
+                    alert("You cannot make changes to this blank template");
+                    return;
+                }
+
                 // First I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = this.templateForm;
@@ -1166,10 +1268,13 @@
             // Reload templates/modules by adding xml to existing
             update_templates: function(xml, templates, overwrite = true) {
                 if (!xml) return;
+                // Get categories
+                this.modalities, this.specialties, this.regions = [];
+                var my_modalities = [];
+
                 templates = this.templates;
                 var parser = new DOMParser();
                 xmlDoc = parser.parseFromString(xml, "text/xml");
-                //console.log(xml)
 
                 //  Update modules
                 if (xml != null) {
@@ -1190,11 +1295,9 @@
                                 "content")
                         });
                     }
-                    merge_templates(templates.modules, user, overwrite)
-                }
+                    merge_templates(templates.modules, user, true)
 
-                // Parse user templates
-                if (xml != null) {
+                    // Parse user templates
                     var user = []
                     var t = xmlDoc.getElementsByTagName("template");
 
@@ -1208,13 +1311,20 @@
                         if (t_region) t_region = t_region.innerHTML.replace(/\t/g, '').trim();
                         var t_specialty = t[i].querySelector("specialty");
                         if (t_specialty) t_specialty = t_specialty.innerHTML.replace(/\t/g, '').trim();
-
                         var t_findings = t[i].querySelector(
                             "content").childNodes;
                         var elements = parseFindings(t_findings, templates.modules);
+                        var text = t[i].querySelector("content").innerHTML
 
-                        var text = t[i].querySelector(
-                            "content").innerHTML
+                        if (!this.modalities.find(n => {
+                                return n == t_modality;
+                            })) this.modalities.push(t_modality);
+                        if (!this.specialties.find(n => {
+                                return n == t_specialty;
+                            })) this.specialties.push(t_specialty);
+                        if (!this.regions.find(n => {
+                                return n == t_region;
+                            })) this.regions.push(t_region);
 
                         user.push({
                             name: t_name,
@@ -1226,8 +1336,7 @@
                                 "content")
                         });
                     }
-                    merge_templates(templates, user, overwrite)
-
+                    merge_templates(templates, user, true)
                     templates.sort((a, b) => {
                         return (a.name > b.name)
                     });
@@ -1240,7 +1349,10 @@
 
             saveChanges: function() {
                 if (this.templateForm.name != "Blank") this.exportXML_templates();
-                else this.$root.$emit('bv::show::modal', 'save_as_new_modal');
+                else {
+                    alert("You cannot make changes to this blank template")
+                    this.$root.$emit('bv::show::modal', 'save_as_new_modal');
+                }
             },
 
             saveAsNew: function() {
@@ -1260,6 +1372,7 @@
                 }
                 if (this.mode == 'templates') this.exportXML_templates();
                 else this.exportXML_modules()
+
             },
 
             login: function() {

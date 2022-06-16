@@ -25,6 +25,8 @@ caption {
 .row {
     display: flex;
     background-color: rgb(250, 250, 250);
+
+
 }
 
 .row:hover .row {
@@ -42,7 +44,7 @@ caption {
     justify-content: left;
     align-items: left;
     left: -70px;
-    width: 100px;
+    width: 120px;
     z-index: 999;
 
 }

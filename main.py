@@ -1,9 +1,11 @@
 from flask import Flask, Response, json, render_template, request, redirect, url_for, flash, jsonify, make_response
 from flask_login import current_user, login_user, login_required, logout_user
 from models import db, userModel, login
+import requests
 import os
 import secrets
 from werkzeug.utils import secure_filename
+from bs4 import BeautifulSoup
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -19,6 +21,7 @@ class CustomFlask(Flask):
 app = CustomFlask(__name__, static_folder='static')
 secret = secrets.token_urlsafe(32)
 app.secret_key = secret
+
 
 ########################
 # Setup login         ##
@@ -127,6 +130,21 @@ def export_module():
     db.session.commit()
     return req
 
+@app.route('/radreport-list', methods=['GET'])
+def radreport_list():
+    x = requests.get('https://api3.rsna.org/radreport/v1/templates')
+    return x.text
+
+@app.route('/radreport-get-template', methods=['POST', 'GET'])
+def radreport_get_template():
+    req = request.get_json();
+    x = requests.get('https://api3.rsna.org/radreport/v1/templates/' + req["template_id"] + '/details?' + req["template_version"]).text
+    x_json = json.loads(x)
+    y = BeautifulSoup(x_json["DATA"]["templateData"], features="lxml").prettify()
+    data = {
+                "xml": y
+            }
+    return jsonify(data)
 
 @app.route('/', methods = ['POST', 'GET'])
 def index():

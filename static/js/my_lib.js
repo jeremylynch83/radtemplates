@@ -100,19 +100,8 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     if (el.type == "h1") el.label = el.label.toUpperCase();
                     if (el.label[el.label.length - 1] != ":") el.label += ": ";
                     else el.label += " ";
-                    el.dont_print = false;
-                    if (
-                        xml[i].getAttribute("dont_print") &&
-                        xml[i].getAttribute("dont_print") == "true"
-                    )
-                        el.dont_print = true;
-                    el.print_space = false;
-                    if (
-                        xml[i].getAttribute("print_space") &&
-                        xml[i].getAttribute("print_space") == "true"
-                    )
-                        el.print_space = true;
-
+                    el.dont_print = (xml[i].getAttribute("dont_print") == "true") ? true : false;
+                    el.print_space = (xml[i].getAttribute("print_space") == "true") ? true : false;
                     el.printContents = function() {
                         var print_text = "";
 
@@ -146,14 +135,15 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                 case "query_insert":
                     //el.module = xml[i].innerHTML.trim();
                     el.text = xml[i].innerHTML.trim();
+                    el.disappear = (xml[i].getAttribute("disappear") == "true") ? true : false;
                     el.printContents = function() {
                         var print_text = "";
                         return print_text;
                     };
                     el.exportTemplate = function(xml_doc) {
                         var xml_el = xml_doc.createElement(this.type);
-                        if (this.flags)
-                            xml_el.setAttribute("flags", this.flags);
+                        if (this.disappear)
+                            xml_el.setAttribute("disappear", this.disappear);
                         xml_el.innerHTML = this.text;
                         return xml_el;
                     };
@@ -183,12 +173,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.subtype = xml[i].getAttribute("subtype");
                     if (el.subtype) el.subtype = el.subtype.trim();
                     else el.subtype = "medium";
-                    el.dont_print_label = false;
-                    if (
-                        xml[i].getAttribute("dont_print_label") &&
-                        xml[i].getAttribute("dont_print_label") == "true"
-                    )
-                        el.dont_print_label = true;
+                    el.dont_print_label = (xml[i].getAttribute("dont_print_label") == "true") ? true : false;
                     el.print_text_after =
                         xml[i].getAttribute("print_text_after");
                     if (el.print_text_after) el.print_text_after.trim();
@@ -237,6 +222,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.selected = "";
                     el.label = label;
                     el.options = [];
+                    el.dont_print_label = (xml[i].getAttribute("dont_print_label") == "false") ? false : true;
 
                     for (var x = 0; x < op_values.length; x++) {
                         if (op_values[x].trim() != "") {
@@ -257,27 +243,29 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         value: el.options.length,
                     });
                     el.printContents = function() {
-                        var print_text = "";
+                        var print_text = ""
 
                         if (
                             Number.isInteger(this.selected) &&
                             this.options[this.selected].text != "Other"
-                        )
-                            print_text = format_sentence(
+                        ) {
+                            if (!this.dont_print_label) print_text += this.label + " ";
+                            print_text += format_sentence(
                                 this.options[this.selected].text
                             );
+                        }
                         if (this.details)
                             print_text += format_sentence(this.details_text);
                         return format_sentence(print_text);
                     };
+
                     var showdetailson = xml[i].getAttribute("showdetailson");
                     if (showdetailson) el.showdetailson = Number(showdetailson);
                     else el.showdetailson = el.options.length - 1;
 
                     el.exportTemplate = function(xml_doc) {
-                        // Create structure
-                        //var xml_doc = document.implementation.createDocument("", "", null);
                         var xml_el = xml_doc.createElement(this.type);
+                        if (this.dont_print_label) xml_el.setAttribute("dont_print_label", this.dont_print_label);
                         if (this.label)
                             xml_el.setAttribute("label", this.label);
                         var options = "";
@@ -582,6 +570,8 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.multi = [];
                     for (var n = 0; n < nodes.length; n++) {
                         if (nodes[n].nodeName == "radio") {
+
+
                             var dont_print_normal = false;
                             if (
                                 nodes[n].getAttribute("dont_print_normal") &&
@@ -769,7 +759,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                             for (var n = 0; n < this.multi.length; n++) {
                                 if (this.multi[n].selected) {
                                     print_text +=
-                                        this.multi[n].text.toLowerCase();
+                                        this.multi[n].text;
                                     if (
                                         count_selected < total_selected - 1 &&
                                         total_selected != 2
@@ -993,13 +983,8 @@ function merge_templates(master_templates, user_templates, overwrite = true) {
                     exists_in_master = true;
                 } else {
                     var new_name = user_templates[n].name;
-                    /*for (var i=0; i<100 && user_templates[n].name == new_name; i++) {
-                    	new_name = user_templates[n].name + " " + i;
-                    }*/
                     user_templates[n].name = user_templates[n].name + " imported";
-                    //master_templates.splice(nn, 0, user_templates[n]);
                     exists_in_master = true;
-
                 }
             }
         }
@@ -1050,6 +1035,132 @@ function module_to_xml(template_gui, xml_doc) {
     }
 
     return template;
+}
+
+
+function parse_radreport(xml) {
+
+
+    var parser = new DOMParser();
+    xmlDoc = parser.parseFromString(xml, "text/xml");
+    if (!xmlDoc) return;
+    var converted = document.implementation.createDocument(null, "template");
+    var c_template = converted.querySelector("template");
+    var name = converted.createElement("name");
+    name.innerHTML = xmlDoc.querySelector("title").innerHTML + " (radreport.org)";
+    c_template.appendChild(name);
+    var modality = converted.createElement("modality");
+    modality.innerHTML = "CT"
+    var specialty = converted.createElement("specialty");
+    specialty.innerHTML = "Neuroradiology"
+    var region = converted.createElement("region");
+    region.innerHTML = "brain"
+    c_template.appendChild(modality);
+    c_template.appendChild(specialty);
+    c_template.appendChild(region);
+    var content = converted.createElement("content");
+    c_template.appendChild(content);
+
+    var section = xmlDoc.getElementsByTagName("section");
+
+    for (var n = 0; n < section.length; n++) {
+        var header = converted.createElement("h1");
+        header.innerHTML = section[n].querySelector("header").innerHTML.trim();
+        content.appendChild(header);
+        if (section[n].hasChildNodes()) {
+            var child = section[n].firstChild;
+            while (child) {
+                if (child.hasChildNodes()) {
+                    var grandchild = child.firstChild;
+                    while (grandchild) {
+                        switch (grandchild.nodeName.toLowerCase()) {
+                            default:
+                                break
+                            case "textarea":
+                            case "input":
+                                var text_entry = converted.createElement("text_entry");
+                                if (grandchild.nodeName.toLowerCase() == "textarea") text_entry.setAttribute("subtype", "medium");
+                                else text_entry.setAttribute("subtype", "small");
+                                text_entry.innerHTML = grandchild.innerHTML;
+                                var id = grandchild.getAttribute("id");
+                                var label = child.querySelector("label[for='" + id + "']");
+                                if (label) text_entry.setAttribute("label", label.innerHTML);
+                                text_entry.setAttribute("dont_print_label", "false");
+                                content.appendChild(text_entry);
+                                break;
+                            case "select":
+                                var selection = converted.createElement("selection");
+                                content.appendChild(selection);
+                                var id = grandchild.getAttribute("id");
+                                var label = child.querySelector("label[for='" + id + "']");
+                                selection.setAttribute("label", label.innerHTML + ":");
+                                selection.setAttribute("dont_print_label", "false");
+                                var option = grandchild.getElementsByTagName("option");
+                                var selection_options = "";
+                                for (var nnn = 0; nnn < option.length; nnn++) {
+                                    selection_options += option[nnn].innerHTML + "|";
+                                }
+                                selection.innerHTML = selection_options;
+                                break
+                            case "span":
+                                if (grandchild.getAttribute("data-field-type") == "RADIO") {
+                                    var selection = converted.createElement("selection");
+                                    content.appendChild(selection);
+                                    var id = grandchild.getAttribute("id");
+                                    var label = child.querySelector("label[for='" + id + "']");
+                                    selection.setAttribute("label", label.innerHTML + ":");
+                                    selection.setAttribute("dont_print_label", "false");
+                                    var option = grandchild.getElementsByTagName("input");
+                                    var selection_options = "";
+                                    for (var nnn = 0; nnn < option.length; nnn++) {
+                                        selection_options += option[nnn].innerHTML + "|";
+                                    }
+                                    selection.innerHTML = selection_options;
+                                }
+                                if (grandchild.querySelector("input").getAttribute("type") == "number") {
+                                    var text_option = grandchild.getElementsByTagName("input");
+                                    for (var nnn = 0; nnn < text_option.length; nnn++) {
+                                        var text_entry = converted.createElement("text_entry");
+                                        text_entry.setAttribute("subtype", "small");
+                                        var id = text_option[nnn].getAttribute("id");
+                                        var label = child.querySelector("label[for='" + id + "']");
+                                        if (label) text_entry.setAttribute("label", label.innerHTML);
+                                        text_entry.setAttribute("dont_print_label", "false");
+                                        content.appendChild(text_entry);
+                                    }
+                                }
+                                if (grandchild.getAttribute("data-field-type") == "CHECKBOX") {
+                                    var multi_checkbox = converted.createElement("multi_checkbox");
+                                    content.appendChild(multi_checkbox);
+                                    var id = grandchild.getAttribute("id");
+                                    var label = child.querySelector("label[for='" + id + "']");
+                                    multi_checkbox.setAttribute("label", label.innerHTML + ":");
+                                    multi_checkbox.setAttribute("dont_print_label", "false");
+                                    var option = grandchild.getElementsByTagName("input");
+                                    for (var nnn = 0; nnn < option.length; nnn++) {
+                                        var checkbox = converted.createElement("checkbox");
+                                        multi_checkbox.appendChild(checkbox);
+                                        checkbox.innerHTML = option[nnn].innerHTML;
+                                    }
+                                }
+                                break
+                        }
+                        grandchild = grandchild.nextSibling;
+                    }
+                }
+                child = child.nextSibling;
+            }
+        }
+    }
+    var user = [];
+    user.push({
+        name: name.innerHTML,
+        specialty: specialty.innerHTML,
+        region: region.innerHTML,
+        modality: modality.innerHTML,
+        xml: converted.querySelector("content")
+    });
+    return user;
 }
 
 function array_to_options(a) {
