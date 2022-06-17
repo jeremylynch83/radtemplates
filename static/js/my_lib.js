@@ -1064,18 +1064,37 @@ function parse_radreport(xml) {
     var section = xmlDoc.getElementsByTagName("section");
 
     for (var n = 0; n < section.length; n++) {
-        var header = converted.createElement("h1");
-        header.innerHTML = section[n].querySelector("header").innerHTML.trim();
-        content.appendChild(header);
+        if (section[n].querySelector("header")) {
+            if (section[n].querySelector("header").getAttribute("class").toLowerCase() == "level1") {
+                var header = converted.createElement("h1");
+                header.innerHTML = section[n].querySelector("header").innerHTML.trim();
+                content.appendChild(header);
+            }
+        }
+
         if (section[n].hasChildNodes()) {
             var child = section[n].firstChild;
             while (child) {
+                if (child.nodeName.toLowerCase() == "section") {
+                    if (child.getAttribute("class").toLowerCase() == "level2") {
+                        var header2 = converted.createElement("h2");
+                        header2.innerHTML = child.querySelector("header").innerHTML.trim();
+                        content.appendChild(header2);
+                    }
+                }
                 if (child.hasChildNodes()) {
                     var grandchild = child.firstChild;
                     while (grandchild) {
                         switch (grandchild.nodeName.toLowerCase()) {
                             default:
                                 break
+                            /*case "label":
+                                if (!grandchild.getAttribute("id")) {
+                                    var header2 = converted.createElement("h2");
+                                    header2.innerHTML = grandchild.innerHTML.trim();
+                                    content.appendChild(header2);
+                                }
+                                break;*/
                             case "textarea":
                             case "input":
                                 var text_entry = converted.createElement("text_entry");
@@ -1083,8 +1102,13 @@ function parse_radreport(xml) {
                                 else text_entry.setAttribute("subtype", "small");
                                 text_entry.innerHTML = grandchild.innerHTML;
                                 var id = grandchild.getAttribute("id");
-                                var label = child.querySelector("label[for='" + id + "']");
-                                if (label) text_entry.setAttribute("label", label.innerHTML);
+                                var label = null;
+                                if (id) label = child.querySelector("label[for='" + id + "']");
+                                if (label) label=label.innerHTML
+                                else if (grandchild.getAttribute("name")) {
+                                    label = grandchild.getAttribute("name").trim();
+                                }
+                                if (label) text_entry.setAttribute("label", label);
                                 text_entry.setAttribute("dont_print_label", "false");
                                 content.appendChild(text_entry);
                                 break;
@@ -1093,7 +1117,8 @@ function parse_radreport(xml) {
                                 content.appendChild(selection);
                                 var id = grandchild.getAttribute("id");
                                 var label = child.querySelector("label[for='" + id + "']");
-                                selection.setAttribute("label", label.innerHTML + ":");
+                                if (label) label = label.innerHTML.trim();
+                                if (label) selection.setAttribute("label", label);
                                 selection.setAttribute("dont_print_label", "false");
                                 var option = grandchild.getElementsByTagName("option");
                                 var selection_options = "";
@@ -1103,17 +1128,22 @@ function parse_radreport(xml) {
                                 selection.innerHTML = selection_options;
                                 break
                             case "span":
+                                var id = grandchild.getAttribute("id");
+                                var label = child.querySelector("label[for='" + id + "']");
+                                if (label) label = label.innerHTML.trim();
+
                                 if (grandchild.getAttribute("data-field-type") == "RADIO") {
                                     var selection = converted.createElement("selection");
                                     content.appendChild(selection);
-                                    var id = grandchild.getAttribute("id");
-                                    var label = child.querySelector("label[for='" + id + "']");
-                                    selection.setAttribute("label", label.innerHTML + ":");
+                                    if (label) selection.setAttribute("label", label + ":");
                                     selection.setAttribute("dont_print_label", "false");
                                     var option = grandchild.getElementsByTagName("input");
                                     var selection_options = "";
                                     for (var nnn = 0; nnn < option.length; nnn++) {
-                                        selection_options += option[nnn].innerHTML + "|";
+                                        var inner_label = ""
+                                        if (option[nnn].getAttribute("value")) inner_label = option[nnn].getAttribute("value");
+                                        else if (option[nnn].innerHTML) inner_label = option[nnn].innerHTML;
+                                        selection_options += inner_label + "|";
                                     }
                                     selection.innerHTML = selection_options;
                                 }
@@ -1122,25 +1152,28 @@ function parse_radreport(xml) {
                                     for (var nnn = 0; nnn < text_option.length; nnn++) {
                                         var text_entry = converted.createElement("text_entry");
                                         text_entry.setAttribute("subtype", "small");
-                                        var id = text_option[nnn].getAttribute("id");
-                                        var label = child.querySelector("label[for='" + id + "']");
-                                        if (label) text_entry.setAttribute("label", label.innerHTML);
                                         text_entry.setAttribute("dont_print_label", "false");
+                                        if (text_option[nnn].getAttribute("value")) text_entry.setAttribute("label", text_option[nnn].getAttribute("value"))
+                                        else if (text_option.length == 1) {
+                                            id = text_option[nnn].getAttribute("id");
+                                            label = child.querySelector("label[for='" + id + "']");
+                                            if (label) label = label.innerHTML.trim();
+                                            text_entry.setAttribute("label", label);
+                                        }
                                         content.appendChild(text_entry);
                                     }
                                 }
                                 if (grandchild.getAttribute("data-field-type") == "CHECKBOX") {
                                     var multi_checkbox = converted.createElement("multi_checkbox");
                                     content.appendChild(multi_checkbox);
-                                    var id = grandchild.getAttribute("id");
-                                    var label = child.querySelector("label[for='" + id + "']");
-                                    multi_checkbox.setAttribute("label", label.innerHTML + ":");
+                                    if (label) multi_checkbox.setAttribute("label", label + ":");
                                     multi_checkbox.setAttribute("dont_print_label", "false");
                                     var option = grandchild.getElementsByTagName("input");
                                     for (var nnn = 0; nnn < option.length; nnn++) {
                                         var checkbox = converted.createElement("checkbox");
                                         multi_checkbox.appendChild(checkbox);
-                                        checkbox.innerHTML = option[nnn].innerHTML;
+                                        if (option[nnn].getAttribute("value")) checkbox.innerHTML = option[nnn].getAttribute("value")
+                                        else if (option[nnn].innerHTML) checkbox.innerHTML = option[nnn].innerHTML;
                                     }
                                 }
                                 break

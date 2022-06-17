@@ -7,6 +7,7 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <title>Structured Reports</title>
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
+    <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap-vue.css')%%" />
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/mytemplate.css')%%" />
     <!-- Required scripts -->
     <script src="%% url_for('static', filename='js/vue.js')%%"></script>
@@ -43,23 +44,33 @@
             </template>
         </b-modal>
         <b-modal id="template-download" title="Get more radiology templates">
+            <p>Import curated templates</p>
+            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Neuroradiology</b-button>
             <p></p>
-            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Curated neuroradiology</b-button>
-            <p></p>
-            <p>Search for RSNA approved templates on RadReport.com </p>
-            <b-input-group>
-                <b-form-input v-model="radreport_search_term"></b-form-input>
-                <b-input-group-append>
-                    <b-button @click="update_radreport_search()" variant="success">Search</b-button>
-                </b-input-group-append>
-            </b-input-group>
-            <b-table sticky-header striped hover :items="radreport_table">
-                <template #cell(title)="row">
-                    <b-button variant="link" size="sm" @click="download_radreport(row.item)">
-                        {{row.item.title}}
-                    </b-button>
-                </template>
-            </b-table>
+            <p>Experimental import of RSNA approved templates on RadReport.com (Experimental!!)</p>
+            <b-button v-if="importing" variant="primary" disabled>
+                Importing template...
+                <b-spinner small></b-spinner>
+            </b-button>
+            <div v-if="!importing">
+                <b-input-group>
+                    <b-form-input v-model="radreport_search_term"></b-form-input>
+                    <b-input-group-append>
+                        <b-button @click="update_radreport_search(); show_count=true" variant="success">Search</b-button>
+                    </b-input-group-append>
+                </b-input-group>
+                <p></p>
+                 <p v-if="show_count">{{radreport_table.length}} items found</p>
+
+                <b-table sticky-header  striped hover head-variant="light" :items="radreport_table">
+
+                    <template #cell(title)="row">
+                        <b-button variant="link" size="sm" @click="importing=true; download_radreport(row.item)">
+                            {{row.item.title}}
+                        </b-button>
+                    </template>
+                </b-table>
+            </div>
             <template #modal-footer="{ close }">
                 <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
             </template>
@@ -615,6 +626,8 @@
             radreport_titles: [],
             radreport_table: [],
             radreport_search_term: '',
+            show_count:false,
+            importing: false,
             editModal: {
                 value: "null"
             },
@@ -666,7 +679,7 @@
                     console.log("Fetch error: " + error);
                 });
 
-                this.get_templates();
+            this.get_templates();
         },
 
         methods: {
@@ -789,12 +802,11 @@
                     .catch(function(error) {
                         console.log("Fetch error: " + error);
                     });
-                //this.$root.$emit('bv::show::modal', "template-download");
             },
 
             update_radreport_search() {
                 this.radreport_table = this.radreport_titles.filter(t => {
-                    return (t.title.search(this.radreport_search_term) != -1)
+                    return (t.title.toLowerCase().search(this.radreport_search_term.toLowerCase()) != -1)
                 })
             },
 
@@ -820,21 +832,15 @@
                         return response.json()
                     })
                     .then(json => {
-                        //console.log(json.DATA.templateData);  
-                        //console.log(json.xml);
                         var user = parse_radreport(json.xml);
                         merge_templates(this.templates, user, true);
-                        ///console.log(user[0])
                         this.selectTemplate(user[0]);
                         this.$root.$emit('bv::hide::modal', 'template-download');
-
-
+                        this.importing = false;
                     })
                     .catch(function(error) {
                         console.log("Fetch error: " + error);
                     });
-
-
 
             },
 
