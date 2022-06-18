@@ -689,6 +689,10 @@
                     console.log("Fetch error: " + error);
                 });
 
+            
+        },
+
+        created() {
             this.get_templates();
         },
 
@@ -807,7 +811,6 @@
                             }
                         }
 
-                        //console.log("Titles obtained")
                     })
                     .catch(function(error) {
                         console.log("Fetch error: " + error);

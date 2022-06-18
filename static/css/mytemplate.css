@@ -43,13 +43,14 @@ caption {
     position: absolute;
     justify-content: left;
     align-items: left;
-    left: -70px;
+    left: -50px;
     width: 100px;
     z-index: 999;
 
 }
 
 .control_button {
+    padding:  10px;
     font-size: 12px;
     z-index: 999;
     opacity: 0.7;

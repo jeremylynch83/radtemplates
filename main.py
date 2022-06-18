@@ -132,8 +132,10 @@ def export_module():
 
 @app.route('/radreport-list', methods=['GET'])
 def radreport_list():
-    x = requests.get('https://api3.rsna.org/radreport/v1/templates')
-    return x.text
+    list = ""
+    with app.open_resource('static/js/radreportlist.json') as f:
+        list = f.read().decode('utf-8')
+    return list
 
 @app.route('/radreport-get-template', methods=['POST', 'GET'])
 def radreport_get_template():

@@ -1077,9 +1077,14 @@ function parse_radreport(xml) {
             while (child) {
                 if (child.nodeName.toLowerCase() == "section") {
                     if (child.getAttribute("class").toLowerCase() == "level2") {
-                        var header2 = converted.createElement("h2");
-                        header2.innerHTML = child.querySelector("header").innerHTML.trim();
-                        content.appendChild(header2);
+                        var innerHTML = child.querySelector("header").innerHTML.trim();
+                        var header2;
+                        if (innerHTML != "") {
+                            if (innerHTML.length < 75) header2 = converted.createElement("h2");
+                            else header2 = converted.createElement("text");
+                            header2.innerHTML = child.querySelector("header").innerHTML.trim();
+                            content.appendChild(header2);
+                        }
                     }
                 }
                 if (child.hasChildNodes()) {
@@ -1088,13 +1093,13 @@ function parse_radreport(xml) {
                         switch (grandchild.nodeName.toLowerCase()) {
                             default:
                                 break
-                            /*case "label":
-                                if (!grandchild.getAttribute("id")) {
-                                    var header2 = converted.createElement("h2");
-                                    header2.innerHTML = grandchild.innerHTML.trim();
-                                    content.appendChild(header2);
-                                }
-                                break;*/
+                                /*case "label":
+                                    if (!grandchild.getAttribute("id")) {
+                                        var header2 = converted.createElement("h2");
+                                        header2.innerHTML = grandchild.innerHTML.trim();
+                                        content.appendChild(header2);
+                                    }
+                                    break;*/
                             case "textarea":
                             case "input":
                                 var text_entry = converted.createElement("text_entry");
@@ -1104,7 +1109,7 @@ function parse_radreport(xml) {
                                 var id = grandchild.getAttribute("id");
                                 var label = null;
                                 if (id) label = child.querySelector("label[for='" + id + "']");
-                                if (label) label=label.innerHTML
+                                if (label) label = label.innerHTML
                                 else if (grandchild.getAttribute("name")) {
                                     label = grandchild.getAttribute("name").trim();
                                 }
