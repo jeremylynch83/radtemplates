@@ -9,6 +9,38 @@
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/bootstrap.min.css')%%" />
     <link type="text/css" rel="stylesheet" href="%% url_for('static', filename='css/intro.css')%%" />
     <!-- Required scripts -->
+    <script>
+        fetch(`${window.origin}/check-login`, {
+                    method: "GET",
+                    credentials: "include",
+                    cache: "no-cache",
+                    headers: new Headers({
+                        "content-type": "application/json"
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+
+                    }
+                    if (response.status !== 200) {
+                        alert("Login failure " + response.status)
+                        
+                        return;
+                    }
+                    return response.json()
+                })
+                .then(xml => {
+                    //this.user_name = xml.username;
+                    //this.logged_in = true;
+                    window.location.href = "/app-page";
+
+                })
+                .catch(function(error) {
+                    console.log("Fetch error: " + error);
+                });
+
+
+    </script>
     <script src="%% url_for('static', filename='js/vue.js')%%"></script>
     <script src="%% url_for('static', filename='js/bootstrap-vue.js')%%"></script>
     <script src="%% url_for('static', filename='js/my_lib.js')%%"></script>
@@ -94,7 +126,6 @@
                 <b-img fluid-grow class="banner_img" src="%% url_for('static', filename='img/banner3.jpg')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
             </b-col>
         </b-row>
-
         <!--<b-card no-body class="mb-1">
             <b-card-header header-tag="header" class="p-1" role="tab">
                 <b-button block v-b-toggle.accordion-1>Accordion 1</b-button>
@@ -188,33 +219,6 @@
             form.addEventListener('submit', handleForm);
 
 
-            fetch(`${window.origin}/check-login`, {
-                    method: "GET",
-                    credentials: "include",
-                    cache: "no-cache",
-                    headers: new Headers({
-                        "content-type": "application/json"
-                    })
-                })
-                .then(response => {
-                    if (response.ok) {
-
-                    }
-                    if (response.status !== 200) {
-                        alert("Login failure " + response.status)
-                        window.location.href = "/app-page";
-                        return;
-                    }
-                    return response.json()
-                })
-                .then(xml => {
-                    this.user_name = xml.username;
-                    this.logged_in = true;
-
-                })
-                .catch(function(error) {
-                    console.log("Fetch error: " + error);
-                });
 
         },
 

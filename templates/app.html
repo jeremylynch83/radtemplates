@@ -114,7 +114,7 @@
                     </div>
                     <p></p>
                     <b-card no-body>
-                        <b-tabs card>
+                        <b-tabs v-model="prefs.current_tab" card>
                             <b-tab v-for="x in specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
                                 <template v-for="y in modalities">
                                     <h3 v-if="items_in_list(x, y)">{{y}}</h3>
@@ -629,6 +629,9 @@
             radreport_search_term: '',
             show_count: false,
             importing: false,
+            prefs : {
+                current_tab:null
+            },
             editModal: {
                 value: "null"
             },
@@ -656,7 +659,7 @@
                 other_region: null
             }
         },
-        created() {
+        beforeCreate() {
 
             fetch(`${window.origin}/check-login`, {
                     method: "GET",
@@ -965,7 +968,7 @@
                 this.save_as_new_modal.new_modality = this.template.modality;
                 this.save_as_new_modal.new_region = this.template.region;
 
-                window.history.pushState({}, '', "/");
+                //window.history.pushState({}, '', "");
             },
 
             blankTemplate: function() {
