@@ -60,10 +60,8 @@
                     </b-input-group-append>
                 </b-input-group>
                 <p></p>
-                 <p v-if="show_count">{{radreport_table.length}} items found</p>
-
-                <b-table sticky-header  striped hover head-variant="light" :items="radreport_table">
-
+                <p v-if="show_count">{{radreport_table.length}} items found</p>
+                <b-table sticky-header striped hover head-variant="light" :items="radreport_table">
                     <template #cell(title)="row">
                         <b-button variant="link" size="sm" @click="importing=true; download_radreport(row.item)">
                             {{row.item.title}}
@@ -117,19 +115,16 @@
                     <p></p>
                     <b-card no-body>
                         <b-tabs card>
-                            <template v-for="x in specialties">
-                                <!--<h2 v-if="items_in_list(x) && x !='Generic'" >{{x}}</h2>-->
-                                <b-tab v-if="items_in_list(x) && x !='Generic'" :title="x">
-                                    <template v-for="y in modalities">
-                                        <h3 v-if="items_in_list(x, y)">{{y}}</h3>
-                                        <template v-for="z in regions">
-                                            <h4 style="font-size:small" v-if="items_in_list(x, y, z)">{{z}}</h4>
-                                            <template v-for="n in templates">
-                                                <b-button @click="selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
-                                            </template>
+                            <b-tab v-for="x in specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
+                                <template v-for="y in modalities">
+                                    <h3 v-if="items_in_list(x, y)">{{y}}</h3>
+                                    <template v-for="z in regions">
+                                        <h4 style="font-size:small" v-if="items_in_list(x, y, z)">{{z}}</h4>
+                                        <template v-for="n in templates">
+                                            <b-button @click="selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
                                         </template>
                                     </template>
-                            </template>
+                                </template>
                             </b-tab>
                             <b-form-group v-if="templates.length < 3">
                                 <b-card border-variant="light">
@@ -404,11 +399,17 @@
                     <b-form-input :value="save_as_new_modal.new_name" @change="save_as_new_modal.new_name = $event"></b-form-input>
                     <div v-if="mode=='templates'">
                         <label>Specialty</label>
-                        <b-form-select :options="specialties" v-model="templateForm.specialty"></b-form-select>
+                        <b-form-select :options="specialties" v-model="save_as_new_modal.new_specialty"></b-form-select>
+                        <p></p>
+                        <b-form-input v-if="save_as_new_modal.new_specialty=='Other'" v-model="save_as_new_modal.other_specialty" @change=""></b-form-input>
                         <label>Modality</label>
-                        <b-form-select :options="modalities" v-model="templateForm.modality"></b-form-select>
+                        <b-form-select :options="modalities" v-model="save_as_new_modal.new_modality"></b-form-select>
+                        <p></p>
+                        <b-form-input v-if="save_as_new_modal.new_modality=='Other'" v-model="save_as_new_modal.other_modality" @change=""></b-form-input>
                         <label>Body Region</label>
-                        <b-form-select :options="regions" v-model="templateForm.region"></b-form-select>
+                        <b-form-select :options="regions" v-model="save_as_new_modal.new_region"></b-form-select>
+                        <p></p>
+                        <b-form-input v-if="save_as_new_modal.new_region=='Other'" v-model="save_as_new_modal.other_region" @change=""></b-form-input>
                     </div>
                 </b-form-group>
                 <template #modal-footer="{ close }">
@@ -626,7 +627,7 @@
             radreport_titles: [],
             radreport_table: [],
             radreport_search_term: '',
-            show_count:false,
+            show_count: false,
             importing: false,
             editModal: {
                 value: "null"
@@ -646,7 +647,13 @@
                 position: 'below'
             },
             save_as_new_modal: {
-                new_name: null
+                new_name: null,
+                new_specialty: null,
+                new_modality: null,
+                new_region: null,
+                other_specialty: null,
+                other_modality: null,
+                other_region: null
             }
         },
         created() {
@@ -917,6 +924,13 @@
 
             reset: function() {
                 this.save_as_new_modal.new_name = null;
+                this.save_as_new_modal.new_specialty = null;
+                this.save_as_new_modal.new_modality = null;
+                this.save_as_new_modal.new_region = null;
+                this.save_as_new_modal.other_specialty = null;
+                this.save_as_new_modal.other_modality = null;
+                this.save_as_new_modal.other_region = null;
+
                 this.reportText = "";
                 this.module = "";
                 this.template = "";
@@ -947,6 +961,9 @@
                 this.templateForm.region = this.template.region;
                 this.templateForm.specialty = this.template.specialty;
                 this.save_as_new_modal.new_name = this.template.name;
+                this.save_as_new_modal.new_specialty = this.template.specialty;
+                this.save_as_new_modal.new_modality = this.template.modality;
+                this.save_as_new_modal.new_region = this.template.region;
 
                 window.history.pushState({}, '', "/");
             },
@@ -1010,7 +1027,6 @@
                 })
                 this.templates.modules = temp;
 
-                //this.templates.modules = [];
                 updateUserDatabase(this.templates, this.templates.modules);
                 this.reset();
             },
@@ -1273,17 +1289,13 @@
 
             // Reload templates/modules by adding xml to existing
             update_templates: function(xml, templates, overwrite = true) {
-                if (!xml) return;
-                // Get categories
-                this.modalities, this.specialties, this.regions = [];
-                var my_modalities = [];
-
                 templates = this.templates;
-                var parser = new DOMParser();
-                xmlDoc = parser.parseFromString(xml, "text/xml");
+
 
                 //  Update modules
                 if (xml != null) {
+                    var parser = new DOMParser();
+                    xmlDoc = parser.parseFromString(xml, "text/xml");
                     var user = []
                     var t = xmlDoc.getElementsByTagName("module");
 
@@ -1322,16 +1334,6 @@
                         var elements = parseFindings(t_findings, templates.modules);
                         var text = t[i].querySelector("content").innerHTML
 
-                        if (!this.modalities.find(n => {
-                                return n == t_modality;
-                            })) this.modalities.push(t_modality);
-                        if (!this.specialties.find(n => {
-                                return n == t_specialty;
-                            })) this.specialties.push(t_specialty);
-                        if (!this.regions.find(n => {
-                                return n == t_region;
-                            })) this.regions.push(t_region);
-
                         user.push({
                             name: t_name,
                             specialty: t_specialty,
@@ -1350,6 +1352,29 @@
                         return (a.name > b.name)
                     });
                 }
+
+                // Rework categories
+                this.modalities = [];
+                this.specialties = [];
+                this.regions = [];
+
+                templates.forEach(t => {
+                    if (!this.modalities.find(n => {
+                            return n == t.modality;
+                        })) this.modalities.push(t.modality);
+                    if (!this.specialties.find(n => {
+                            return n == t.specialty;
+                        })) this.specialties.push(t.specialty);
+                    if (!this.regions.find(n => {
+                            return n == t.region;
+                        })) this.regions.push(t.region);
+
+                });
+
+                this.modalities.sort().push("Other");
+                this.specialties.sort().push("Other");
+                this.regions.sort().push("Other");
+
                 this.templates = templates;
             },
 
@@ -1373,11 +1398,19 @@
                     return;
                 } else {
                     this.templateForm.name = this.save_as_new_modal.new_name;
+                    if (this.save_as_new_modal.new_specialty == "Other") this.templateForm.specialty = this.save_as_new_modal.other_specialty;
+                    else this.templateForm.specialty = this.save_as_new_modal.new_specialty;
+                    if (this.save_as_new_modal.new_modality == "Other") this.templateForm.modality = this.save_as_new_modal.other_modality;
+                    else this.templateForm.modality = this.save_as_new_modal.new_modality;
+                    if (this.save_as_new_modal.new_region == "Other") this.templateForm.region = this.save_as_new_modal.other_region;
+                    else this.templateForm.region = this.save_as_new_modal.new_region;
                     document.getElementById("template_name").innerHTML = this.save_as_new_modal.new_name
 
                 }
                 if (this.mode == 'templates') this.exportXML_templates();
                 else this.exportXML_modules()
+
+                this.update_templates(null, null)
 
             },
 

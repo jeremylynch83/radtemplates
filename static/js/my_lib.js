@@ -1054,7 +1054,7 @@ function parse_radreport(xml) {
     var specialty = converted.createElement("specialty");
     specialty.innerHTML = "Neuroradiology"
     var region = converted.createElement("region");
-    region.innerHTML = "brain"
+    region.innerHTML = "Brain"
     c_template.appendChild(modality);
     c_template.appendChild(specialty);
     c_template.appendChild(region);
