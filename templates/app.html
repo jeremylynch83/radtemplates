@@ -629,8 +629,8 @@
             radreport_search_term: '',
             show_count: false,
             importing: false,
-            prefs : {
-                current_tab:null
+            prefs: {
+                current_tab: null
             },
             editModal: {
                 value: "null"
@@ -689,7 +689,7 @@
                     console.log("Fetch error: " + error);
                 });
 
-            
+
         },
 
         created() {
@@ -847,7 +847,7 @@
                     })
                     .then(json => {
                         var id = json.template_id;
-                        var rad_meta = this.radreport_titles.find(t=> {
+                        var rad_meta = this.radreport_titles.find(t => {
                             return t.template_id == id;
                         });
                         console.log(rad_meta);
@@ -1374,15 +1374,17 @@
                 this.regions = [];
 
                 templates.forEach(t => {
-                    if (!this.modalities.find(n => {
-                            return n == t.modality;
-                        })) this.modalities.push(t.modality);
-                    if (!this.specialties.find(n => {
-                            return n == t.specialty;
-                        })) this.specialties.push(t.specialty);
-                    if (!this.regions.find(n => {
-                            return n == t.region;
-                        })) this.regions.push(t.region);
+                    if (t.modality != null && t.modality != "") {
+                        if (!this.modalities.find(n => {
+                                return n == t.modality;
+                            })) this.modalities.push(t.modality);
+                        if (!this.specialties.find(n => {
+                                return n == t.specialty;
+                            })) this.specialties.push(t.specialty);
+                        if (!this.regions.find(n => {
+                                return n == t.region;
+                            })) this.regions.push(t.region);
+                    }
 
                 });
 

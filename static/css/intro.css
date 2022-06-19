@@ -18,6 +18,22 @@
     flex: 50%;
 }
 
+.explain_row {
+  margin-top: 20px;
+  margin-bottom:  20px;
+  display: flex;
+}
+
+.explain_col {
+    flex: 50%;
+}
+
+.intro_explain {
+  margin-top:  20px;
+  margin-left:  10%;
+  margin-right: 10%;
+}
+
 .site-footer
 {
   background-color:#26272b;
