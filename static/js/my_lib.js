@@ -300,20 +300,15 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     for (var n = 0; n < nodes.length; n++) {
                         if (nodes[n].nodeName != "#text") {
                             var type = nodes[n].nodeName.trim();
-                            var flags = nodes[n].getAttribute("flags");
                             if (flags == null) flags = " ";
                             var label = nodes[n].getAttribute("label");
                             if (label) label.trim();
                             var inner_text = nodes[n].innerHTML;
                             if (inner_text) inner_text = inner_text.trim();
-                            var print_text_before =
-                                nodes[n].getAttribute("print_text_before");
-                            if (print_text_before) print_text_before.trim();
-                            else print_text_before = "";
-                            var print_text_after =
-                                nodes[n].getAttribute("print_text_after");
-                            if (print_text_after) print_text_after.trim();
-                            else print_text_after = "";
+                            var dont_print_label = (nodes[n].getAttribute("dont_print_label") == "false") ? false : true;
+                            var print_text_before = nodes[n].getAttribute("print_text_before") ? nodes[n].getAttribute("print_text_before").trim() : "";
+                            var print_text_after = nodes[n].getAttribute("print_text_after") ? nodes[n].getAttribute("print_text_after").trim() : "";
+
                             var multi = {};
                             text = "";
                             selection = "";
@@ -323,7 +318,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                     text: inner_text,
                                     label: label,
                                     type: type,
-                                    flags: flags,
+                                    dont_print_label: dont_print_label,
                                     print_text_before: print_text_before,
                                     print_text_after: print_text_after,
                                     showdetailson: showdetailson,
@@ -410,18 +405,10 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                                 this.multi[n]
                                                 .print_text_before + " ";
                                         }
-                                        /*else if (
-                                                                                   !this.multi[n].flags.includes(
-                                                                                       "dont_print_label"
-                                                                                   ) &&
-                                                                                   this.multi[n].label != null
-                                                                               ) {
-                                                                                   print_text_in +=
-                                                                                       this.multi[n].label + ": ";
-                                                                               }*/
+
                                         print_text_in += this.multi[n].text;
                                         if (
-                                            this.multi[n].print_text_after != ""
+                                            this.multi[n].print_text_after && this.multi[n].print_text_after != ""
                                         ) {
                                             if (
                                                 this.multi[
@@ -524,6 +511,12 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                                     "print_text_before",
                                     this.multi[n].print_text_before
                                 );
+                            if (this.multi[n].dont_print_label)
+                                xml_multi.setAttribute(
+                                    "dont_print_label",
+                                    this.multi[n].dont_print_label
+                                );
+
                             if (this.multi[n].print_text_after)
                                 xml_multi.setAttribute(
                                     "print_text_after",
@@ -1083,8 +1076,7 @@ function parse_radreport(xml, specialty, modality, region) {
                             if (innerHTML.length < 75) {
                                 header2 = converted.createElement("h2");
                                 header2.setAttribute("print_space", "true")
-                            }
-                            else header2 = converted.createElement("text");
+                            } else header2 = converted.createElement("text");
                             header2.innerHTML = child.querySelector("header").innerHTML.trim();
                             content.appendChild(header2);
                         }
