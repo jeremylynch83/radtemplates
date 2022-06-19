@@ -154,7 +154,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                 case "text":
                     el.text = xml[i].innerHTML.trim();
                     el.printContents = function() {
-                        return this.text + this.details_text;
+                        return ""; //this.text + this.details_text;
                     };
                     el.exportTemplate = function(xml_doc) {
                         var xml_el = xml_doc.createElement(this.type);
@@ -1038,7 +1038,7 @@ function module_to_xml(template_gui, xml_doc) {
 }
 
 
-function parse_radreport(xml) {
+function parse_radreport(xml, specialty, modality, region) {
 
 
     var parser = new DOMParser();
@@ -1049,15 +1049,15 @@ function parse_radreport(xml) {
     var name = converted.createElement("name");
     name.innerHTML = xmlDoc.querySelector("title").innerHTML + " (radreport.org)";
     c_template.appendChild(name);
-    var modality = converted.createElement("modality");
-    modality.innerHTML = "CT"
-    var specialty = converted.createElement("specialty");
-    specialty.innerHTML = "Neuroradiology"
-    var region = converted.createElement("region");
-    region.innerHTML = "Brain"
-    c_template.appendChild(modality);
-    c_template.appendChild(specialty);
-    c_template.appendChild(region);
+    var x_modality = converted.createElement("modality");
+    x_modality.innerHTML = modality
+    var x_specialty = converted.createElement("specialty");
+    x_specialty.innerHTML = specialty
+    var x_region = converted.createElement("region");
+    x_region.innerHTML = region
+    c_template.appendChild(x_modality);
+    c_template.appendChild(x_specialty);
+    c_template.appendChild(x_region);
     var content = converted.createElement("content");
     c_template.appendChild(content);
 
@@ -1080,7 +1080,10 @@ function parse_radreport(xml) {
                         var innerHTML = child.querySelector("header").innerHTML.trim();
                         var header2;
                         if (innerHTML != "") {
-                            if (innerHTML.length < 75) header2 = converted.createElement("h2");
+                            if (innerHTML.length < 75) {
+                                header2 = converted.createElement("h2");
+                                header2.setAttribute("print_space", "true")
+                            }
                             else header2 = converted.createElement("text");
                             header2.innerHTML = child.querySelector("header").innerHTML.trim();
                             content.appendChild(header2);
@@ -1093,13 +1096,6 @@ function parse_radreport(xml) {
                         switch (grandchild.nodeName.toLowerCase()) {
                             default:
                                 break
-                                /*case "label":
-                                    if (!grandchild.getAttribute("id")) {
-                                        var header2 = converted.createElement("h2");
-                                        header2.innerHTML = grandchild.innerHTML.trim();
-                                        content.appendChild(header2);
-                                    }
-                                    break;*/
                             case "textarea":
                             case "input":
                                 var text_entry = converted.createElement("text_entry");

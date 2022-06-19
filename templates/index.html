@@ -68,8 +68,8 @@
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
-        <b-row>
-            <b-col cols="7" class="my-auto">
+        <div class="my_row">
+            <div class="my_col">
                 <div class="intro_text">
                     <h1>Your radiology templates. Your way.</h1>
                     <p>Reports generated are entirely confidential. No patient information leaves your computer.
@@ -121,11 +121,11 @@
                         </b-card>
                     </div>
                 </div>
-            </b-col>
-            <b-col class="my-auto">
+            </div>
+            <div class="my_col" id="banner_img_div">
                 <b-img fluid-grow class="banner_img" src="%% url_for('static', filename='img/banner3.jpg')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
-            </b-col>
-        </b-row>
+            </div>
+        </div>
         <!--<b-card no-body class="mb-1">
             <b-card-header header-tag="header" class="p-1" role="tab">
                 <b-button block v-b-toggle.accordion-1>Accordion 1</b-button>

@@ -807,6 +807,7 @@
                                     "title": t_radreport_titles[n].title,
                                     "template_id": t_radreport_titles[n].template_id,
                                     "template_version": t_radreport_titles[n].template_version,
+                                    "specialty": t_radreport_titles[n].specialty
                                 })
                             }
                         }
@@ -845,14 +846,22 @@
                         return response.json()
                     })
                     .then(json => {
-                        var user = parse_radreport(json.xml);
+                        var id = json.template_id;
+                        var rad_meta = this.radreport_titles.find(t=> {
+                            return t.template_id == id;
+                        });
+                        console.log(rad_meta);
+
+                        var user = parse_radreport(json.xml, "specialty", "modality", "region");
                         merge_templates(this.templates, user, true);
                         this.selectTemplate(user[0]);
                         this.$root.$emit('bv::hide::modal', 'template-download');
                         this.importing = false;
                     })
-                    .catch(function(error) {
-                        console.log("Fetch error: " + error);
+                    .catch(error => {
+                        alert("Sorry I could not obtain that one. This is an experimental feature still being worked on...");
+                        this.$root.$emit('bv::hide::modal', 'template-download');
+                        this.importing = false;
                     });
 
             },

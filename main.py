@@ -144,7 +144,9 @@ def radreport_get_template():
     x_json = json.loads(x)
     y = BeautifulSoup(x_json["DATA"]["templateData"], features="lxml").prettify()
     data = {
-                "xml": y
+                "xml": y,
+                "template_id": req["template_id"],
+                "template_version": req["template_version"]
             }
     return jsonify(data)
 
