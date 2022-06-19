@@ -454,11 +454,11 @@
             <h1>
                 Technique
             </h1>
-            <text_entry label="Consent" dont_print_label="false">
+            <text_entry label="Consent" dont_print_label="true">
                 Written consent included the risks of infection, bleeding, CSF leak, damage to nerve roots resulting in bladder/bowel incontinence and weakness.
             </text_entry>
             <multi_select>
-                <dropdown label="Local" dont_print_label="false">
+                <dropdown label="Local" dont_print_label="true">
                     1% lidocaine was infiltrated into the puncture site superficial tissues.
                 </dropdown>
                 <dropdown label="Needle" print_text_before="A" print_text_after="gauge needle was inserted in to the thecal space">
@@ -543,7 +543,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Radiograph | series of radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
@@ -582,7 +582,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Chest radiograph | series of chest radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
@@ -631,7 +631,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Chest radiograph | series of chest radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
@@ -743,7 +743,7 @@
             <h1>
                 Technique
             </h1>
-            <text_entry label="Consent" dont_print_label="false">
+            <text_entry label="Consent" dont_print_label="true">
                 Written consent included the risks of infection, bleeding, CSF leak, damage to nerve roots resulting in bladder/bowel incontinence and weakness.
             </text_entry>
             <multi_select>
@@ -788,7 +788,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Radiograph | series of radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
@@ -2239,7 +2239,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Radiograph | series of radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
@@ -2291,7 +2291,7 @@
                 <dropdown label="Modality" print_text_before="Comparison is made with the" print_text_after="dated">
                     Radiograph | series of radiographs | CT | series of CT studies
                 </dropdown>
-                <free_text label="Date" dont_print_label="false">
+                <free_text label="Date" dont_print_label="true">
                 </free_text>
             </multi_select>
             <h1>
