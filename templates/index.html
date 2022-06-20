@@ -147,7 +147,7 @@
                 <div class="explain_row">
                     <div class="explain_col">
                         <h2>Customisable</h2>
-                        <p>Exact wording of reports can be very important. Templates are 100% customisable down to the wording used. Free text can be inserted anywhere in to reports. New templates can be created and saved for use at a later date. </p>
+                        <p>Exact wording of reports is very important to convey accurate information to clinicians. Templates are 100% customisable down to the wording used. Free text can be inserted anywhere in to reports. Modified templates can be saved for use at a later date. </p>
                     </div>
                     <div class="explain_col">
                         <div>
@@ -174,17 +174,19 @@
         </div>
         <div style="margin-left: 10%; margin-right: 10%; ">
             <h1>Frequently asked questions</h1>
-        <b-card no-body >
-            <b-card-header  class="p-1" role="tab">
-                <b-button variant="success" block v-b-toggle.accordion-1>Templates can never replace the rich level of detail that writing can achieve?</b-button>
-            </b-card-header>
-            <b-collapse id="accordion-1" accordion="my-accordion" role="tabpanel">
-                <b-card-body>
-                    <b-card-text>No. But for routine reports they can get you 90-100% of the way there. In complex reports templates can fill in the mundane details and the complexity can be written in text. </b-card-text>
-                </b-card-body>
-            </b-collapse>
-        </b-card>
-        <p></p>
+            <template v-for="n in faq">
+                <b-card no-body>
+                    <b-card-header class="p-1" role="tab">
+                        <b-button variant="success" block v-b-toggle="'accordion-' + n.q">{{n.q}}</b-button>
+                    </b-card-header>
+                    <!--<b-collapse :id="'accordion-' + n.q" :accordion="'accordion-' + n.q" role="tabpanel">-->
+                        <b-card-body>
+                            <b-card-text>{{n.a}} </b-card-text>
+                        </b-card-body>
+                    <!--</b-collapse>-->
+                </b-card>
+            </template>
+            <p></p>
         </div>
         <footer class="site-footer">
             <div class="container">
@@ -252,8 +254,16 @@
             user_password: '',
             user_password_2: '',
             logged_in: false,
-            validator: new FormValidator({ "events": ['blur', 'paste', 'change'] })
-
+            validator: new FormValidator({ "events": ['blur', 'paste', 'change'] }),
+            faq: [{
+                    q: "Templates can never replace the rich level of detail that writing can achieve?",
+                    a: "No. But for routine reports they can get you 90-100% of the way there. In complex reports templates can fill in the mundane details and the complexity can be written in text."
+                },
+                {
+                    q: "Isn't this all just for lazy people?",
+                    a: "Absolutely"
+                }
+            ]
         },
 
         created() {
