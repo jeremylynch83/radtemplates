@@ -275,7 +275,7 @@
                             </b-input-group>
                         </b-form>
                         <p></p>
-                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}, {'text': 'Other', 'value':'Other'}]})">Insert selection</b-button>
+                        <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'label': 'Enter label', 'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}, {'text': 'Other', 'value':'Other'}]})">Insert selection</b-button>
                         <b-button variant="success" @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
                         <template v-for="nn in selected_n.multi">
                             <p></p>
@@ -312,7 +312,7 @@
                                 </template>
                             </b-card>
                             <p></p>
-                            <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}]})">Insert selection</b-button>
+                            <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'label': 'Enter label', 'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}, {'text': 'Other', 'value':'Other'}]})">Insert selection</b-button>
                             <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
                         </template>
                         </template>
@@ -320,7 +320,7 @@
                     <!-- MULTIRADIO TYPE -->
                     <b-form-group v-if="selected_n.type=='multi_radio'" class="indent_bug">
                         <b-form-group class="indent_bug">
-                            <b-button block @click="selected_n.multi.splice(0, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
+                            <b-button block @click="selected_n.multi.splice(0, 0, {'label': 'Enter label', 'text':'', 'type':'radio', 'options': [{'text': 'Option', 'value':''}, {'text': 'Option', 'value':''}]})">Insert new checklist item</b-button>
                             <p></p>
                             <template v-for="nn in selected_n.multi">
                                 <b-card>
@@ -354,7 +354,7 @@
                                             <b-form-checkbox v-model="nn.dont_print_normal">Don't mention in report if normal?</b-form-checkbox>
                                 </b-card>
                                 <p></p>
-                                <b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'radio', 'options': [{'text': '', 'value':''}]})">Insert new checklist item</b-button>
+                                <b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'label': 'Enter label', 'text':'', 'type':'radio', 'options': [{'text': 'Option', 'value':''}, {'text': 'Option', 'value':''}]})">Insert new checklist item</b-button>
                                 <p></p>
                                 </b-form>
                                 <b-form-group v-show="nn.selected >= nn.showdetailson">
@@ -526,15 +526,15 @@
                                         <b-row cols="1" cols-sm="2">
                                             <template v-for="nn in n.multi">
                                                 <b-col>
-                                                    <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                    <b-form-group v-if="nn.type == 'dropdown' && (nn.options != '' && n.present == 'Yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
                                                         <b-form-select style="font-size: xx-small!;" :options="nn.options" v-model="nn.selected">
                                                         </b-form-select>
                                                     </b-form-group>
-                                                    <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
+                                                    <b-form-group v-show="(nn.type == 'dropdown' && (n.present == 'Yes' || n.askfurtherdetails !='true')) && nn.selected == (nn.options.length-1)" label-cols="3">
                                                         <b-form-input :value="nn.text" @change="nn.text = $event" placeholder="Other">
                                                         </b-form-input>
                                                     </b-form-group>
-                                                    <b-form-group v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
+                                                    <b-form-group v-if="nn.type == 'free_text' && (nn.options != '' && n.present == 'Yes' || n.askfurtherdetails !='true')" :label="nn.label" label-cols="3">
                                                         <b-form-input :value="nn.text" @change="nn.text = $event">
                                                         </b-form-input>
                                                     </b-form-group>
@@ -572,7 +572,7 @@
                                         </b-container>
                                     </b-form-group>
                                     <!-- DETAILS BOX -->
-                                    <b-form-group v-show="n.details || n.present == 'yes'" :disabled="n.disabled">
+                                    <b-form-group v-show="n.details || n.present == 'Yes'" :disabled="n.disabled">
                                         <b-form-textarea :value="n.details_text" @change="n.details_text = $event">
                                             Details
                                         </b-form-textarea>
@@ -928,13 +928,11 @@
             },
 
             clearTemplate: function() {
-                this.reportText = "";
-                this.module = "";
-                //this.template = "";
-                this.index = "";
-                this.templateForm = [];
-                this.selected_n = null;
-                this.writeTemplate();
+                var temp = this.templates.find(t => {
+                    return t.name == this.templateForm.name
+                })
+                this.reset();
+                this.selectTemplate(temp);
             },
 
             reset: function() {

@@ -291,7 +291,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                 case "multi_select":
                     var nodes = xml[i].childNodes;
                     el.multi = [];
-                    el.present_options = ["yes", "no"];
+                    el.present_options = ["No", "Yes"];
                     el.present = "";
                     el.askfurtherdetails =
                         xml[i].getAttribute("askfurtherdetails");
@@ -388,7 +388,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.printContents = function() {
                         var print_text = "";
                         if (
-                            this.present == "yes" ||
+                            this.present == "Yes" ||
                             this.askfurtherdetails != "true"
                         ) {
 
@@ -471,7 +471,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
 
                             }
                         }
-                        if (this.present == "yes") {
+                        if (this.present == "Yes") {
                             print_text =
                                 format_sentence(print_text) +
                                 format_sentence(this.details_text);
@@ -1060,7 +1060,7 @@ function parse_radreport(xml, specialty, modality, region) {
         if (section[n].querySelector("header")) {
             if (section[n].querySelector("header").getAttribute("class").toLowerCase() == "level1") {
                 var header = converted.createElement("h1");
-                header.innerHTML = section[n].querySelector("header").innerHTML.trim();
+                header.innerHTML = section[n].querySelector("header").innerHTML.replace(/\t/g, "").trim();
                 content.appendChild(header);
             }
         }
@@ -1093,11 +1093,11 @@ function parse_radreport(xml, specialty, modality, region) {
                                 var text_entry = converted.createElement("text_entry");
                                 if (grandchild.nodeName.toLowerCase() == "textarea") text_entry.setAttribute("subtype", "medium");
                                 else text_entry.setAttribute("subtype", "small");
-                                text_entry.innerHTML = grandchild.innerHTML;
+                                if (grandchild.innerHTML) text_entry.innerHTML = grandchild.innerHTML.replace(/\t/g, "").trim();
                                 var id = grandchild.getAttribute("id");
                                 var label = null;
                                 if (id) label = child.querySelector("label[for='" + id + "']");
-                                if (label) label = label.innerHTML
+                                if (label) label = label.innerHTML.replace(/\t/g, "").trim();
                                 else if (grandchild.getAttribute("name")) {
                                     label = grandchild.getAttribute("name").trim();
                                 }
