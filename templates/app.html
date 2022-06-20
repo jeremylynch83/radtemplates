@@ -1064,7 +1064,7 @@
                     return i.name == element.text;
                 });
 
-                this.insertModule(null, "above", element.disappear);
+                this.insertModule(null, "above", element.disappear, true);
             },
             insertObject(type, position = false) {
                 var index = this.n_from_element(this.selected_n);
@@ -1083,7 +1083,7 @@
             },
 
             // Insert module after selected element. If no values passed then uses module in this.module
-            insertModule(selected_module, position, disappear) {
+            insertModule(selected_module, position, disappear, dont_save=false) {
                 var offset = (this.object.position == 'above') ? -1 : 0;
                 var place = 0;
                 if (position == "below") place = 1;
@@ -1104,6 +1104,7 @@
                 for (var n = 0; n < module_data.elements.length; n++) {
                     module_data.elements[n].array_id = unique_id();
                     module_data.elements[n].meta.id = module_id;
+                    module_data.elements[n].dont_save = dont_save;
                     this.templateForm.splice(index_start + n, 0, module_data.elements[n]);
                 }
 
@@ -1214,6 +1215,12 @@
                 // I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
+
+                // Remove any "don't save" elements (usually inserted by query_insert)
+                template_gui = template_gui.filter(n => {
+                    if (n.dont_save && n.dont_save == true) return false
+                    else return true;
+                });
 
                 // Search in the template for modules
                 var module_array = []
