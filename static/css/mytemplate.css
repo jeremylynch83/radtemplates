@@ -7,8 +7,9 @@ caption {
     font-size: 1rem;
 }
 
-#app {
-    width: 100%;
+#app_body {
+     max-width: 800px;
+
 }
 
 .body {
@@ -16,6 +17,8 @@ caption {
     padding-right: 14px;
 
 }
+
+#
 
 .form-group {
     margin-bottom: 5px;
@@ -44,7 +47,7 @@ caption {
     justify-content: left;
     align-items: left;
     left: -50px;
-    width: 100px;
+    width: 70px;
     z-index: 999;
 
 }
