@@ -19,7 +19,10 @@
 <body>
     <div id="app">
         <b-navbar type="dark" variant="info">
-            <b-navbar-brand href="#">radiologytemplates.org</b-navbar-brand>
+            <b-navbar-brand href="#"><img src="%% url_for('static', filename='img/icon.svg')%%" height="15px" class="d-inline-block " alt="Kitten"></img>
+
+
+            radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
                     <b-dropdown-item v-b-modal.template-download>Get more templates!
