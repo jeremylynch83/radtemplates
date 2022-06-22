@@ -476,7 +476,7 @@
                                             </b-dropdown>
                                         </div>
                                     </div>
-                                    <div class="element">
+                                    <div class="element" v-if="n.hide != true">
                                         <!-- HEADER TYPE -->
                                         <h2 v-if="n.type == 'h1'">{{n.label}}</h2>
                                         <h3 v-if="n.type == 'h2'">{{n.label}}</h3>
@@ -1095,7 +1095,8 @@
                 var index_start = this.n_from_element(this.selected_n) + offset + place;
 
                 if (disappear) {
-                    this.templateForm.splice(this.n_from_element(this.selected_n), 1)
+                    //this.templateForm.splice(this.n_from_element(this.selected_n), 1)
+                    this.selected_n.hide = true;
                 }
 
                 for (var n = 0; n < module_data.elements.length; n++) {

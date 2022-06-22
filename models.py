@@ -5,7 +5,9 @@ from flask_login import LoginManager
  
 login = LoginManager()
 db = SQLAlchemy()
- 
+
+# Login stuff 
+
 class userModel(UserMixin, db.Model):
     __tablename__ = 'users'
  
@@ -30,7 +32,16 @@ class userModel(UserMixin, db.Model):
     def get_templates_modules(self):
         return self.templates_modules
 
- 
 @login.user_loader
 def load_user(id):
     return userModel.query.get(int(id))
+
+# Public database stuff
+class publicModel(db.Model):
+    __tablename__ = 'store'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True)
+
+    def save_template(self, text):
+        return True
