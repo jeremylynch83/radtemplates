@@ -145,7 +145,8 @@ def publish_template():
     template = req["template"]
     modules = req["modules"]
     public = publicModel(id = unique_id(), name=template["name"], modality = template["modality"], region = template["region"], specialty = template["specialty"], type_of = publicModel.TEMPLATE_TYPE, owner = current_user.get_username(), meta = "meta", xml =template["xml"])
-    db.session.add(public)
+    if publicModel.query.filter_by(name = template["name"]).first() == None:
+        db.session.add(public)
 
     for n in modules:
         if publicModel.query.filter_by(name = n["name"]).first() == None:
