@@ -172,10 +172,29 @@ def store_list():
         t.append(item)
     return jsonify(t)
 
+# Get list of user templates on store
+@app.route('/store-user-list', methods=['GET'])
+def store_user_list():
+    data = db.session.query(publicModel).all()
+    t = []
+    for n in data:
+        if n.owner == current_user.get_username():
+            item = {
+                "name": n.name,
+                "id": n.id,
+                "type": n.type_of,
+                "region": n.region,
+                "specialty": n.specialty, 
+                "modality": n.modality
+            }
+            t.append(item)
+
+    return jsonify(t)
+
 # Get data of template from name
 @app.route('/store-get-templates', methods=['POST', 'GET'])
 def store_get_templates():
-    req = request.get_json();
+    req = request.get_json()
     xml = "<all>"
     # Add all the templates selected
     for n in req:
@@ -188,8 +207,17 @@ def store_get_templates():
             xml_temp = xml_temp +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
         xml = xml + xml_temp
     xml = xml + '</all>'
-    #print(xml)
     return jsonify(xml)
+
+# Deletes selected templates from the store
+@app.route('/store-delete-templates', methods=['POST'])
+def store_delete_templates():
+    req = request.get_json()
+    for n in req:
+        t = publicModel.query.filter_by(id=n["id"]).first()
+        db.session.delete(t)
+    db.session.commit()
+    return "success"
 
 
 # Return list of all templates on radreport.com (cached on server)

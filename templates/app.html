@@ -25,6 +25,8 @@
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
                     <!--<b-dropdown-item v-b-modal.template-download>Get more templates!
                     </b-dropdown-item>-->
+                    <b-dropdown-item href="/user">User preferences
+                    </b-dropdown-item>
                     <b-dropdown-item href="/store">Get more templates!
                     </b-dropdown-item>
                     <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
