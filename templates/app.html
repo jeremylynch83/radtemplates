@@ -23,8 +23,8 @@
                 radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
-                    <!--<b-dropdown-item v-b-modal.template-download>Get more templates!
-                    </b-dropdown-item>-->
+                    <b-dropdown-item v-b-modal.template-download>Import templates from RadReport.com
+                    </b-dropdown-item>
                     <b-dropdown-item href="/user">User preferences
                     </b-dropdown-item>
                     <b-dropdown-item href="/store">Get more templates!
@@ -48,10 +48,8 @@
                 <b-button variant="danger" @click="$bvModal.hide('position-insert-modal'); object.type=null">Cancel</b-button>
             </template>
         </b-modal>
-        <b-modal id="template-download" title="Get more radiology templates">
-            <p>Import curated templates</p>
-            <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Neuroradiology</b-button>
-            <p></p>
+        <b-modal id="template-download" title="RadReport.Com">
+            
             <p>Experimental import of RSNA approved templates on RadReport.com (Experimental!!)</p>
             <b-button v-if="importing" variant="primary" disabled>
                 Importing template...
@@ -108,17 +106,17 @@
             <!--<b-alert show="5" variant="warning">
                 Welcome {{user_name}}
             </b-alert>-->
-            <b-form-group v-if="mode=='templates' && template == ''" id="select_template" title="Select Template" ok-only>
+            <b-form-group v-if=" template == ''" id="select_template" title="Select Template" ok-only>
                 <b-form-group>
                     <div v-if="this.templates.findIndex(n => {
                     return (n.name == 'Blank');
                 }) != -1">
                         <b-button variant="primary" @click="blankTemplate()">Blank Template</b-button>
-                        <b-button variant="info" @click="edit_modules()">Edit modules
+                        <b-button variant="warning" href="/store">Get more templates!
                         </b-button>
                     </div>
                     <p></p>
-                    <b-card no-body header="My templates">
+                    <b-card no-body >
                         <b-tabs v-model="prefs.current_tab" card>
                             <b-tab v-for="x in specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
                                 <template v-for="y in modalities">
@@ -126,16 +124,22 @@
                                     <template v-for="z in regions">
                                         <h4 style="font-size:small" v-if="items_in_list(x, y, z)">{{z}}</h4>
                                         <template v-for="n in templates">
-                                            <b-button @click="selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
+                                            <b-button @click="mode = 'templates'; selectTemplate(n)" variant="link" v-if="n.specialty==x && n.modality ==y && n.region ==z">{{n.name}} </b-button>
                                         </template>
                                     </template>
+                                </template>
+                            </b-tab>
+                            <b-tab title="Modules">
+                                <p>Modules are collections of template elements that can be inserted in to templates.</p>
+                                <template v-for="n in templates.modules">
+                                    <b-button @click="mode = 'modules'; selectTemplate(n)" variant="link">{{n.name}} </b-button>
                                 </template>
                             </b-tab>
                             <b-form-group v-if="templates.length < 3">
                                 <b-card border-variant="light">
                                     <b-jumbotron lead="Download templates">
                                         <p>You don't have many templates. Would you like to download some?</p>
-                                        <b-button variant="primary" v-b-modal.template-download>Download</b-button>
+                                        <b-button variant="primary" href="/store">Visit the template store</b-button>
                                     </b-jumbotron>
                                 </b-card>
                             </b-form-group>
@@ -143,7 +147,7 @@
                     </b-card>
                 </b-form-group>
             </b-form-group>
-            <b-form-group v-if="mode=='modules' && template == ''">
+            <!--<b-form-group v-if="mode=='modules' && template == ''">
                 <b-form-group>
                     <p></p>
                     <b-button @click="mode='templates'">Back to templates</b-button>
@@ -156,10 +160,10 @@
                     </div>
                     <h1>Modules</h1>
                     <template v-for="n in templates.modules">
-                        <b-button @click="selectTemplate(n)" variant="link">{{n.name}} </b-button>
+                        <b-button @click="mode = 'modules'; selectTemplate(n)" variant="link">{{n.name}} </b-button>
                     </template>
                 </b-form-group>
-            </b-form-group>
+            </b-form-group>-->
             <b-modal id="insert-component-modal" title="Insert Component" ok-only>
                 <b-form-group label-for="search_module">
                     <p></p>
@@ -416,7 +420,7 @@
                         <p></p>
                         <b-form-input v-if="save_as_new_modal.new_region=='Other'" v-model="save_as_new_modal.other_region" @change=""></b-form-input>
                         <p></p>
-                        <b-form-checkbox>
+                        <b-form-checkbox v-model="save_as_new_modal.publish">
                             Make this template available publicly (clinical information will NOT be shared)
                         </b-form-checkbox>
                     </div>
@@ -465,7 +469,9 @@
                                         <b-dropdown-item v-b-modal.delete_module>Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </b-button-group>
-                                <div style="right: 0" id="template_name">{{templateForm.name}}</div>
+                                <div v-if="mode=='modules'" style="right: 0" id="template_name">Module {{templateForm.name}}</div>
+                                <div v-if="mode=='templates'" style="right: 0" id="template_name">Template: {{templateForm.name}}</div>
+
                             </b-navbar>
                         </template>
                         <template v-for=" n in templateForm">
@@ -658,7 +664,8 @@
                 new_region: null,
                 other_specialty: null,
                 other_modality: null,
-                other_region: null
+                other_region: null,
+                publish: false
             }
         },
         beforeCreate() {
@@ -945,6 +952,7 @@
                 this.save_as_new_modal.other_specialty = null;
                 this.save_as_new_modal.other_modality = null;
                 this.save_as_new_modal.other_region = null;
+                this.save_as_new_modal.publish = null;
 
                 this.reportText = "";
                 this.module = "";
@@ -1308,7 +1316,7 @@
                 }
 
                 // Add this to template store
-                this.publish_template(new_template)
+                if (this.save_as_new_modal.publish == true) this.publish_template(new_template)
 
                 // Update server templates
                 updateUserDatabase(this.templates, this.templates.modules);
@@ -1329,7 +1337,7 @@
                         if (x) modules_list.push({
                             "name": name,
                             "type": 1, //Type 1 = module
-                            "xml" : x.xml.innerHTML
+                            "xml": x.xml.innerHTML
                         });
                     }
                 }
@@ -1338,7 +1346,7 @@
                 template.xml = (new XMLSerializer()).serializeToString(template.xml);
                 var json = {
                     template: template,
-                    modules:modules_list
+                    modules: modules_list
                 }
 
                 // Send to server
