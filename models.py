@@ -37,11 +37,29 @@ def load_user(id):
     return userModel.query.get(int(id))
 
 # Public database stuff
+
+
 class publicModel(db.Model):
     __tablename__ = 'store'
+    TEMPLATE_TYPE = 0;
+    MODULE_TYPE = 1;
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True)
+    id = db.Column(db.Integer, primary_key=True) # Dunno
+    name = db.Column(db.String(80), unique=True) # Name of template
+    modality = db.Column(db.String(80))
+    region = db.Column(db.String(80))
+    specialty = db.Column(db.String(80)) 
+    type_of = db.Column(db.Integer) # TEMPLATE_TYPE = 0,MODULE_TYPE = 1;
+    owner = db.Column(db.String(80)) # Who created it (can destroy it)
+    meta = db.Column(db.UnicodeText()) # Meta-data
+    xml = db.Column(db.UnicodeText())
 
-    def save_template(self, text):
+    def get_template_names():
         return True
+
+    def delete_template(self, name):
+        return True
+
+    def get_template_data(self, list_of_names):
+        return True
+
