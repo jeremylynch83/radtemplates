@@ -114,6 +114,7 @@
                         <b-button variant="primary" @click="blankTemplate()">Blank Template</b-button>
                         <b-button variant="warning" href="/store">Get more templates!
                         </b-button>
+                        <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Curated Neuroradiology</b-button>
                     </div>
                     <p></p>
                     <b-card no-body >
@@ -461,6 +462,7 @@
                                     <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
                                         <b-dropdown-item @click="saveChanges()">Save changes</b-dropdown-item>
                                         <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
+                                        <b-dropdown-item @click="publishToStore()">Publish to template store</b-dropdown-item>
                                         <b-dropdown-item v-b-modal.delete_template>Delete</b-dropdown-item>
                                     </b-dropdown>
                                     <b-dropdown v-if="mode=='modules'" class="float-right" right text="Module">
@@ -1221,7 +1223,7 @@
             },
 
             // Saves this template locally (and then calls to save on server)
-            exportXML_templates: function() {
+            exportXML_templates: function(publish_to_store=false) {
                 // I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
@@ -1316,7 +1318,7 @@
                 }
 
                 // Add this to template store
-                if (this.save_as_new_modal.publish == true) this.publish_template(new_template)
+                if (publish_to_store == true) this.publish_template(new_template)
 
                 // Update server templates
                 updateUserDatabase(this.templates, this.templates.modules);
@@ -1473,7 +1475,18 @@
             },
 
             saveChanges: function() {
-                if (this.templateForm.name != "Blank") this.exportXML_templates();
+                if (this.templateForm.name != "Blank") this.exportXML_templates(false);
+                else {
+                    alert("You cannot make changes to this blank template")
+                    this.$root.$emit('bv::show::modal', 'save_as_new_modal');
+                }
+            },
+
+            publishToStore: function() {
+                if (this.templateForm.name != "Blank") 
+                    {
+                        this.exportXML_templates(true);
+                    }
                 else {
                     alert("You cannot make changes to this blank template")
                     this.$root.$emit('bv::show::modal', 'save_as_new_modal');
@@ -1502,7 +1515,7 @@
 
                 }
                 if (this.mode == 'templates') {
-                    this.exportXML_templates();
+                    this.exportXML_templates(this.save_as_new_modal.publish);
                 } else this.exportXML_modules()
 
                 this.update_templates(null, null)
