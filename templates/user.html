@@ -186,7 +186,7 @@
                 .then(xml => {
 
                     this.user_name = xml.username;
-                    this.prefs = JSON.parse(xml.prefs);
+                    this.prefs = JSON.parse(xml.prefs) ? JSON.parse(xml.prefs) : {}
                     this.logged_in = true;
                     var obj = this.update_templates(xml.templates_modules, this.templates);
 
