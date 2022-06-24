@@ -23,14 +23,8 @@
                 radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
-                    <b-dropdown-item v-b-modal.template-download>Get more templates!
+                    <b-dropdown-item href="/user">User preferences
                     </b-dropdown-item>
-                    <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
-                    <b-dropdown-item v-b-modal.import-modal>Import templates from file
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_templates()">Delete all templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_modules()">Delete all modules</b-dropdown-item>
                     <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
                 </navbar-nav>
@@ -78,7 +72,7 @@
                 <p></p>
                 <b-card no-body>
                     <template #header>
-                                <b-button variant="success" @click="import_from_store()">Import to my library</b-button>
+                        <b-button variant="success" @click="import_from_store()">Import to my library</b-button>
                     </template>
                     <b-tabs v-model="prefs.current_tab" card>
                         <b-tab v-for="x in p_specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
@@ -287,10 +281,10 @@
 
             // Asks for all of the data for a list of supplied template names and stores in user database
             import_from_store: function() {
-                var request_templates = this.public_templates.filter(t=> {
+                var request_templates = this.public_templates.filter(t => {
                     return t.selected;
                 })
-                
+
                 fetch(`${window.origin}/store-get-templates`, {
                         method: "POST",
                         credentials: "include",
@@ -315,14 +309,14 @@
 
                         var obj = this.update_templates(xml, this.templates, false);
                         updateUserDatabase(this.templates, this.templates.modules)
-                        
+
                     })
                     .catch(error => {
                         alert("Sorry error: " + error);
                         this.$root.$emit('bv::hide::modal', 'template-download');
                         this.importing = false;
                     });
-                
+
             },
 
             import_templates_from_file: function(import_file) {

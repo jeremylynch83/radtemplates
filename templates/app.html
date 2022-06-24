@@ -23,19 +23,13 @@
                 radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
+                    <b-dropdown-item @click="save_prefs()" href="/user">User preferences
+                    </b-dropdown-item>
                     <b-dropdown-item v-b-modal.template-download>Import templates from RadReport.com
                     </b-dropdown-item>
-                    <b-dropdown-item href="/user">User preferences
-                    </b-dropdown-item>
-                    <b-dropdown-item href="/store">Template store
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
                     <b-dropdown-item v-b-modal.import-modal>Import templates from file
                     </b-dropdown-item>
-                    <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_templates()">Delete all templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_modules()">Delete all modules</b-dropdown-item>
-                    <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
+                    <b-dropdown-item @click="save_prefs(); logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
                 </navbar-nav>
         </b-navbar>
@@ -49,7 +43,6 @@
             </template>
         </b-modal>
         <b-modal id="template-download" title="RadReport.Com">
-            
             <p>Experimental import of RSNA approved templates on RadReport.com (Experimental!!)</p>
             <b-button v-if="importing" variant="primary" disabled>
                 Importing template...
@@ -112,12 +105,12 @@
                     return (n.name == 'Blank');
                 }) != -1">
                         <b-button variant="primary" @click="blankTemplate()">Blank Template</b-button>
-                        <b-button variant="warning" href="/store">Template store
+                        <b-button @click="save_prefs()" variant="warning" href="/store">Template store
                         </b-button>
                         <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Import neuroradiology template starter</b-button>
                     </div>
                     <p></p>
-                    <b-card no-body >
+                    <b-card no-body>
                         <b-tabs v-model="prefs.current_tab" card>
                             <b-tab v-for="x in specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
                                 <template v-for="y in modalities">
@@ -471,9 +464,8 @@
                                         <b-dropdown-item v-b-modal.delete_module>Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </b-button-group>
-                                <div v-if="mode=='modules'" style="right: 0" id="template_name">Module {{templateForm.name}}</div>
+                                <div v-if="mode=='modules'" style="right: 0" id="template_name">Module: {{templateForm.name}}</div>
                                 <div v-if="mode=='templates'" style="right: 0" id="template_name">Template: {{templateForm.name}}</div>
-
                             </b-navbar>
                         </template>
                         <template v-for=" n in templateForm">
@@ -640,7 +632,6 @@
             show_count: false,
             importing: false,
             prefs: {
-                current_tab: null
             },
             editModal: {
                 value: "null"
@@ -694,6 +685,7 @@
                 .then(xml => {
                     this.user_name = xml.username;
                     this.logged_in = true;
+                    this.prefs = JSON.parse(xml.prefs)
                     var obj = this.update_templates(xml.templates_modules, this.templates);
                 })
                 .catch(function(error) {
@@ -708,6 +700,10 @@
         },
 
         methods: {
+            save_prefs: function() {
+                save_prefs(this.prefs)
+            },
+
             edit_modules: function() {
                 this.mode = 'modules'
             },
@@ -1171,6 +1167,7 @@
                 // Some grammer corrections
                 copyText = copyText.trim();
                 copyText = copyText.replace(/(\n){3,}/g, "\n\n"); // Remove triple or more newlines
+                if (this.prefs.signature) copyText += "\n\n" + this.prefs.signature
 
                 // Put in clipboard
                 const listener = function(ev) {
@@ -1223,7 +1220,7 @@
             },
 
             // Saves this template locally (and then calls to save on server)
-            exportXML_templates: function(publish_to_store=false) {
+            exportXML_templates: function(publish_to_store = false) {
                 // I turn the gui elements to xml and then back again to blank the entries. 
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
@@ -1483,11 +1480,9 @@
             },
 
             publishToStore: function() {
-                if (this.templateForm.name != "Blank") 
-                    {
-                        this.exportXML_templates(true);
-                    }
-                else {
+                if (this.templateForm.name != "Blank") {
+                    this.exportXML_templates(true);
+                } else {
                     alert("You cannot make changes to this blank template")
                     this.$root.$emit('bv::show::modal', 'save_as_new_modal');
                 }

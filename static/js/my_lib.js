@@ -104,15 +104,17 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                     el.print_space = (xml[i].getAttribute("print_space") == "true") ? true : false;
                     el.printContents = function() {
                         var print_text = "";
+                        console.log(this.label + " : " + this.print_space)
 
-                        if (this.print_space) {
-                            print_text += "\n\n";
-                        }
+                       
                         if (this.dont_print == false) {
                             if (this.type == "h1")
                                 print_text += "\n\n" + this.label.toUpperCase() + "\n";
                             if (this.type == "h2")
                                 print_text += "\n\n" + this.label;
+                        }
+                         if (this.print_space) {
+                            print_text += "\n\n";
                         }
 
                         return print_text;
@@ -1214,6 +1216,35 @@ function save_to_file(data, filename, type) {
             window.URL.revokeObjectURL(url);
         }, 0);
     }
+}
+
+function save_prefs(prefs) {
+    var obj = {
+        prefs: prefs
+    }
+    fetch(`${window.origin}/save-prefs`, {
+            method: "POST",
+            credentials: "include",
+            body: JSON.stringify(prefs),
+            cache: "no-cache",
+            headers: new Headers({
+                "content-type": "application/json"
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+
+            }
+            if (response.status !== 200) {
+                alert("Failure " + response.status)
+                return;
+            }
+            return response.json()
+        })
+        .catch(function(error) {
+            console.log("Fetch error: " + error);
+        });
+
 }
 
 function toTitleCase(str) {

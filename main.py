@@ -58,6 +58,7 @@ def login():
             data = {
                 "username": current_user.get_username(),
                 "templates_modules": current_user.get_templates_modules(),
+                "prefs": current_user.get_prefs()
             }
             return jsonify(data)
      
@@ -79,6 +80,7 @@ def check_login():
             data = {
                 "templates_modules": current_user.get_templates_modules(),
                 "username": current_user.get_username(),
+                "prefs": current_user.get_prefs()
             }
             return jsonify(data)
     else:
@@ -96,7 +98,7 @@ def import_templates():
     else:
         return "failure", 200
 
-# Register view
+# Register new user
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     print("register")
@@ -129,11 +131,22 @@ def logout():
     logout_user()
     return redirect('/')
 
+# Saves user templates and modules
 @app.route('/index/export', methods=['POST'])
 def export_module():
     req = request.get_json()
     xml = req["xml"]
     current_user.save_templates_modules(xml)
+    db.session.add(current_user)
+    db.session.commit()
+    return req
+
+# Saves user preferences
+@app.route('/save-prefs', methods=['POST'])
+def save_prefs():
+    req = request.get_json()
+    #print(json.dumps(req))
+    current_user.save_prefs(json.dumps(req))
     db.session.add(current_user)
     db.session.commit()
     return req
@@ -192,7 +205,7 @@ def store_user_list():
 
     return jsonify(t)
 
-# Get data of template from name
+# Get data of store template from name
 @app.route('/store-get-templates', methods=['POST', 'GET'])
 def store_get_templates():
     req = request.get_json()

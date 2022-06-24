@@ -16,6 +16,7 @@ class userModel(UserMixin, db.Model):
     username = db.Column(db.String(100))
     password_hash = db.Column(db.String())
     templates_modules = db.Column(db.UnicodeText())
+    prefs = db.Column(db.UnicodeText())
 
     def set_password(self,password):
         self.password_hash = generate_password_hash(password)
@@ -31,6 +32,12 @@ class userModel(UserMixin, db.Model):
 
     def get_templates_modules(self):
         return self.templates_modules
+
+    def get_prefs(self):
+        return self.prefs 
+
+    def save_prefs(self, prefs):
+        self.prefs = prefs
 
 @login.user_loader
 def load_user(id):

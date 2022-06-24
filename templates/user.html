@@ -23,14 +23,6 @@
                 radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
-                    <b-dropdown-item v-b-modal.template-download>Get more templates!
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
-                    <b-dropdown-item v-b-modal.import-modal>Import templates from file
-                    </b-dropdown-item>
-                    <b-dropdown-item @click="download_templates()">Download my templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_templates()">Delete all templates</b-dropdown-item>
-                    <b-dropdown-item @click="delete_all_modules()">Delete all modules</b-dropdown-item>
                     <b-dropdown-item @click="logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
                 </navbar-nav>
@@ -41,8 +33,7 @@
             <b-button href="/app-page">Back to my templates</b-button>
             <p></p>
             <!--<b-alert show="5" variant="warning">
-                Welcome {{user_name}}
-            </b-alert>-->
+                Welcome             </b-alert>-->
             <!--<p>Import curated templates</p>
             <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Neuroradiology</b-button>
             <p></p>
@@ -71,23 +62,47 @@
             <template #modal-footer="{ close }">
                 <b-button variant="danger" @click="$bvModal.hide('template-download')">Cancel</b-button>
             </template>-->
-            
-            <b-form-group ok-only>
-                <div>
+            <b-card no-body header="Signature">
+                <div style="padding:15px">
+                    <p>This will be inserted at the end of your report: </p>
+                    <b-form-textarea id="signature_text" v-model="prefs.signature" rows="2" ></b-form-textarea>
+                    <p></p>
+                    <b-form-group>
+                        <b-button variant="success" @click="save_prefs()">Submit</b-button>
+                    </b-form-group>
                 </div>
-                <p></p>
-                <b-card no-body>
-                    <template #header>
-                        <b-button variant="danger" @click="delete_from_store()">Delete</b-button>
-                    </template>
-                    <p>You have published the following templates/modules in to the store:</p>
-                    <p>
+            </b-card>
+            <p></p>
+            <b-card no-body header="Options">
+                <div style="padding:15px">
+                    <b-form-group>
+                        <b-button @click="download_templates()">Download my templates</b-button>
+                    </b-form-group>
+                    <b-form-group>
+                        <b-button variant="danger" @click="delete_all_templates()">Delete all templates</b-button>
+                    </b-form-group>
+                    <b-form-group>
+                        <b-button variant="danger" @click="delete_all_modules()">Delete all modules</b-button>
+                    </b-form-group>
+                </div>
+            </b-card>
+            <p></p>
+            <b-card no-body>
+                <template #header>
+                    Published templates
+                    <b-button class="float-right" variant="danger" @click="delete_from_store()">Delete</b-button>
+                </template>
+                <div style="padding:15px">
+                    <p>You have published the following templates/modules in to the store. You can delete any by selecting them and clicking the delete button above. </p>
+                    <b-form-group>
                         <template v-for="n in public_templates">
                             <b-form-checkbox plain inline v-model="n.selected" variant="link">{{n.name}} </b-form-checkbox>
                         </template>
-                    </p>
-                </b-card>
+                    </b-form-group>
+                </div>
+            </b-card>
             </b-form-group>
+            <p></p>
     </div>
     </b-container>
     </div>
@@ -127,12 +142,24 @@
             show_count: false,
             importing: false,
             prefs: {
-                current_tab: null
+                current_tab: null,
+                signature: null
             },
             public_templates: [],
             p_modalities: [],
             p_specialties: [],
             p_regions: [],
+
+            save_as_new_modal: {
+                new_name: null,
+                new_specialty: null,
+                new_modality: null,
+                new_region: null,
+                other_specialty: null,
+                other_modality: null,
+                other_region: null,
+                publish: false
+            }
         },
         beforeCreate() {
 
@@ -159,6 +186,7 @@
                 .then(xml => {
 
                     this.user_name = xml.username;
+                    this.prefs = JSON.parse(xml.prefs);
                     this.logged_in = true;
                     var obj = this.update_templates(xml.templates_modules, this.templates);
 
@@ -230,6 +258,10 @@
         },
 
         methods: {
+            save_prefs: function() {
+                save_prefs(this.prefs)
+            },
+
             edit_modules: function() {
                 this.mode = 'modules'
             },
