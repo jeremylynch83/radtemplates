@@ -27,7 +27,7 @@
                     </b-dropdown-item>
                     <b-dropdown-item href="/user">User preferences
                     </b-dropdown-item>
-                    <b-dropdown-item href="/store">Get more templates!
+                    <b-dropdown-item href="/store">Template store
                     </b-dropdown-item>
                     <b-dropdown-item @click="edit_modules()">Edit modules</b-dropdown-item>
                     <b-dropdown-item v-b-modal.import-modal>Import templates from file
@@ -114,7 +114,7 @@
                         <b-button variant="primary" @click="blankTemplate()">Blank Template</b-button>
                         <b-button variant="warning" href="/store">Get more templates!
                         </b-button>
-                        <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Curated Neuroradiology</b-button>
+                        <b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Import neuroradiology template starter</b-button>
                     </div>
                     <p></p>
                     <b-card no-body >

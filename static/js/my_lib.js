@@ -478,7 +478,7 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         } else {
                             print_text = format_sentence(print_text);
                         }
-                        if (this.present == "no") {
+                        if (this.present == "No") {
                             print_text += format_sentence(this.normaltext);
                         }
                         return print_text;
