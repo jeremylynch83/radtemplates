@@ -767,6 +767,7 @@
                     return;
                 }
 
+
                 var reader = new FileReader();
                 reader.context = this;
                 reader.onload = function(e) {
@@ -780,7 +781,10 @@
                             var user = parse_radreport(xml);
                             merge_templates(this.context.templates, user, true);
                             this.context.selectTemplate(user[0]);
-                        } else if (xmlDoc.getElementsByTagName("all").length == 0) this.context.update_templates(xml, null, false);
+                        } else if (xmlDoc.getElementsByTagName("all").length != 0) {
+                            
+                            this.context.update_templates(xml, null, false);
+                        }
                     }
                 }
                 reader.readAsText(file);
