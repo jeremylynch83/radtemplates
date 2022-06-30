@@ -96,9 +96,10 @@
             </p>
         </b-container>
         <b-container fluid="sm" v-if="logged_in">
-            <!--<b-alert show="5" variant="warning">
-                Welcome {{user_name}}
-            </b-alert>-->
+            <b-alert :show="alert_countdown" @dismissed="alert_countdown=0" dismissible variant="warning">
+                {{alert_message}}
+            </b-alert>
+
             <b-form-group v-if=" template == ''" id="select_template" title="Select Template" ok-only>
                 <b-form-group>
                     <div v-if="this.templates.findIndex(n => {
@@ -111,7 +112,7 @@
                     </div>
                     <p></p>
                     <b-card no-body>
-                        <b-tabs v-model="prefs.current_tab" card>
+                        <b-tabs v-model="prefs.current_tab" @input="save_prefs()" card>
                             <b-tab v-for="x in specialties" v-if="items_in_list(x) && x !='Generic' && x !='Other'" :key="'dyn-tab-' + x" :title="x">
                                 <template v-for="y in modalities">
                                     <h3 v-if="items_in_list(x, y)">{{y}}</h3>
@@ -123,7 +124,10 @@
                                     </template>
                                 </template>
                             </b-tab>
-                            <b-tab title="Modules">
+                            <b-tab>
+                                <template #title>
+                                    <div style="color: red">Modules</div>
+                                </template>
                                 <p>Modules are collections of template elements that can be inserted in to templates.</p>
                                 <template v-for="n in templates.modules">
                                     <b-button @click="mode = 'modules'; selectTemplate(n)" variant="link">{{n.name}} </b-button>
@@ -451,7 +455,7 @@
                                 <b-button-group style="margin-right:10px">
                                     <b-button variant="danger" @click="reset()">Close</b-button>
                                     <b-button variant="success" @click="copyReport()">Show Report</b-button>
-                                    <b-button variant="warning" @click="clearTemplate()">Clear</b-button>
+                                    <b-button v-if="mode=='templates'" variant="warning" @click="clearTemplate()">Clear</b-button>
                                     <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
                                         <b-dropdown-item @click="saveChanges()">Save changes</b-dropdown-item>
                                         <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
@@ -631,8 +635,9 @@
             radreport_search_term: '',
             show_count: false,
             importing: false,
-            prefs: {
-            },
+            prefs: {},
+            alert_message: "",
+            alert_countdown: 0,
             editModal: {
                 value: "null"
             },
@@ -700,6 +705,11 @@
         },
 
         methods: {
+            showAlert: function(text) {
+                this.alert_countdown = 4;
+                this.alert_message = text;
+
+            },
             save_prefs: function() {
                 save_prefs(this.prefs)
             },
@@ -782,7 +792,7 @@
                             merge_templates(this.context.templates, user, true);
                             this.context.selectTemplate(user[0]);
                         } else if (xmlDoc.getElementsByTagName("all").length != 0) {
-                            
+
                             this.context.update_templates(xml, null, false);
                         }
                     }
@@ -1221,6 +1231,8 @@
 
                 // Save to server                   
                 updateUserDatabase(this.templates, this.templates.modules);
+
+                this.showAlert("Saved successfully");
             },
 
             // Saves this template locally (and then calls to save on server)
@@ -1323,6 +1335,8 @@
 
                 // Update server templates
                 updateUserDatabase(this.templates, this.templates.modules);
+
+                this.showAlert("Saved successfully");
             },
 
             publish_template: function(template_passed) {
