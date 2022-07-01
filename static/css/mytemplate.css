@@ -12,11 +12,6 @@ caption {
 
 }
 
-.body {
-    padding-left: 16px;
-    padding-right: 14px;
-
-}
 
 #
 
@@ -26,10 +21,10 @@ caption {
 }
 
 .row {
+    padding-left: 16px;
+    padding-right: 14px;
+
     display: flex;
-    background-color: rgb(250, 250, 250);
-
-
 }
 
 .row:hover .row {
@@ -39,7 +34,10 @@ caption {
     background-color: rgb(240, 250, 250);
 }
 
-
+.el_border {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
 
 .control {
     visibility: hidden;
