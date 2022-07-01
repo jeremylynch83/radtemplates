@@ -498,7 +498,7 @@
                                         </b-form-textarea>
                                     </div>
                                     <!-- TEXT ENTRY TYPE SMALL/MEDIUM/LARGE -->
-                                    <div class="el_border":disabled="n.disabled" v-if="n.type == 'text_entry'">
+                                    <div class="el_border" :disabled="n.disabled" v-if="n.type == 'text_entry'">
                                         <label v-if="n.subtype  != 'small' && n.label != '' && n.no_label != true" md="auto">{{n.label}}</label>
                                         <b-input-group :prepend="n.label" v-if="n.subtype  == 'small'">
                                             <b-form-input :value="n.text" @change="n.text = $event">
@@ -514,16 +514,14 @@
                                         <b-form inline>
                                             <label class="mb-2 mr-sm-2 mb-sm-0">{{n.label}}</label>
                                             <b-form-select v-model="n.selected" :options="n.options" @input="n.details = Boolean(n.selected >= n.showdetailson)">
-                                                </b-form-select>
+                                            </b-form-select>
                                         </b-form>
-
-                                   
                                     </div>
                                     <!-- MULTISELECTION TYPE -->
                                     <div v-if="n.type=='multi_select'">
                                         <b-form inline>
-                                            <label  class="mb-2 mr-sm-2 mb-sm-0">{{n.label}}</label>
-                                            <b-form-radio-group  v-if="n.askfurtherdetails =='true'" :options="n.present_options" v-model="n.present" class="mb-2 mr-sm-2 mb-sm-0">
+                                            <label class="mb-2 mr-sm-2 mb-sm-0">{{n.label}}</label>
+                                            <b-form-radio-group v-if="n.askfurtherdetails =='true'" :options="n.present_options" v-model="n.present" class="mb-2 mr-sm-2 mb-sm-0">
                                             </b-form-radio-group>
                                         </b-form>
                                         <b-row cols="1" cols-sm="2">
@@ -1332,20 +1330,28 @@
 
                 // Get list of modules called by template
                 modules_list = []
-                var xml = template.xml.childNodes;
-                for (var n = 0; n < xml.length; n++) {
-                    if (xml[n].nodeName.trim() == "insert" || xml[n].nodeName.trim() == "query_insert") {
-                        var name = xml[n].innerHTML.trim();
-                        var x = this.templates.modules.find(n => {
-                            return n.name == name;
-                        });
-                        if (x) modules_list.push({
-                            "name": name,
-                            "type": 1, //Type 1 = module
-                            "xml": x.xml.innerHTML
-                        });
+                var xml_template = template.xml.childNodes;
+
+                function find_modules(xml, modules) {
+                    for (var n = 0; n < xml.length; n++) {
+                        if (xml[n].nodeName.trim() == "insert" || xml[n].nodeName.trim() == "query_insert") {
+                            var name = xml[n].innerHTML.trim();
+                            var x = modules.find(n => {
+                                return n.name == name;
+                            });
+
+                            if (x) find_modules(x.xml.childNodes, modules);
+
+                            if (x) modules_list.push({
+                                "name": name,
+                                "type": 1, //Type 1 = module
+                                "xml": x.xml.innerHTML
+                            });
+                        }
                     }
                 }
+
+                find_modules(xml_template, this.templates.modules);
 
                 // Convert template into format that server can read 
                 template.xml = (new XMLSerializer()).serializeToString(template.xml);
