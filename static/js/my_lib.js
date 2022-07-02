@@ -106,14 +106,14 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                         var print_text = "";
                         console.log(this.label + " : " + this.print_space)
 
-                       
+
                         if (this.dont_print == false) {
                             if (this.type == "h1")
                                 print_text += "\n\n" + this.label.toUpperCase() + "\n";
                             if (this.type == "h2")
                                 print_text += "\n\n" + this.label;
                         }
-                         if (this.print_space) {
+                        if (this.print_space) {
                             print_text += "\n\n";
                         }
 
@@ -1254,4 +1254,24 @@ function toTitleCase(str) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }
     );
+}
+
+
+function find_modules(xml, modules, list) {
+    for (var n = 0; n < xml.length; n++) {
+        if (xml[n].nodeName.trim() == "insert" || xml[n].nodeName.trim() == "query_insert") {
+            var name = xml[n].innerHTML.trim();
+            var x = modules.find(n => {
+                return n.name == name;
+            });
+
+            if (x) find_modules(x.xml.childNodes, modules, list);
+
+            if (x) list.push({
+                "name": name,
+                "type": 1, //Type 1 = module
+                "xml": x.xml.innerHTML
+            });
+        }
+    }
 }

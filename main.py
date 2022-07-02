@@ -214,13 +214,20 @@ def store_get_templates():
     for n in req:
         t = publicModel.query.filter_by(id=n["id"]).first()
         soup = BeautifulSoup(t.xml, 'xml')
-        module_list = soup.find_all(['insert', 'query_insert'])
         xml_temp = "<template><name>" + t.name + '</name><region>' + t.region + '</region><specialty>' + t.specialty + '</specialty><modality>' + t.modality + '</modality>' + t.xml + '</template>'
-        for m in module_list:
-            module = publicModel.query.filter_by(name=m.decode_contents()).first()
-            xml_temp = xml_temp +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
-        xml = xml + xml_temp
+
+        def get_modules(xml_soup, xml_temp2):
+            module_list = xml_soup.find_all(['insert', 'query_insert'])
+            #print(xml_soup)
+            for m in module_list:
+                module = publicModel.query.filter_by(name=m.decode_contents()).first()
+                
+                xml_temp2 = xml_temp2 +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
+                xml_temp2 = get_modules(BeautifulSoup('<content>' + module.xml + '</content>', 'xml'), xml_temp2)
+            return xml_temp2
+        xml = xml + get_modules(soup, xml_temp)
     xml = xml + '</all>'
+    print(xml)
     return jsonify(xml)
 
 # Deletes selected templates from the store
