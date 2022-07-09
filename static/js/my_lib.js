@@ -98,14 +98,12 @@ function parseFindings(xml, modules, module_name, dont_parse_modules) {
                 case "h2":
                     el.label = xml[i].innerHTML.trim();
                     if (el.type == "h1") el.label = el.label.toUpperCase();
-                    if (el.label[el.label.length - 1] != ":") el.label += ": ";
+                    //if (el.label[el.label.length - 1] != ":") el.label += ": ";
                     else el.label += " ";
                     el.dont_print = (xml[i].getAttribute("dont_print") == "true") ? true : false;
                     el.print_space = (xml[i].getAttribute("print_space") == "true") ? true : false;
                     el.printContents = function() {
                         var print_text = "";
-                        console.log(this.label + " : " + this.print_space)
-
 
                         if (this.dont_print == false) {
                             if (this.type == "h1")

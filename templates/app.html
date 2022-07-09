@@ -79,7 +79,7 @@
         <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
             <p>The report has been copied to the clipboard!</p>
             <b-form-group>
-                <b-form-textarea rows="20" v-model="copyModal.text">
+                <b-form-textarea rows="20"  :value="copyModal.text" @change="copyModal.text = $event">
                 </b-form-textarea>
             </b-form-group>
         </b-modal>
@@ -489,7 +489,9 @@
                                     <h2 v-if="n.type == 'h1'">{{n.label}}</h2>
                                     <h3 v-if="n.type == 'h2'">{{n.label}}</h3>
                                     <!-- QUERY INSERT TYPE -->
-                                    <button class="el_border" v-if=" n.type=='query_insert'" @click="queryInsert(n)">Insert {{n.text}}</button>
+                                    <button class="el_border" v-if=" n.type=='query_insert' && !n.meta.id" @click="queryInsert(n)">Insert {{n.text}}</button>
+                                    <b-button variant="link" v-if=" n.type=='query_insert' && n.meta.id" @click="queryInsert(n)">Insert {{n.text}}</b-button>
+
                                     <!--  TEXT TYPE -->
                                     <label class="el_border" v-if=" n.type=='text'">{{n.text}}</label>
                                     <!-- FREE TEXT TYPE -->
