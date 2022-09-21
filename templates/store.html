@@ -306,6 +306,7 @@
                     })
                     .then(xml => {
                         console.log(xml)
+                        alert("Templates succesfully loaded in to your library");
 
                         var obj = this.update_templates(xml, this.templates, false);
                         updateUserDatabase(this.templates, this.templates.modules)
