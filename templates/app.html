@@ -34,6 +34,30 @@
                 </navbar-nav>
         </b-navbar>
         <p></p>
+        <b-modal id="help_modal" title="Help" ok-only>
+            <h3>What is this for?</h3>
+            <p>This site allows the use of easy to use radiology templates. Prewritten templates can be downloaded from the Template Store which can then be modified or templates can be written from scratch.</p>
+            <h3>I'm still confused. How do I use it?</h3>
+            <p>Select a template. Fill in the fields whilst you look at the study. </p>
+                            <b-img fluid-grow src="%% url_for('static', filename='img/template_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
+
+            <p>Click on "Show Report" and a textual report will be generated and copied to the clipboard. You can then modify if necessary and paste in to your PACS/RIS software. 
+
+            <b-img fluid-grow src="%% url_for('static', filename='img/report_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
+
+            <h3>Where do I get more templates?</h3>
+            <p>Go the the Template Store to download more templates. </p>
+
+            <h3>But I don't like the templates. They don't fit my style of reporting.</h3>
+            <p>Templates can be modified to fit your checklists and specific wording. You can then save them for use next time. </p>
+
+            <b-img fluid-grow src="%% url_for('static', filename='img/edit_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
+
+
+
+    
+        </b-modal>
+
         <b-modal id="position-insert-modal" title="Where?">
             <p>Would you like to insert at the beginning of template or below this component </p>
             <b-button @click="$bvModal.hide('position-insert-modal'); insertObject(object.type, 'above')">Beginning of template</b-button>
@@ -108,6 +132,8 @@
                         <b-button @click="save_prefs()" variant="warning" href="/store">Template store
                         </b-button>
                         <!--<b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Import neuroradiology template starter</b-button>-->
+                        <b-button v-b-modal.help_modal>Help
+                        </b-button>
                     </div>
                     <p></p>
                     <b-card no-body>
