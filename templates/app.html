@@ -36,28 +36,32 @@
         <p></p>
         <b-modal id="help_modal" title="Help" ok-only>
             <h3>What is this for?</h3>
-            <p>This site allows the use of easy to use radiology templates. Prewritten templates can be downloaded from the Template Store which can then be modified or templates can be written from scratch.</p>
+            <p>This site allows the use of templates for reporting radiological studies. Prewritten templates can be downloaded from the Template Store which can then be modified or templates can be written from scratch.</p>
             <h3>I'm still confused. How do I use it?</h3>
-            <p>Select a template. Fill in the fields whilst you look at the study. </p>
-                            <b-img fluid-grow src="%% url_for('static', filename='img/template_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
-
-            <p>Click on "Show Report" and a textual report will be generated and copied to the clipboard. You can then modify if necessary and paste in to your PACS/RIS software. 
-
-            <b-img fluid-grow src="%% url_for('static', filename='img/report_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
-
-            <h3>Where do I get more templates?</h3>
-            <p>Go the the Template Store to download more templates. </p>
-
-            <h3>But I don't like the templates. They don't fit my style of reporting.</h3>
-            <p>Templates can be modified to fit your checklists and specific wording. You can then save them for use next time. </p>
-
-            <b-img fluid-grow src="%% url_for('static', filename='img/edit_example.png')%%" img-alt="Card Image" text-variant="white" title="TemplateReporting" />
-
-
-
-    
+            <p>Select a template from below by clicking on it. This will open up a new page which displays the template for you to fill in. </p>
+            <p>When you have finished click on "Show Report" and a textual report will be generated and copied to the clipboard. You can then modify if necessary and paste in to your PACS/RIS software.</p>
+                <h3>Where do I get more templates?</h3>
+                <p>Go the the Template Store to download more templates. </p>
+                <h3>But I don't like the templates. They don't fit my style of reporting.</h3>
+                <p>Templates can be modified to fit your checklists and specific wording. You can then save them for use next time. </p>
+                <h3>I just want a blank template though.</h3>
+                <p>Sure, sounds good. Perhaps click on the Blank Template button. </p>
+                <h3>I want a template that does not exist yet.</h3>
+                <p>Choose a blank template or one that is similar to the one you want. Make any modifications you need and then click Save as New. </p>
         </b-modal>
+        <b-modal id="template_help_modal" title="Help" ok-only>
+            <h3>How do I use this?</h3>
+            <p>Fill in the entries below to report the radiological study. When you are done click the green Show Report button. The report will be generated and copied to your clipboard. You can </p>
+            <h3>But I need to add some more text.</h3>
+            <p>Click on the Edit button that appears next to your mouse cursor on the left and then click Insert Text.</p>
+            <h3>I want to change the prewritten template elements. </h3>
+            <p>Sure. Click on Edit and then Edit Element and then you can change the generated text and options. You can also insert new Components or Modules </p>
+            <h3>What is a Module?</h3>
+            <p>A Module is a group of components that are commonly reused. For example a collection of checklist items (e.g. acute infarct present/not present, acute haemorrhage present/not present. </p>
+            <h3>Can I save the changes to the template for use next time?</h3>
+            <p>Naturally. Click Template → Save Changes. You can also save it as a new template by clicking Template → Save as New </p>
 
+        </b-modal>
         <b-modal id="position-insert-modal" title="Where?">
             <p>Would you like to insert at the beginning of template or below this component </p>
             <b-button @click="$bvModal.hide('position-insert-modal'); insertObject(object.type, 'above')">Beginning of template</b-button>
@@ -103,7 +107,7 @@
         <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
             <p>The report has been copied to the clipboard!</p>
             <b-form-group>
-                <b-form-textarea rows="20"  :value="copyModal.text" @change="copyModal.text = $event">
+                <b-form-textarea rows="20" :value="copyModal.text" @change="copyModal.text = $event">
                 </b-form-textarea>
             </b-form-group>
         </b-modal>
@@ -132,7 +136,7 @@
                         <b-button @click="save_prefs()" variant="warning" href="/store">Template store
                         </b-button>
                         <!--<b-button @click="import_templates_from_server('neuro.xml'); $bvModal.hide('template-download')">Import neuroradiology template starter</b-button>-->
-                        <b-button v-b-modal.help_modal>Help
+                        <b-button v-b-modal.help_modal variant="info">Help
                         </b-button>
                     </div>
                     <p></p>
@@ -481,6 +485,7 @@
                                     <b-button variant="danger" @click="reset()">Close</b-button>
                                     <b-button variant="success" @click="copyReport()">Show Report</b-button>
                                     <b-button v-if="mode=='templates'" variant="warning" @click="clearTemplate()">Clear</b-button>
+                                    <b-button v-if="mode=='templates'" v-b-modal.template_help_modal variant="info">Help</b-button>
                                     <b-dropdown v-if="mode=='templates'" class="float-right" right text="Template">
                                         <b-dropdown-item @click="saveChanges()">Save changes</b-dropdown-item>
                                         <b-dropdown-item v-b-modal.save_as_new_modal>Save as new</b-dropdown-item>
@@ -517,7 +522,6 @@
                                     <!-- QUERY INSERT TYPE -->
                                     <button class="el_border" v-if=" n.type=='query_insert' && !n.meta.id" @click="queryInsert(n)">Insert {{n.text}}</button>
                                     <b-button variant="link" v-if=" n.type=='query_insert' && n.meta.id" @click="queryInsert(n)">Insert {{n.text}}</b-button>
-
                                     <!--  TEXT TYPE -->
                                     <label class="el_border" v-if=" n.type=='text'">{{n.text}}</label>
                                     <!-- FREE TEXT TYPE -->
