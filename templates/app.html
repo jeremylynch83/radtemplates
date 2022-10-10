@@ -40,14 +40,16 @@
             <h3>I'm still confused. How do I use it?</h3>
             <p>Select a template from below by clicking on it. This will open up a new page which displays the template for you to fill in. </p>
             <p>When you have finished click on "Show Report" and a textual report will be generated and copied to the clipboard. You can then modify if necessary and paste in to your PACS/RIS software.</p>
-                <h3>Where do I get more templates?</h3>
-                <p>Go the the Template Store to download more templates. </p>
-                <h3>But I don't like the templates. They don't fit my style of reporting.</h3>
-                <p>Templates can be modified to fit your checklists and specific wording. You can then save them for use next time. </p>
-                <h3>I just want a blank template though.</h3>
-                <p>Sure, sounds good. Perhaps click on the Blank Template button. </p>
-                <h3>I want a template that does not exist yet.</h3>
-                <p>Choose a blank template or one that is similar to the one you want. Make any modifications you need and then click Save as New. </p>
+            <h3>Where do I get more templates?</h3>
+            <p>Go the the Template Store to download more templates. </p>
+            <h3>But I don't like the templates. They don't fit my style of reporting.</h3>
+            <p>Templates can be modified to fit your checklists and specific wording. You can then save them for use next time. </p>
+            <h3>I just want a blank template though.</h3>
+            <p>Sure. Click on the Blank Template button. </p>
+            <h3>I want a template that does not exist yet.</h3>
+            <p>Choose a blank template or one that is similar to the one you want. Make any modifications you need and then click Save as New. </p>
+            <h3>But I still don't understand!!!</h3>
+            <p>Email me at: jeremy.lynch@gmail.com </p>
         </b-modal>
         <b-modal id="template_help_modal" title="Help" ok-only>
             <h3>How do I use this?</h3>
@@ -60,7 +62,6 @@
             <p>A Module is a group of components that are commonly reused. For example a collection of checklist items (e.g. acute infarct present/not present, acute haemorrhage present/not present. </p>
             <h3>Can I save the changes to the template for use next time?</h3>
             <p>Naturally. Click Template → Save Changes. You can also save it as a new template by clicking Template → Save as New </p>
-
         </b-modal>
         <b-modal id="position-insert-modal" title="Where?">
             <p>Would you like to insert at the beginning of template or below this component </p>
@@ -105,11 +106,15 @@
             </template>
         </b-modal>
         <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
-            <p>The report has been copied to the clipboard!</p>
+            <p>Time: {{timer.min}} min</p>
             <b-form-group>
                 <b-form-textarea rows="20" :value="copyModal.text" @change="copyModal.text = $event">
                 </b-form-textarea>
             </b-form-group>
+            <template #modal-footer="{ close }">
+                <b-button @click="clipboardReport()" variant="success">Copy report to clipboard</b-button>
+                <b-button @click="close()" variant="danger">Cancel</b-button>
+            </template>
         </b-modal>
         <b-modal :id="xmlModal.id" :title="xmlModal.title" ok-only>
             <b-form-group>
@@ -498,8 +503,9 @@
                                         <b-dropdown-item v-b-modal.delete_module>Delete</b-dropdown-item>
                                     </b-dropdown>
                                 </b-button-group>
-                                <div v-if="mode=='modules'" style="right: 0" id="template_name">Module: {{templateForm.name}}</div>
-                                <div v-if="mode=='templates'" style="right: 0" id="template_name">Template: {{templateForm.name}}</div>
+                                <b-button v-if="mode=='templates'" style="margin-right:10px" variant="outline-primary" id="timer">{{timer.min}} min</b-button>
+                                <div v-if="mode=='modules'" style="right: 0" id="template_name"><b>Module: {{templateForm.name}}<b></div>
+                                <div v-if="mode=='templates'" style="right: 0" id="template_name"><b>{{templateForm.name}}<b></div>
                             </b-navbar>
                         </template>
                         <template v-for=" n in templateForm">
@@ -656,6 +662,11 @@
             prefs: {},
             alert_message: "",
             alert_countdown: 0,
+            timer: {
+                id: 0,
+                sec: 0,
+                min: 0
+            },
             editModal: {
                 value: "null"
             },
@@ -966,6 +977,24 @@
                 return text;
             },
 
+
+
+            start_timer: function() {
+                this.timer.sec = 0;
+                this.timer.min = 0;
+                clearInterval(this.timer.id);
+
+                function count() {
+                    this.timer.sec++;
+                    if (this.timer.sec == 60) {
+                        this.timer.min++;
+                        this.timer.sec = 0;
+                    }
+                }
+
+                this.timer.id = setInterval(count.bind(this), 1000); // setTimeout delay time 100 milliseconds
+            },
+
             clearTemplate: function() {
                 var temp = this.templates.find(t => {
                     return t.name == this.templateForm.name
@@ -990,6 +1019,8 @@
                 this.index = "";
                 this.templateForm = [];
                 this.selected_n = null;
+
+
             },
 
             selectTemplate: function(event) {
@@ -997,6 +1028,7 @@
                 this.template = event;
                 this.writeTemplate();
                 window.scrollTo(0, 0);
+                this.start_timer();
             },
 
             selectModule: function(event) {
@@ -1201,7 +1233,15 @@
                 copyText = copyText.replace(/(\n){3,}/g, "\n\n"); // Remove triple or more newlines
                 if (this.prefs.signature) copyText += "\n\n" + this.prefs.signature
 
-                // Put in clipboard
+                // Display Modal
+                this.copyModal.text = copyText;
+                this.$root.$emit('bv::show::modal', this.copyModal.id);
+
+            },
+
+            clipboardReport: function() { // Put in clipboard
+                copyText = this.copyModal.text;
+                
                 const listener = function(ev) {
                     ev.preventDefault();
                     ev.clipboardData.setData('text/plain', copyText);
@@ -1209,11 +1249,6 @@
                 document.addEventListener('copy', listener);
                 document.execCommand('copy');
                 document.removeEventListener('copy', listener);
-
-                // Display Modal
-                this.copyModal.text = copyText;
-                this.$root.$emit('bv::show::modal', this.copyModal.id);
-
             },
 
             // Saves this module locally (and then calls to save on server)

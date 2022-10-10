@@ -169,6 +169,27 @@ def publish_template():
     db.session.commit()    
     return "success"
 
+# Add a group of templates to the template store
+@app.route('/bulk-publish-template', methods=['POST'])
+def bulk_publish_template():
+    req = request.get_json()
+    templates = req["templates"]
+    modules = req["modules"]
+
+    for template in templates:
+        public = publicModel(id = unique_id(), name=template["name"], modality = template["modality"], region = template["region"], specialty = template["specialty"], type_of = publicModel.TEMPLATE_TYPE, owner = current_user.get_username(), meta = "meta", xml =template["xml"])
+        if publicModel.query.filter_by(name = template["name"]).first() == None:
+            db.session.add(public)
+
+    for n in modules:
+        if publicModel.query.filter_by(name = n["name"]).first() == None:
+            module = publicModel(id = unique_id(), name=n["name"], modality = "NA", region = "NA", specialty = "NA", type_of = publicModel.MODULE_TYPE, owner = current_user.get_username(), meta = "meta", xml =n["xml"])
+            db.session.add(module)
+
+    db.session.commit()    
+    return "success"
+
+
 # Get list of all templates on store
 @app.route('/store-list', methods=['GET'])
 def store_list():
@@ -218,16 +239,14 @@ def store_get_templates():
 
         def get_modules(xml_soup, xml_temp2):
             module_list = xml_soup.find_all(['insert', 'query_insert'])
-            #print(xml_soup)
             for m in module_list:
                 module = publicModel.query.filter_by(name=m.decode_contents()).first()
-                
-                xml_temp2 = xml_temp2 +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
-                xml_temp2 = get_modules(BeautifulSoup('<content>' + module.xml + '</content>', 'xml'), xml_temp2)
+                if module != None:        
+                    xml_temp2 = xml_temp2 +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
+                    xml_temp2 = get_modules(BeautifulSoup('<content>' + module.xml + '</content>', 'xml'), xml_temp2)
             return xml_temp2
         xml = xml + get_modules(soup, xml_temp)
     xml = xml + '</all>'
-    print(xml)
     return jsonify(xml)
 
 # Deletes selected templates from the store
