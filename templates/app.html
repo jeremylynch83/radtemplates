@@ -53,7 +53,7 @@
         </b-modal>
         <b-modal id="template_help_modal" title="Help" ok-only>
             <h3>How do I use this?</h3>
-            <p>Fill in the entries below to report the radiological study. When you are done click the green Show Report button. The report will be generated and copied to your clipboard. You can </p>
+            <p>Fill in the entries below to report the radiological study. When you are done click the green Show Report button. The report will be generated and displayed to you for you to review and edit if necessary. Click "Copy report to clipboard" if you are satisfied. When you are done click "Finish and clear for next" to start a new report.  </p>
             <h3>But I need to add some more text.</h3>
             <p>Click on the Edit button that appears next to your mouse cursor on the left and then click Insert Text.</p>
             <h3>I want to change the prewritten template elements. </h3>
@@ -113,7 +113,7 @@
             </b-form-group>
             <template #modal-footer="{ close }">
                 <b-button @click="clipboardReport()" variant="success">Copy report to clipboard</b-button>
-                <b-button @click="prefs.report_count_today++; clipboardReport(); clearTemplate(); close(); save_prefs()" variant="info">Finish and clear for next</b-button>
+                <b-button @click="prefs.report_count_today++; clearTemplate(); close(); clearClipboard(); save_prefs()" variant="info">Finish and clear for next</b-button>
                 <b-button @click="close()" variant="danger">Cancel</b-button>
             </template>
         </b-modal>
@@ -1258,6 +1258,17 @@
                 document.addEventListener('copy', listener);
                 document.execCommand('copy');
                 document.removeEventListener('copy', listener);
+            },
+
+            clearClipboard: function() {
+                const listener = function(ev) {
+                    ev.preventDefault();
+                    ev.clipboardData.setData('text/plain', "");
+                };
+                document.addEventListener('copy', listener);
+                document.execCommand('copy');
+                document.removeEventListener('copy', listener);
+
             },
 
             // Saves this module locally (and then calls to save on server)
