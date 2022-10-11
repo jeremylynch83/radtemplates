@@ -113,7 +113,7 @@
             </b-form-group>
             <template #modal-footer="{ close }">
                 <b-button @click="clipboardReport()" variant="success">Copy report to clipboard</b-button>
-                <b-button @click="report_count.daily++; clipboardReport(); clearTemplate(); close();" variant="info">Finish and clear for next</b-button>
+                <b-button @click="prefs.report_count_today++; clipboardReport(); clearTemplate(); close(); save_prefs()" variant="info">Finish and clear for next</b-button>
                 <b-button @click="close()" variant="danger">Cancel</b-button>
             </template>
         </b-modal>
@@ -509,7 +509,7 @@
                             </b-navbar>
                         </template>
                         <b-button v-if="mode=='templates'" style="margin-right:10px" variant="outline-primary" id="timer">Time in report: {{timer.min}} min</b-button>
-                        <b-button v-if="mode=='templates'" style="margin-right:10px" variant="outline-primary" id="timer">Reports since login: {{report_count.daily}}</b-button>
+                        <b-button v-if="mode=='templates'" style="margin-right:10px" variant="outline-primary" id="timer">Reports today: {{prefs.report_count_today}}</b-button>
                         <template v-for=" n in templateForm">
 
                             <div class="row">
@@ -668,10 +668,9 @@
             timer: { // Times how long each report is taking
                 id: 0,
                 sec: 0,
-                min: 0
-            },
-            report_count: { // How many reports have been completed today
-                daily: 0
+                min: 0,
+                report_count:0,
+                last_logged_in:0
             },
             editModal: {
                 value: "null"
@@ -726,6 +725,10 @@
                     this.user_name = xml.username;
                     this.logged_in = true;
                     this.prefs = JSON.parse(xml.prefs) ? JSON.parse(xml.prefs) : {}
+                    var todays_date = (new Date()).toDateString();
+                    if (typeof this.prefs.last_logged_in === 'undefined') this.prefs.last_logged_in = todays_date;
+                    if (typeof this.prefs.report_count_today === 'undefined' || this.prefs.last_logged_in != todays_date) this.prefs.report_count_today = 0;
+
                     var obj = this.update_templates(xml.templates_modules, this.templates);
                 })
                 .catch(function(error) {
