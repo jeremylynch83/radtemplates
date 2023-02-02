@@ -114,7 +114,7 @@
             </b-form-group>
             <template #modal-footer="{ close }">
                 <b-button @click="clipboardReport()" variant="success">Copy report to clipboard</b-button>
-                <b-button @click="prefs.report_count_today++; clearTemplate(); close(); clearClipboard(); save_prefs()" variant="info">Finish and clear for next</b-button>
+                <b-button @click="prefs.report_count_today++; clearTemplate(); close(); save_prefs()" variant="info">Finish and clear for next</b-button>
                 <b-button @click="close()" variant="danger">Cancel</b-button>
             </template>
         </b-modal>
