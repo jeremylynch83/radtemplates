@@ -297,5 +297,15 @@ def store():
 def user():
     return render_template('user.html', title='radiologytemplates.org')
 
+def read_news_content():
+    with open("news.html", "r") as file:
+        return file.read()
+
+@app.route('/newsletter', methods = ['POST', 'GET'])
+def newsletter():
+    news_content = read_news_content()
+
+    return render_template('newsletter.html', title='Newsletter', news_content=news_content)
+
 if __name__ == '__main__':
     app.run()
