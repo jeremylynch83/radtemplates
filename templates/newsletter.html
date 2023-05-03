@@ -4,21 +4,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Page</title>
+    <title>INR Newsletter</title>
+    <!-- Add Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl7/1L_dstPt3HV5HzF6HVz6d1/6QgicK9H3k7/7n3" crossorigin="anonymous">
+    <!-- Add custom CSS -->
     <style>
         body {
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
             line-height: 1.6;
+            background-color: #f8f9fa;
         }
-        
+
+        header {
+            background-color: #007bff;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 5px solid #0056b3;
+        }
+
+        header h1 {
+            color: #fff;
+            text-align: center;
+        }
+
         .container {
             width: 80%;
             margin: auto;
             padding: 1rem;
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
         }
-        
+
         @media screen and (max-width: 768px) {
             .container {
                 width: 95%;
@@ -28,9 +47,15 @@
 </head>
 
 <body>
+    <header>
+        <h1>INR Newsletter</h1>
+    </header>
     <div class="container">
         %% news_content|safe %%
     </div>
+    <!-- Add Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.5/dist/umd/popper.min.js" integrity="sha384-xs1lxBFuh87HUDM-Hhe/7X8V/un2jB5kE2jKo9b8q3/2Nt16xlYtvzj/1AzCusz8" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
 </body>
 
 </html>
