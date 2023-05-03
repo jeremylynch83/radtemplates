@@ -21,6 +21,7 @@ class CustomFlask(Flask):
 app = CustomFlask(__name__, static_folder='static')
 secret = secrets.token_urlsafe(32)
 app.secret_key = secret
+first_request = True
 
 
 ########################
@@ -34,9 +35,12 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 # Create the database file before the first user request itself
-@app.before_first_request
+@app.before_request
 def create_table():
-    db.create_all()
+    global first_request
+    if first_request:
+        first_request = False
+        db.create_all()
 
 # Generate a unique ID for templates/modules in database
 def unique_id():
@@ -304,8 +308,7 @@ def read_news_content():
 @app.route('/newsletter', methods = ['POST', 'GET'])
 def newsletter():
     news_content = read_news_content()
-
-    return render_template('newsletter.html', title='Newsletter', news_content=news_content)
+    return news_content
 
 if __name__ == '__main__':
     app.run()
