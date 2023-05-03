@@ -307,8 +307,10 @@ def read_news_content():
 
 @app.route('/newsletter', methods = ['POST', 'GET'])
 def newsletter():
-    news_content = read_news_content()
-    return news_content
+    #news_content = read_news_content()
+    #return news_content
+    return render_template('newsletter.html', title='Newsletter')
+
 
 if __name__ == '__main__':
     app.run()
