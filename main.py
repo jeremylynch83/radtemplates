@@ -302,14 +302,18 @@ def user():
     return render_template('user.html', title='radiologytemplates.org')
 
 def read_news_content():
-    with open("news.html", "r") as file:
-        return file.read()
+    data_folder = os.path.join(app.root_path, 'data')
+    news_content = ""
+    with open(os.path.join(data_folder, 'news.html'), 'r') as file:
+        news_content = file.read()
+    return news_content
+
 
 @app.route('/newsletter', methods = ['POST', 'GET'])
 def newsletter():
-    #news_content = read_news_content()
-    #return news_content
-    return render_template('newsletter.html', title='Newsletter')
+    news_content = read_news_content()
+    return news_content
+    #return render_template('newsletter.html', title='Newsletter')
 
 
 if __name__ == '__main__':
