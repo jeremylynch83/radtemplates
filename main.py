@@ -4,8 +4,10 @@ from models import db, userModel, publicModel, login
 import requests
 import os
 import secrets
+import smtplib
 from werkzeug.utils import secure_filename
 from bs4 import BeautifulSoup
+from flask_cors import CORS
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -19,6 +21,7 @@ class CustomFlask(Flask):
     ))
 
 app = CustomFlask(__name__, static_folder='static')
+CORS(app)
 secret = secrets.token_urlsafe(32)
 app.secret_key = secret
 first_request = True
@@ -308,6 +311,39 @@ def read_news_content():
         news_content = file.read()
     return news_content
 
+
+def send_email_logic(name, telephone, email, hear_about):
+    sender_email = "your-email@example.com"
+    receiver_email = "receiver@example.com"
+    password = "your-password"
+
+    message = f"""
+    Subject: New Appointment Booking
+
+    Name: {name}
+    Telephone: {telephone}
+    Email: {email}
+    Heard About: {hear_about}
+    """
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(sender_email, password)
+    server.sendmail(sender_email, receiver_email, message)
+    server.quit()
+
+@app.route('/send_email', methods=['POST'])
+def send_email():
+    data = request.form
+    name = data.get('name')
+    telephone = data.get('telephone')
+    email = data.get('email')
+    hear_about = data.get('hear_about')
+
+    # Here, the send_email_logic function is called with the form data
+    send_email_logic(name, telephone, email, hear_about)
+
+    return 'Email sent successfully', 200
 
 @app.route('/newsletter', methods = ['POST', 'GET'])
 def newsletter():
