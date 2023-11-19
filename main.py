@@ -8,6 +8,57 @@ import smtplib
 from werkzeug.utils import secure_filename
 from bs4 import BeautifulSoup
 from flask_cors import CORS
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from googleapiclient.discovery import build
+
+from google_auth_oauthlib.flow import Flow
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+
+def get_credentials():
+    creds = None
+    # The file token.json stores the user's access and refresh tokens.
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json')
+
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            # The file client_secret.json should be in your working directory.
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'client_secret.json',
+                scopes=['https://www.googleapis.com/auth/gmail.send'],
+                redirect_uri='https://www.radiologytemplates.org/oauth2callback')
+
+            # This will prompt the authorization URL in your browser
+            creds = flow.run_local_server(port=0)
+
+            # Save the credentials for the next run
+            with open('token.json', 'w') as token:
+                token.write(creds.to_json())
+    return creds
+
+
+from googleapiclient.discovery import build
+from email.mime.text import MIMEText
+import base64
+
+def send_email_with_gmail_api(credentials, recipient, subject, body):
+    service = build('gmail', 'v1', credentials=credentials)
+    message = MIMEText(body)
+    message['to'] = recipient
+    message['subject'] = subject
+    raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode('utf-8')
+    message_body = {'raw': raw_message}
+    service.users().messages().send(userId='me', body=message_body).execute()
+
+    
+    
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -312,25 +363,9 @@ def read_news_content():
     return news_content
 
 
-def send_email_logic(name, telephone, email, hear_about):
-    sender_email = "your-email@example.com"
-    receiver_email = "receiver@example.com"
-    password = "your-password"
 
-    message = f"""
-    Subject: New Appointment Booking
 
-    Name: {name}
-    Telephone: {telephone}
-    Email: {email}
-    Heard About: {hear_about}
-    """
 
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(sender_email, password)
-    server.sendmail(sender_email, receiver_email, message)
-    server.quit()
 
 @app.route('/send_email', methods=['POST'])
 def send_email():
@@ -340,10 +375,18 @@ def send_email():
     email = data.get('email')
     hear_about = data.get('hear_about')
 
-    # Here, the send_email_logic function is called with the form data
-    send_email_logic(name, telephone, email, hear_about)
+    # Obtain OAuth 2.0 credentials
+    credentials = get_credentials()
+
+    # Format the email content
+    subject = "New Appointment Booking"
+    body = f"Name: {name}\nTelephone: {telephone}\nEmail: {email}\nHeard About: {hear_about}"
+
+    # Send email using the Gmail API
+    send_email_with_gmail_api(credentials, 'jeremy.lynch@gmail.com', subject, body)
 
     return 'Email sent successfully', 200
+
 
 @app.route('/newsletter', methods = ['POST', 'GET'])
 def newsletter():
