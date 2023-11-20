@@ -325,7 +325,7 @@ def read_news_content():
 
 
 
-@app.route('/send_email', methods=['POST'])
+@app.route('/send_email_ali', methods=['POST'])
 def send_email():
     data = request.form
   
@@ -337,7 +337,7 @@ def send_email():
 
     message = Mail(
         from_email='jeremy.lynch@gmail.com',
-        to_emails='jeremy.lynch@gmail.com',
+        to_emails='cousinsali500@gmail.com',
         subject='New Appointment Booking',
         plain_text_content=body)
     try:
