@@ -12,7 +12,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
-from werkzeug.datastructures import ImmutableMultiDict
 
 # https://app.sendgrid.com/guide
 
