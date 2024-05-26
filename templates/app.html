@@ -48,7 +48,7 @@
             <p>Sure. Click on the Blank Template button. </p>
             <h3>I want a template that does not exist yet.</h3>
             <p>Choose a blank template or one that is similar to the one you want. Make any modifications you need and then click Save as New. </p>
-            
+
             <h3>But I still don't understand!!!</h3>
             <p>Email me at: jeremy.lynch@gmail.com </p>
         </b-modal>
@@ -522,6 +522,8 @@
                                             <b-dropdown-item @click="selectElement(n); insertObject('component')">Insert Component</b-dropdown-item>
                                             <b-dropdown-item v-if="mode=='templates'" @click="selectElement(n); insertObject('module')">Insert Module</b-dropdown-item>
                                             <b-dropdown-item v-b-modal.edit_modal @click="setupEdit(n)">Edit Element</b-dropdown-item>
+                                            <b-dropdown-item @click="moveElement(n, 'up')">Move up</b-dropdown-item>
+                                            <b-dropdown-item  @click="moveElement(n, 'down')">Move down</b-dropdown-item>
                                         </b-dropdown>
                                     </div>
                                 </div>
@@ -1232,6 +1234,27 @@
                 this.editModal.value = JSON.stringify(this.templateForm[this.n_from_element(this.selected_n)]);
 
             },
+            moveElement(element, direction) {
+                this.selectElement(element);
+                var index = this.n_from_element(this.selected_n);
+                console.log(index);
+
+                if (direction === 'up' && index > 0) {
+                    // Move the element up
+                    const temp = this.templateForm[index - 1];
+                    this.$set(this.templateForm, index - 1, this.templateForm[index]);
+                    this.$set(this.templateForm, index, temp);
+                    // Update the selection to the new position
+                    this.selectElement(this.templateForm[index - 1]);
+                } else if (direction === 'down' && index < this.templateForm.length - 1) {
+                    // Move the element down
+                    const temp = this.templateForm[index + 1];
+                    this.$set(this.templateForm, index + 1, this.templateForm[index]);
+                    this.$set(this.templateForm, index, temp);
+                    // Update the selection to the new position
+                    this.selectElement(this.templateForm[index + 1]);
+                }
+            },
             copyReport: function() {
 
                 var copyText = "";
@@ -1279,7 +1302,7 @@
                     return;
                 }
 
-                // First I turn the gui elements to xml and then back again to blank the entries. 
+                // First I turn the gui elements to xml and then back again to blank the entries.
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = this.templateForm;
 
@@ -1303,7 +1326,7 @@
                     this.templates.modules.push(new_element);
                 }
 
-                // Save to server                   
+                // Save to server
                 updateUserDatabase(this.templates, this.templates.modules);
 
                 this.showAlert("Saved successfully");
@@ -1311,7 +1334,7 @@
 
             // Saves this template locally (and then calls to save on server)
             exportXML_templates: function(publish_to_store = false) {
-                // I turn the gui elements to xml and then back again to blank the entries. 
+                // I turn the gui elements to xml and then back again to blank the entries.
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
 
@@ -1392,7 +1415,7 @@
                 }
                 var xml = (new XMLSerializer()).serializeToString(template);
 
-                // Search in the user_templates and replace if exists. If not then append. 
+                // Search in the user_templates and replace if exists. If not then append.
                 var exists_in_user_templates = null;
                 for (var n = 0; n < this.templates.length; n++) {
                     if (this.templates[n].name == this.templateForm.name) {
@@ -1422,7 +1445,7 @@
 
                 find_modules(xml_template, this.templates.modules, modules_list);
 
-                // Convert template into format that server can read 
+                // Convert template into format that server can read
                 template.xml = (new XMLSerializer()).serializeToString(template.xml);
                 var json = {
                     template: template,
@@ -1573,7 +1596,7 @@
                 var list = null;
                 if (this.mode == 'templates') list = this.templates;
                 else list = this.templates.modules;
-                // Search if name already 
+                // Search if name already
                 if (-1 != list.findIndex(n => {
                         return (n.name.trim() == this.save_as_new_modal.new_name.trim())
                     })) {
