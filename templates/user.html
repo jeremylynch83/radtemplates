@@ -73,6 +73,17 @@
                 </div>
             </b-card>
             <p></p>
+            <b-card no-body header="AI Review">
+                <div style="padding:15px">
+                    <p>The prompt to be sent for the AI: </p>
+                    <b-form-textarea id="prompt_text" v-model="prefs.ai_prompt" rows="2"></b-form-textarea>
+                    <p></p>
+                    <b-form-group>
+                        <b-button variant="success" @click="save_prefs()">Submit</b-button>
+                    </b-form-group>
+                </div>
+            </b-card>
+            <p></p>
             <b-card no-body header="Options">
                 <div style="padding:15px">
                     <b-form-group>
@@ -229,7 +240,7 @@
                                 this.p_modalities = [];
                                 this.p_specialties = [];
                                 this.p_regions = [];
-            
+
                                 this.public_templates.forEach(t => {
                                     if (t.modality != null && t.modality != "" && t.type == 0) {
                                         if (!this.p_modalities.find(n => {
@@ -242,7 +253,7 @@
                                                 return n == t.region;
                                             })) this.p_regions.push(t.region);
                                     }
-            
+
                                 });*/
 
                         })
@@ -397,7 +408,7 @@
                 var xml_template = template.xml.childNodes;
                 find_modules(xml_template, this.templates.modules, modules_list);
 
-                // Convert template into format that server can read 
+                // Convert template into format that server can read
                 template.xml = (new XMLSerializer()).serializeToString(template.xml);
                 var json = {
                     template: template,
@@ -435,7 +446,7 @@
                 alert("All templates will be published to the store!");
 
                 template_list = _.cloneDeep(this.templates);
-                
+
                 modules_list = []; // Get list of modules called by template
                 for (var n = 0; n < template_list.length; n++) {
                     var temp_modules = [];
@@ -445,7 +456,7 @@
                 }
                 modules_list = [...new Map(modules_list.map((m) => [m.name, m])).values()];
 
-                for (var n = 0; n < template_list.length; n++) { // Convert templates into format that server can read 
+                for (var n = 0; n < template_list.length; n++) { // Convert templates into format that server can read
                     template_list[n].xml = (new XMLSerializer()).serializeToString(template_list[n].xml);
                 }
                 var json = {
@@ -948,7 +959,7 @@
                     return;
                 }
 
-                // First I turn the gui elements to xml and then back again to blank the entries. 
+                // First I turn the gui elements to xml and then back again to blank the entries.
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = this.templateForm;
 
@@ -972,13 +983,13 @@
                     this.templates.modules.push(new_element);
                 }
 
-                // Save to server                   
+                // Save to server
                 updateUserDatabase(this.templates, this.templates.modules);
             },
 
             // Saves this template locally (and then calls to save on server)
             exportXML_templates: function() {
-                // I turn the gui elements to xml and then back again to blank the entries. 
+                // I turn the gui elements to xml and then back again to blank the entries.
                 var xml_doc = document.implementation.createDocument("", "", null);
                 var template_gui = _.cloneDeep(this.templateForm);
 
@@ -1059,7 +1070,7 @@
                 }
                 var xml = (new XMLSerializer()).serializeToString(template);
 
-                // Search in the user_templates and replace if exists. If not then append. 
+                // Search in the user_templates and replace if exists. If not then append.
                 var exists_in_user_templates = null;
                 for (var n = 0; n < this.templates.length; n++) {
                     if (this.templates[n].name == this.templateForm.name) {
@@ -1178,7 +1189,7 @@
                 var list = null;
                 if (this.mode == 'templates') list = this.templates;
                 else list = this.templates.modules;
-                // Search if name already 
+                // Search if name already
                 if (-1 != list.findIndex(n => {
                         return (n.name.trim() == this.save_as_new_modal.new_name.trim())
                     })) {

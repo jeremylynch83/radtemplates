@@ -732,6 +732,7 @@
                     var todays_date = (new Date()).toDateString();
                     if (typeof this.prefs.last_logged_in === 'undefined') this.prefs.last_logged_in = todays_date;
                     if (typeof this.prefs.report_count_today === 'undefined' || this.prefs.last_logged_in != todays_date) this.prefs.report_count_today = 0;
+                    if (typeof this.prefs.ai_prompt === 'undefined') this.prefs.ai_prompt = "Improve the grammar/spelling, changing as little as possible (e.g. keep the headings). You may combine sentences if this improves readability but keep significant or acute findings separate. If there is no conclusion, you can generate that and insert after CONCLUSION. Always write in full sentences. Text follows: ";
 
                     var obj = this.update_templates(xml.templates_modules, this.templates);
                 })
@@ -1296,7 +1297,7 @@
             },
             AIReview: function() {
               report = {}
-              prompt = "Improve the grammar/spelling, changing as little as possible (e.g. keep the headings). You may combine sentences if this improves readability but keep significant or acute findings separate. If there is no conclusion, you can generate that and insert after CONCLUSION. Always write in full sentences. Text follows: "
+              prompt = this.prefs.ai_prompt
               report.text = prompt + this.copyModal.text;
 
               fetch(`${window.origin}/AIReview`, {
