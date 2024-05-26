@@ -12,11 +12,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import openai
+from openai.error import APIError, RateLimitError
 
 # https://app.sendgrid.com/guide
 
-    
-    
 
 class CustomFlask(Flask):
     jinja_options = Flask.jinja_options.copy()
@@ -40,6 +40,36 @@ first_request = True
 # Setup login         ##
 ########################
 
+def load_openai_key():
+    # Define the path to the file in the home directory
+    home_dir = os.path.expanduser('~')
+    key_file_path = os.path.join(home_dir, 'openai.key')
+
+    # Read the content of the file
+    with open(key_file_path, 'r') as file:
+        openai_key = file.read().strip()
+
+    return openai_key
+
+openai.api_key = load_openai_key()
+
+def gpt(prompt, max_retries=5, retry_delay=5):
+    for attempt in range(max_retries):
+        try:
+            completion = openai.ChatCompletion.create(
+                model='gpt-3.5-turbo',
+                messages=[{'role': 'user', 'content': prompt}],
+                temperature=0,
+            )
+            text = completion['choices'][0]['message']['content'].strip()
+            return text
+        except Exception as e:  # Use a more generic exception or import specific exceptions
+            print(f"Server error encountered. Retrying in {retry_delay} seconds... (Attempt {attempt + 1}/{max_retries})")
+            time.sleep(retry_delay)
+            continue
+    print("Cannot process. skipping to next")
+    return "Error"
+
 
 # Link our user SQLite database with SQLALchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user_templates.db'
@@ -60,9 +90,9 @@ def unique_id():
     while publicModel.query.filter_by(id = new_id).first() != None:
         new_id = new_id + 1
     return new_id
-        
 
-# Link the login instance to our app 
+
+# Link the login instance to our app
 login.init_app(app)
 login.login_view = 'login'
 
@@ -77,7 +107,7 @@ def login():
                 "prefs": current_user.get_prefs()
             }
             return jsonify(data)
-     
+
     if request.method == 'POST':
         req = request.get_json()
         email = req["user_email"]
@@ -88,7 +118,7 @@ def login():
 
         if user is None or not user.check_password(req['user_password']):
             return "failure", 400
-    
+
 
 @app.route('/check-login', methods=['GET'])
 def check_login():
@@ -122,7 +152,7 @@ def register():
 
     if current_user.is_authenticated:
         return redirect('/')
-     
+
     if request.method == 'POST':
         email = req["user_email"]
         username = req["user_name"]
@@ -182,7 +212,7 @@ def publish_template():
             module = publicModel(id = unique_id(), name=n["name"], modality = "NA", region = "NA", specialty = "NA", type_of = publicModel.MODULE_TYPE, owner = current_user.get_username(), meta = "meta", xml =n["xml"])
             db.session.add(module)
 
-    db.session.commit()    
+    db.session.commit()
     return "success"
 
 # Add a group of templates to the template store
@@ -202,7 +232,7 @@ def bulk_publish_template():
             module = publicModel(id = unique_id(), name=n["name"], modality = "NA", region = "NA", specialty = "NA", type_of = publicModel.MODULE_TYPE, owner = current_user.get_username(), meta = "meta", xml =n["xml"])
             db.session.add(module)
 
-    db.session.commit()    
+    db.session.commit()
     return "success"
 
 
@@ -217,7 +247,7 @@ def store_list():
             "id": n.id,
             "type": n.type_of,
             "region": n.region,
-            "specialty": n.specialty, 
+            "specialty": n.specialty,
             "modality": n.modality
         }
         t.append(item)
@@ -235,7 +265,7 @@ def store_user_list():
                 "id": n.id,
                 "type": n.type_of,
                 "region": n.region,
-                "specialty": n.specialty, 
+                "specialty": n.specialty,
                 "modality": n.modality
             }
             t.append(item)
@@ -257,7 +287,7 @@ def store_get_templates():
             module_list = xml_soup.find_all(['insert', 'query_insert'])
             for m in module_list:
                 module = publicModel.query.filter_by(name=m.decode_contents()).first()
-                if module != None:        
+                if module != None:
                     xml_temp2 = xml_temp2 +"<module><name>" + module.name + '</name><content>' + module.xml + '</content></module>'
                     xml_temp2 = get_modules(BeautifulSoup('<content>' + module.xml + '</content>', 'xml'), xml_temp2)
             return xml_temp2
@@ -313,6 +343,16 @@ def store():
 def user():
     return render_template('user.html', title='radiologytemplates.org')
 
+@app.route('/AIReview', methods=['POST', 'GET'])
+def aireview():
+    req = request.get_json();
+    text = gpt(req["text"])
+    print(text)
+    data = {
+                "reviewed": text,
+            }
+    return jsonify(data)
+
 def read_news_content():
     data_folder = os.path.join(app.root_path, 'data')
     news_content = ""
@@ -320,15 +360,10 @@ def read_news_content():
         news_content = file.read()
     return news_content
 
-
-
-
-
-
 @app.route('/send_email_ali', methods=['POST'])
 def send_email():
     data = request.form
-  
+
     name = data.get('contact-name')
     telephone = data.get('contact-tel')
     email = data.get('contact-email')

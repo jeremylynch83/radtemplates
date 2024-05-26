@@ -113,8 +113,9 @@
                 </b-form-textarea>
             </b-form-group>
             <template #modal-footer="{ close }">
-                <b-button @click="clipboardReport()" variant="success">Copy report to clipboard</b-button>
-                <b-button @click="prefs.report_count_today++; clearTemplate(); close(); save_prefs()" variant="info">Finish and clear for next</b-button>
+                <b-button @click="AIReview()" variant="success">AI review</b-button>
+                <b-button @click="clipboardReport()" variant="success">Copy to clipboard</b-button>
+                <b-button @click="prefs.report_count_today++; clearTemplate(); close(); save_prefs()" variant="info">Finish and clear</b-button>
                 <b-button @click="close()" variant="danger">Cancel</b-button>
             </template>
         </b-modal>
@@ -1237,7 +1238,6 @@
             moveElement(element, direction) {
                 this.selectElement(element);
                 var index = this.n_from_element(this.selected_n);
-                console.log(index);
 
                 if (direction === 'up' && index > 0) {
                     // Move the element up
@@ -1292,6 +1292,42 @@
                 document.addEventListener('copy', listener);
                 document.execCommand('copy');
                 document.removeEventListener('copy', listener);
+
+            },
+            AIReview: function() {
+              report = {}
+              prompt = "Improve the grammar/spelling, changing as little as possible (e.g. keep the headings). You may combine sentences if this improves readability but keep significant or acute findings separate. If there is no conclusion, you can generate that and insert after CONCLUSION. Always write in full sentences. Text follows: "
+              report.text = prompt + this.copyModal.text;
+
+              fetch(`${window.origin}/AIReview`, {
+                      method: "POST",
+                      credentials: "include",
+                      body: JSON.stringify(report),
+                      cache: "no-cache",
+                      headers: new Headers({
+                          "content-type": "application/json"
+                      })
+                  })
+                  .then(response => {
+                      if (response.ok) {
+
+                      }
+                      if (response.status !== 200) {
+                          alert("Failure " + response.status)
+                          return;
+                      }
+                      return response.json()
+                  })
+                  .then(json => {
+                    this.copyModal.text = json.reviewed
+
+                  })
+                  .catch(error => {
+                      alert("Sorry I could not obtain that one. This is an experimental feature still being worked on...");
+                      this.$root.$emit('bv::hide::modal', 'template-download');
+                      this.importing = false;
+                  });
+
 
             },
 
