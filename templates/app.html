@@ -19,7 +19,7 @@
 <body>
     <div id="app">
         <b-navbar type="dark" variant="info" class="shadow p-3 mb-5">
-            <b-navbar-brand href="#"><img src="%% url_for('static', filename='img/icon.svg')%%" height="15px" class="d-inline-block " alt="Kitten"></img>
+            <b-navbar-brand href="#"><img src="%% url_for('static', filename='img/icon.svg')%%" height="15px" class="d-inline-block " alt="Kitten"/>
                 radiologytemplates.org</b-navbar-brand>
             <b-navbar-nav>
                 <b-nav-item-dropdown v-if="logged_in" :text="user_name" right>
@@ -31,7 +31,7 @@
                     </b-dropdown-item>
                     <b-dropdown-item @click="save_prefs(); logout()">Log out</b-dropdown-item>
                 </b-nav-item-dropdown>
-                </navbar-nav>
+            </b-navbar-nav>
         </b-navbar>
         <p></p>
         <b-modal id="help_modal" title="Help" ok-only>
@@ -107,14 +107,38 @@
             </template>
         </b-modal>
         <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
-            <p>Time: {{timer.min}} min</p>
+            <p class="small">Time: {{timer.min}} min</p>
+            <b-card no-body>
+
+            <b-tabs ref="copyTabs" v-model="prefs.copytab"  card>
+              <b-tab title="Original">
+                <b-form-group>
+                  <b-form-textarea rows="12" :value="copyModal.text" @change="copyModal.text = $event; copyModal.text_changed=true"></b-form-textarea>
+                </b-form-group>
+              </b-tab>
+              <b-tab title="AI edited" @click="if(copyModal.text_changed) {AIReview();copyModal.text_changed = false}">
+                <b-form-group>
+                  <b-form-textarea rows="15" :value="copyModal.ai_text" @change="copyModal.ai_text = $event" placeholder="Generating report using AI..."></b-form-textarea>
+                </b-form-group>
+                <div v-if="prefs.copytab === 1">
+                  <b-form-checkbox v-model="prefs.generate_conclusion" @change="AIReview(); save_prefs()">Generate automatic conclusion</b-form-checkbox>
+                </div>
+              </b-tab>
+            </b-tabs>
+            </b-card>
+            <p></p>
             <b-form-group>
-                <b-form-textarea rows="20" :value="copyModal.text" @change="copyModal.text = $event">
-                </b-form-textarea>
+                <b-form-checkbox v-model="prefs.include_signature" @click="save_prefs()">Add signature</b-form-checkbox>
+                <b-form-input
+                  v-if="prefs.include_signature"
+                  :value="prefs.signature"
+                  @change="prefs.signature = $event; save_prefs()"
+                  placeholder="Enter your signature"
+                ></b-form-input>
             </b-form-group>
             <template #modal-footer="{ close }">
-                <b-button @click="AIReview()" variant="success">{{ AIButtonText }}</b-button>
-                <b-button @click="clipboardReport()" variant="success">{{ copyButtonText }}</b-button>
+                <!-- <b-button @click="AIReview()" variant="success">{{ AIButtonText }}</b-button> -->
+                <b-button @click="clipboardReport();" variant="success">{{ copyButtonText }}</b-button>
                 <b-button @click="prefs.report_count_today++; clearTemplate(); close(); save_prefs()" variant="info">Finish and clear</b-button>
                 <b-button @click="close()" variant="danger">Cancel</b-button>
             </template>
@@ -359,7 +383,7 @@
                             <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'label': 'Enter label', 'text':'', 'type':'dropdown', 'options': [{'text': '', 'value':''}, {'text': 'Other', 'value':'Other'}]})">Insert selection</b-button>
                             <b-button variant="success" @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'text':'', 'type':'free_text', 'text':''})">Insert text box</b-button>
                         </template>
-                        </template>
+
                     </b-form-group>
                     <!-- MULTIRADIO TYPE -->
                     <b-form-group v-if="selected_n.type=='multi_radio'" class="indent_bug">
@@ -396,6 +420,8 @@
                                                 </b-row>
                                             </template>
                                             <b-form-checkbox v-model="nn.dont_print_normal">Don't mention in report if normal?</b-form-checkbox>
+                                            </b-form>
+                                    </b-form>
                                 </b-card>
                                 <p></p>
                                 <b-button block @click="selected_n.multi.splice(selected_n.multi.indexOf(nn)+1, 0, {'label': 'Enter label', 'text':'', 'type':'radio', 'options': [{'text': 'Option', 'value':''}, {'text': 'Option', 'value':''}]})">Insert new checklist item</b-button>
@@ -632,6 +658,7 @@
         </b-container>
     </div>
     <script>
+
     /* GLOBAL VARIABLES */
 
     window.app = new Vue({
@@ -684,7 +711,9 @@
             copyModal: {
                 id: 'copy-modal',
                 title: "Copy",
-                text: ''
+                text: '',
+                text_changed:false,
+                ai_text: ''
             },
             xmlModal: {
                 id: 'xml-modal',
@@ -731,11 +760,14 @@
                     this.user_name = xml.username;
                     this.logged_in = true;
                     this.prefs = JSON.parse(xml.prefs) ? JSON.parse(xml.prefs) : {}
-                    console.log(this.prefs)
                     var todays_date = (new Date()).toDateString();
+
+                    if (typeof this.prefs.copytab === 'undefined') this.prefs.copytab = 0;
+                    if (typeof this.prefs.include_signature === 'undefined') this.prefs.include_signature = false;
+                    if (typeof this.prefs.generate_conclusion === 'undefined') this.prefs.generate_conclusion = false;
                     if (typeof this.prefs.last_logged_in === 'undefined') this.prefs.last_logged_in = todays_date;
                     if (typeof this.prefs.report_count_today === 'undefined' || this.prefs.last_logged_in != todays_date) this.prefs.report_count_today = 0;
-                    if (typeof this.prefs.ai_prompt === 'undefined') this.prefs.ai_prompt = "Improve the grammar/spelling and improve readability changing as little as possible. Always write in full sentences. Always keep the headings (INDICATION etc). If there is no conclusion, you can generate that and insert after the rest of the report (after the heading CONCLUSION). Never make up findings. Text follows: ";
+                    if (typeof this.prefs.ai_prompt === 'undefined') this.prefs.ai_prompt = " ";
 
                     var obj = this.update_templates(xml.templates_modules, this.templates);
                 })
@@ -743,14 +775,17 @@
                     console.log("Fetch error: " + error);
                 });
 
-
         },
 
         created() {
+
             this.get_templates();
+            //this.debouncedSavePrefs = _.debounce(this.save_prefs, 900);
 
         },
+        watch: {
 
+        },
         methods: {
             showAlert: function(text) {
                 this.alert_countdown = 4;
@@ -758,6 +793,7 @@
 
             },
             save_prefs: function() {
+              console.log("prefs saved")
                 save_prefs(this.prefs)
             },
 
@@ -1262,27 +1298,37 @@
             },
             copyReport: function() {
 
+              this.copyModal.text_changed = false;
               this.clearClipboard();
+              this.AIButtonText = "AI Review"
+              this.copyButtonText = "Copy to clipboard"
 
               var copyText = "";
                 for (var n = 0; n < this.templateForm.length; n++) {
                     copyText += this.templateForm[n].printContents();
                 }
-                // Some grammer corrections
+                // Some grammar corrections
                 copyText = copyText.trim();
                 copyText = copyText.replace(/(\n){3,}/g, "\n\n"); // Remove triple or more newlines
-                if (this.prefs.signature) copyText += "\n\n" + this.prefs.signature
+                copyText = copyText.replace(/\b(left|right)\b/gi, function(match) {
+                    return match.toUpperCase();
+                  });
 
                 // Display Modal
+                this.copyModal.ai_text = "Generating report using AI..."
                 this.copyModal.text = copyText;
+                this.AIReview();
                 this.$root.$emit('bv::show::modal', this.copyModal.id);
 
             },
 
             clipboardReport: function() { // Put in clipboard
-                copyText = this.copyModal.text;
-                tick = "✓"
-                this.copyButtonText = 'Copied!';
+              this.copyButtonText = 'Copied!';
+              setTimeout(() => { this.copyButtonText = 'Copy to Clipboard'; }, 2000);
+
+              if (this.prefs.copytab == 0) {copyText = this.copyModal.text;}
+                else {copyText = this.copyModal.ai_text}
+              if (this.prefs.signature) copyText += "\n\n" + this.prefs.signature;
 
                 const listener = function(ev) {
                     ev.preventDefault();
@@ -1305,9 +1351,12 @@
             },
             AIReview: function() {
               report = {}
-              prompt = this.prefs.ai_prompt
-              report.text = prompt + this.copyModal.text;
-              this.AIButtonText = 'AI is reviewing!';
+              prompt = "(1) Please return the given text ensuring correct grammar and spelling whilst changing as little as possible. Noun phrases are required to be completed with a determiner. Always keep the headings (i.e. FINDINGS, CONCLUSION, etc). Always write in full sentences using prose (except for the headings) and do not use lists. Write in present tense. Return this in JSON as 'main_text'. Always preserve and include newlines. There should be two newlines after headings. (2) Provide a concise summary. Omit negative findings. Don't repeat indication, technique, or comparison. You may write in noun sentences. Return this in JSON as 'summary'. Text follows:"
+              report.text = "Your response should be in JSON format." + prompt + this.copyModal.text;
+
+              //if(!/CONCLUSION:\s*(\S+)/.test(text))
+              //this.AIButtonText = 'AI is reviewing!';
+              this.copyModal.ai_text = "Generating report using AI..."
 
               fetch(`${window.origin}/AIReview`, {
                       method: "POST",
@@ -1329,16 +1378,15 @@
                       return response.json()
                   })
                   .then(json => {
-                    this.copyModal.text = json.reviewed
+                     this.copyModal.ai_text = JSON.parse(json.reviewed).main_text;
+                    if(this.prefs.generate_conclusion) {this.copyModal.ai_text += "\n" + JSON.parse(json.reviewed).summary}
 
                   })
                   .catch(error => {
-                      alert("Sorry I could not obtain that one. This is an experimental feature still being worked on...");
+                      alert("Sorry error. ");
                       this.$root.$emit('bv::hide::modal', 'template-download');
                       this.importing = false;
                   });
-
-
             },
 
             // Saves this module locally (and then calls to save on server)

@@ -57,9 +57,10 @@ def gpt(prompt, max_retries=5, retry_delay=5):
     for attempt in range(max_retries):
         try:
             completion = openai.ChatCompletion.create(
-                model='gpt-3.5-turbo',
+                model='gpt-3.5-turbo-1106',
                 messages=[{'role': 'user', 'content': prompt}],
                 temperature=0,
+                response_format={"type": "json_object"}
             )
             text = completion['choices'][0]['message']['content'].strip()
             return text
