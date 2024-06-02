@@ -107,6 +107,7 @@
             </template>
         </b-modal>
         <b-modal :id="copyModal.id" :title="copyModal.title" ok-only>
+
             <p class="small">Time: {{timer.min}} min</p>
             <b-card no-body>
 
@@ -1353,7 +1354,7 @@
               this.copyModal.text_changed = false;
 
               report = {}
-              prompt = "Please return the following radiology report in JSON format (1 = main_text, 2 = summary). (1) Return the text ensuring correct grammar and spelling whilst changing as little as possible. Noun phrases are required to be completed with a determiner. Always keep the headings (e.g. TECHNIQUE, COMPARISON, FINDINGS, CONCLUSION, etc). Always write in full sentences using prose (except for the headings) and do not use lists. Write in present tense. Always preserve and include newlines. There should be a newline after headings. Never make up findings or headings or clinical indications (just leave blank). You may combine normal findings. Return in JSON as 'main_text'. (2) Provide a concise conclusion to the provided radiology report. Omit negative findings. Don't repeat indication, technique, or comparison. You may write in noun sentences. Return in JSON as 'summary'. Text follows:"
+              prompt = "Please return the following radiology report in JSON format: (1) = main_text (string) (2) = summary (string). (1) Return the text ensuring correct grammar and spelling whilst changing as little as possible. Noun phrases are required to be completed with a determiner. Always preserve the headings (i.e. TECHNIQUE, COMPARISON, FINDINGS, CONCLUSION, etc). Always write in full sentences using prose (except for the headings) and do not use lists. Write in present tense. Always preserve and include newlines. There should be a newline after headings. Never make up findings or headings or clinical indications. You may combine normal findings. Return in JSON as 'main_text'. (2) Provide a concise conclusion to the provided radiology report. Omit negative findings. Don't repeat indication, technique, or comparison in the conclusion. You may write in noun sentences. Return in JSON as 'summary'. Text follows:"
               report.text = "Your response should be in JSON format." + prompt + this.copyModal.text;
 
               //if(!/CONCLUSION:\s*(\S+)/.test(text))
