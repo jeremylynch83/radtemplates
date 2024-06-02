@@ -768,7 +768,6 @@
                     if (typeof this.prefs.generate_conclusion === 'undefined') this.prefs.generate_conclusion = false;
                     if (typeof this.prefs.last_logged_in === 'undefined') this.prefs.last_logged_in = todays_date;
                     if (typeof this.prefs.report_count_today === 'undefined' || this.prefs.last_logged_in != todays_date) this.prefs.report_count_today = 0;
-                    if (typeof this.prefs.ai_prompt === 'undefined') this.prefs.ai_prompt = " ";
 
                     var obj = this.update_templates(xml.templates_modules, this.templates);
                 })
@@ -1381,6 +1380,8 @@
                       return response.json()
                   })
                   .then(json => {
+                    console.log(json.reviewed);
+
                      this.copyModal.ai_text = JSON.parse(json.reviewed).main_text.trim();
                     if(this.prefs.generate_conclusion) {this.copyModal.ai_text += "\n" + JSON.parse(json.reviewed).summary}
 
