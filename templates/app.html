@@ -116,7 +116,7 @@
                   <b-form-textarea rows="12" :value="copyModal.text" @change="copyModal.text = $event; copyModal.text_changed=true"></b-form-textarea>
                 </b-form-group>
               </b-tab>
-              <b-tab title="AI edited" @click="if(copyModal.text_changed) {AIReview();copyModal.text_changed = false}">
+              <b-tab title="AI edited" @click="AIReview()">
                 <b-form-group>
                   <b-form-textarea rows="15" :value="copyModal.ai_text" @change="copyModal.ai_text = $event" placeholder="Generating report using AI..."></b-form-textarea>
                 </b-form-group>
@@ -712,7 +712,7 @@
                 id: 'copy-modal',
                 title: "Copy",
                 text: '',
-                text_changed:false,
+                text_changed:true,
                 ai_text: ''
             },
             xmlModal: {
@@ -1297,11 +1297,10 @@
                 }
             },
             copyReport: function() {
-
-              this.copyModal.text_changed = false;
               this.clearClipboard();
               this.AIButtonText = "AI Review"
               this.copyButtonText = "Copy to clipboard"
+              text_changed=true;
 
               var copyText = "";
                 for (var n = 0; n < this.templateForm.length; n++) {
@@ -1350,8 +1349,11 @@
 
             },
             AIReview: function() {
+              if(!this.copyModal.text_changed) {return;}
+              this.copyModal.text_changed = false;
+
               report = {}
-              prompt = "(1) Please return the given text ensuring correct grammar and spelling whilst changing as little as possible. Noun phrases are required to be completed with a determiner. Always keep the headings (i.e. FINDINGS, CONCLUSION, etc). Always write in full sentences using prose (except for the headings) and do not use lists. Write in present tense. Return this in JSON as 'main_text'. Always preserve and include newlines. There should be two newlines after headings. (2) Provide a concise summary. Omit negative findings. Don't repeat indication, technique, or comparison. You may write in noun sentences. Return this in JSON as 'summary'. Text follows:"
+              prompt = "Please return the following radiology report in JSON format (1 = main_text, 2 = summary). (1) Return the text ensuring correct grammar and spelling whilst changing as little as possible. Noun phrases are required to be completed with a determiner. Always keep the headings (e.g. TECHNIQUE, COMPARISON, FINDINGS, CONCLUSION, etc). Always write in full sentences using prose (except for the headings) and do not use lists. Write in present tense. Always preserve and include newlines. There should be a newline after headings. Never make up findings or headings or clinical indications (just leave blank). You may combine normal findings. Return in JSON as 'main_text'. (2) Provide a concise conclusion to the provided radiology report. Omit negative findings. Don't repeat indication, technique, or comparison. You may write in noun sentences. Return in JSON as 'summary'. Text follows:"
               report.text = "Your response should be in JSON format." + prompt + this.copyModal.text;
 
               //if(!/CONCLUSION:\s*(\S+)/.test(text))
@@ -1378,7 +1380,7 @@
                       return response.json()
                   })
                   .then(json => {
-                     this.copyModal.ai_text = JSON.parse(json.reviewed).main_text;
+                     this.copyModal.ai_text = JSON.parse(json.reviewed).main_text.trim();
                     if(this.prefs.generate_conclusion) {this.copyModal.ai_text += "\n" + JSON.parse(json.reviewed).summary}
 
                   })
